@@ -155,32 +155,45 @@ This R script visualizes the ML tree of isolates with references placed on it, c
 
 Here, we calculate ***depth*** as the average # of bases mapped to each position on an assembly, which we extract from Bowtie2 alignments of each isolate's trimmed reads to its assembly. We calculate ***breadth of coverage*** as the proportion of positions along a reference genome that each isolate's reads map to with at least 10X depth. We extract this information from Bowtie2 alignments of each isolate's trimmed reads to the closest (by core SNP distance). The "closest" reference on the tree to each isolate was output in step 2 of the previous section. 
 
-#### Commands
+### Commands
 This script runs the bowtie alignments for both cases (isolate's reads against its assembly, isolate's reads against its closest reference genome) ***outputs one text file with the average depth per isolate, another text file with the base coverage count for each isolate to its reference, as well as reference length***
 > [Coverage_Stats_CleanedContigs_DFU.sh](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/Coverage_Stats_CleanedContigs_DFU.sh)
 
-### 2. Calculate assembly quality statistics for each assembly
+### 1. Calculate assembly quality statistics for each assembly
 Calculate statistics such as total # contigs, N50, L50 on the cleaned assemblies  using [QUAST](http://bioinf.spbau.ru/quast). 
 
 > [Run_Quast_DORN.sh](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/Run_Quast_DORN.sh)
 
-### 3. Count the # of circularized plasmids identified in each assembly.
+### 2. Count the # of circularized plasmids identified in each assembly.
 
 > [Count_Plasmids.sh](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/Count_Plasmids.sh)
 
-### 4. Identify regions of each isolate's genome that don't map to the nearest reference  
+### 3. Identify regions of each isolate's genome that don't map to the nearest reference  
 Run MiniMap2 pairwise alignments between each isolate's assembly and the reference genome on the tree it's closest to (by SNP distance). This enables us to identify areas of an isolate that aren't represented in its closest reference genome.  ***Outputs tabular summary of pairwise alignment***
 
-#### Commands
+### Commands
 > [Run_MiniMap2.sh](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/Run_MiniMap2.sh)
-### 5. Aggregate statistics from steps 2-5 to select representative isolates from each cluster in step 1 for ONP sequencing
+### 4. Aggregate statistics from steps 1-3 to select representative isolates from each cluster in step 1 for ONP sequencing
 
 > Rscript [AggregateGenomeStats.R](https://github.com/Grice-Lab/DFUStrainsWGS/blob/master/Phylogeny/AggregateGenomeStats.R)
 
-### 6. Identify "clusters" of isolate genomes which share >99.99% core genome identity. Select representative isolates for each cluster based on the the output of Step 5. 
-The **SubsettingCleanedAssemblies_forONP.R** script
+### 5. Identify "clusters" of isolate genomes which share >99.99% core genome identity. Select representative isolates for each cluster based on the the output of Step 5. 
+The **SubsettingCleanedAssemblies_forONP.R** script constructs groups of isolates from the same subject that all differ by less than 118 SNPs in their core genomes (.01% the length of the core genome alignment between all isolates). It selects 87 representative isolates(to fill a 96-well plate) from the set based on the following criteria: 
+- All subjects represented in the set of 221 isolates should have at least one isolate sequenced with ONP
+- Any isolate which differed by more than >118 SNPs from all other isolates should be sequenced with ONP (44 isolates total)
+- At least one isolate should be sequenced from each core genome-based cluster. The representative should be chosen with the following "prioritized" criteria:
+  * High enough depth so we have at least one really good hybrid assembly from that ONP scaffold
+  * Imperfect coverage to the closest reference genome (step 1)
+  * Prioritize isolates with excess unmapped sequence to their closest reference by pairwise alignment (step 3)
+  * Fewer plasmids which have already been circularized using short read sequencing/ plasmidSPAdes
+  * Fragmented assemblies with many shorter contigs  
+- While representatives for the 11 largest clusters were chosen manually (>7 isolates each) based on the above criteria and plots of breadth vs. coverage, representatives for the 12th:42nd clusters were chosen in an automated fashion with the following nested criteria:  
+    * Maximum total unmapped sequence to closest reference genome. 
+    * Most fragmented assembly, based on minimum N50 score, if unmapped lengths equal
+    * Minimum number of circularized plasmids if N50 equal
+ 
 
-[SubsettingCleanedAssemblies_forONP.R](https://github.com/Grice-Lab/DFUStrainsWGS/blob/master/Phylogeny/SubsettingCleanedAssemblies_forONP.R)
+>[SubsettingCleanedAssemblies_forONP.R](https://github.com/Grice-Lab/DFUStrainsWGS/blob/master/Phylogeny/SubsettingCleanedAssemblies_forONP.R)
 
 
 
