@@ -155,7 +155,7 @@ This R script visualizes the ML tree of isolates with references placed on it, c
 
 Here, we calculate ***depth*** as the average # of bases mapped to each position on an assembly, which we extract from Bowtie2 alignments of each isolate's trimmed reads to its assembly. We calculate ***breadth of coverage*** as the proportion of positions along a reference genome that each isolate's reads map to with at least 10X depth. We extract this information from Bowtie2 alignments of each isolate's trimmed reads to the closest (by core SNP distance). The "closest" reference on the tree to each isolate was output in step 2 of the previous section. 
 
-### Commands
+#### Commands
 This script runs the bowtie alignments for both cases (isolate's reads against its assembly, isolate's reads against its closest reference genome) ***outputs one text file with the average depth per isolate, another text file with the base coverage count for each isolate to its reference, as well as reference length***
 > [Coverage_Stats_CleanedContigs_DFU.sh](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/Coverage_Stats_CleanedContigs_DFU.sh)
 
@@ -171,16 +171,16 @@ Calculate statistics such as total # contigs, N50, L50 on the cleaned assemblies
 ### 4. Identify regions of each isolate's genome that don't map to the nearest reference  
 Run MiniMap2 pairwise alignments between each isolate's assembly and the reference genome on the tree it's closest to (by SNP distance). This enables us to identify areas of an isolate that aren't represented in its closest reference genome.  ***Outputs tabular summary of pairwise alignment***
 
-### Commands
+#### Commands
 > [Run_MiniMap2.sh](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/Run_MiniMap2.sh)
 ### 5. Aggregate statistics from steps 2-5 to select representative isolates from each cluster in step 1 for ONP sequencing
 
 > Rscript [AggregateGenomeStats.R](https://github.com/Grice-Lab/DFUStrainsWGS/blob/master/Phylogeny/AggregateGenomeStats.R)
 
 ### 6. Identify "clusters" of isolate genomes which share >99.99% core genome identity. Select representative isolates for each cluster based on the the output of Step 5. 
+The **SubsettingCleanedAssemblies_forONP.R** script
 
- # CONTINUE 
-[SubsettingCleanedAssemblies_forONP.R]<https://github.com/Grice-Lab/DFUStrainsWGS/blob/master/Phylogeny/SubsettingCleanedAssemblies_forONP.R>
+[SubsettingCleanedAssemblies_forONP.R](https://github.com/Grice-Lab/DFUStrainsWGS/blob/master/Phylogeny/SubsettingCleanedAssemblies_forONP.R)
 
 
 
