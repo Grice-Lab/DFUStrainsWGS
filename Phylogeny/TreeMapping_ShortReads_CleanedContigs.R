@@ -9,7 +9,7 @@
 # (in AI) to make a more legible tree of healing outcomes 
 # This version is specifically updated to deal with the tree output by Pplacer/RaxML, 
 # built on core genome alignments
-setwd('/Users/amycampbell/Desktop/Club_Grice/Club_Grice/scripts/acampbe/DFU/scripts/isolates_analysis_scripts/')
+setwd('/Users/amycampbell/Desktop/GriceLabGit/Club_Grice/scripts/acampbe/DFU/scripts/isolates_analysis_scripts/')
 library("treeio")
 library("ggtree")
 library("dplyr")
@@ -33,7 +33,7 @@ Isolates = "DFU_Staph_aureus_isolates.csv"
 # Amelia's phenotypes, which also have the healing outcome/subject for each isolate. 
 # Only thing to note here is that 'weeks to heal' is listed as '50' 
 # if the wound never healed (which would be NA in the December Gardner metadata)
-ARM_Phenotypes = read.csv("Phenotypes_01.15.20.csv")
+ARM_Phenotypes = read.csv("/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/Phenotypes_01.15.20.csv")
 StaphIsolateDORNs=read.csv("DFU_Staph_aureus_isolates.csv")
 CoreTree_PosteriorReferences = "core_gene_alignment.newick"
 ViewTree=treeio::read.jplace("core_gene_alignment.jplace")
@@ -244,17 +244,109 @@ ggsave(ggtree(currentplot$data, size=2) + geom_tiplab(size=15) , file="Simplifie
 # Make and save a barplot, ordered the same from top-to-bottom as the tree,
 # of healing outcomes for the distribution of subjects represented in each leaf
 # of the tree, for overlay onto the tree in adobe illustrator
-###########################################################################
+###############################################################################
 newdata$node = NULL
 newdata$DORN=NULL
 
 newdata = newdata[c("grouping","patient_id", "Healedby12")]
 newdata_melted = newdata %>% filter(grouping!=0) %>% filter(!is.na(patient_id))  %>% reshape2::melt(id.vars=c("grouping","patient_id" ))
-BarPlot <- ggplot(newdata_melted, aes(x=as.factor(grouping), fill=value)) + geom_bar() + coord_flip() + scale_fill_manual(values=c("darkred", "#9FE2BF"))  + theme(axis.title.x = element_blank(), axis.title.y=element_blank(), axis.text.x=element_text(size=40), legend.position="bottom", axis.line.x=element_line()) + scale_x_discrete(limits=rev(c("1", "DORN2178", "2", "DORN1197", "DORN1339", "6", "DORN1334", "11", "12", "4", "DORN2109", "10", "13", "3", "DORN1430", 
-                                                                                                                                                                                                                                                                                     "DORN1732", "DORN1473", "7", "DORN933", "DORN801", "DORN929", "DORN882", "DORN1679", "DORN900","CC22_HO", "8", "9", "CC398", "DORN1523", "DORN1520", "5", "S_epidermidis")))
+
+# Barplot with a count for each isolate
+#######################################
+BarPlot <- ggplot(newdata_melted, aes(x=as.factor(grouping), fill=value)) + geom_bar() + coord_flip() + scale_fill_manual(values=c("darkred", "#9FE2BF"))  + theme(axis.title.x = element_blank(), axis.title.y=element_blank(), axis.text.x=element_text(size=40), legend.position="bottom", axis.line.x=element_line()) + scale_x_discrete(limits=rev(c("1", "DORN2178", "2", "DORN1197", "DORN1339", "6", "DORN1334", "11", "12", "4", "DORN2109", "10", "13", "3", "DORN1430",                                                                                                                                                                                                                                                                                      "DORN1732", "DORN1473", "7", "DORN933", "DORN801", "DORN929", "DORN882", "DORN1679", "DORN900","CC22_HO", "8", "9", "CC398", "DORN1523", "DORN1520", "5", "S_epidermidis")))
 BarPlotfinal = BarPlot + theme(panel.background = element_rect(fill = "transparent", colour = NA), plot.background  = element_rect(fill = "transparent", colour = NA), axis.ticks.y = element_blank(), axis.text.y=element_blank())
 ggsave(BarPlotfinal, file="BarPlotForTreeAnnotation1.pdf", height=15, width=30)
 
+BarPlotfinal + theme(axis.text.y=element_text(size=10))
+#Take all the clades (after collapsing to <250 SNP distance)
 
 
-       
+# Barplot with a count for each unique subject represented in a clade
+#####################################################################
+newdata_melted_uniqueSubjects = newdata_melted %>% group_by(grouping, patient_id) %>% unique()
+BarPlotNew  <- ggplot(newdata_melted_uniqueSubjects, aes(x=as.factor(grouping), fill=value)) + geom_bar() + coord_flip() + scale_fill_manual(values=c("darkred", "#9FE2BF"))  + theme(axis.title.x = element_blank(), axis.title.y=element_blank(), axis.text.x=element_text(size=40), legend.position="bottom", axis.line.x=element_line()) + scale_x_discrete(limits=rev(c("1", "DORN2178", "2", "DORN1197", "DORN1339", "6", "DORN1334", "11", "12", "4", "DORN2109", "10", "13", "3", "DORN1430", 
+                                                                                                                                                                                                                                                                                                                                                          "DORN1732", "DORN1473", "7", "DORN933", "DORN801", "DORN929", "DORN882", "DORN1679", "DORN900","CC22_HO", "8", "9", "CC398", "DORN1523", "DORN1520", "5", "S_epidermidis")))
+BarPlotfinalNEW = BarPlotNew + theme(panel.background = element_rect(fill = "transparent", colour = NA), plot.background  = element_rect(fill = "transparent", colour = NA), axis.ticks.y = element_blank(), axis.text.y=element_blank())
+ggsave(BarPlotfinalNEW, file="BarPlotForTreeAnnotation_UniqueSubjectSet.pdf", height=15, width=30)
+
+
+# Trying to figure out a hypothesis test. 
+# What about p(subject heals) ~ ContainsClade1_AtSomepoint for clade1...Clade<#clades>, bonferroni corrected for multiple hypotheses 
+# There's a sensitivity issue but maybe for our preliminary purposes it'd be a way of thinking about it that doesnt carry the bias
+# of 'more observations of strains from nonhealing subjects'). At first I thought I'd subset to patients which have at least 3 isolates 
+# cultured from them, but I think 'isolates cultured' isn't a great way to filter since it'll artificially inflate the # of nonhealing patients
+# represented by the model. I could, on the other hand, 
+
+# GLM for 
+#####################################
+grouping_filteredNA = newdata %>% filter(!is.na(grouping))
+Patient_filteredNA = grouping_filteredNA %>% filter(!is.na(patient_id))
+
+# Really this is just all the patients who had *some* staph cultured from *some point*
+allpatients = (unique(Patient_filteredNA$patient_id)) 
+allgroups= unique(grouping_filteredNA$grouping)
+
+newdata_melted_AllPatients = newdata %>% filter(grouping!=0 & !is.na(grouping)) %>% filter(!is.na(patient_id))  %>% reshape2::melt(id.vars=c("patient_id", "Healedby12"))
+newdata_melted_AllPatients = newdata_melted_AllPatients %>% mutate(group = if_else(grepl("DORN",value),value , paste0("group", value)))
+
+# Different groups counted by patient ID 
+# Write this out to a CSV for purposes of aggregating 'siblings'
+NumGroupsByPatientID = newdata_melted_AllPatients[c("group", "patient_id")] %>% unique() %>% group_by(patient_id) %>% count() 
+UniqueGroupPatient = newdata_melted_AllPatients[c("group", "patient_id")] %>% unique() %>% group_by(patient_id)
+write.csv(UniqueGroupPatient, file="PhylogeneticGroupIDs_Patient.csv")
+write.csv(NumGroupsByPatientID, file="PhylogeneticGroups_By_Patient.csv")
+
+# Filter that to groups contained in at least 3 subjects
+Patients_counted_by_group = newdata_melted_AllPatients[c("group", "patient_id")] %>% unique() %>% group_by(group) %>% count() 
+
+
+# All these have 4 + subjects in them 
+IncludeGroups = (Patients_counted_by_group %>% filter(n>=3))$group
+
+
+
+newdata_melted_AllPatients_filtered = newdata_melted_AllPatients %>% filter(group %in% IncludeGroups)
+
+# More than one isolate cultured from a subject
+IsolateCounts_byPatient = newdata_melted_AllPatients_filtered %>% group_by(patient_id) %>% count() %>% filter(n>2)
+newdata_melted_AllPatients_filtered = newdata_melted_AllPatients_filtered %>% filter(patient_id %in% IsolateCounts_byPatient$patient_id)
+
+AllCombos_PatientsGroups = expand.grid(IncludeGroups, unique(newdata_melted_AllPatients_filtered$patient_id)) 
+colnames(AllCombos_PatientsGroups) = c("group", "patient_id")
+Combined = AllCombos_PatientsGroups %>% left_join(newdata_melted_AllPatients_filtered, by=c("group","patient_id"))
+Combined = Combined %>% mutate(Present = if_else((is.na(value)), 0, 1))
+
+Groups_Counted_by_patient = newdata_melted_AllPatients %>% group_by(patient_id) %>% count(group)
+
+
+Combined = Combined[c("patient_id", "group", "Present")]
+Combined = Combined %>% unique()
+PresAbsTable =  reshape2::dcast(Combined, patient_id ~ group)
+PatientOutcomes = newdata_melted_AllPatients_filtered[c("patient_id", "Healedby12")]
+PatientOutcomes = PatientOutcomes %>% unique()
+PresAbsTable = PresAbsTable %>% left_join(PatientOutcomes, by="patient_id")
+PresAbsTable
+
+Group1 = glm(data=PresAbsTable, Healedby12~factor(group1))
+
+Group2 = glm(data=PresAbsTable, Healedby12~factor(group2))
+
+fisher.test(PresAbsTable[c("Healedby12", "group1")])
+fisher.test(PresAbsTable[c("Healedby12", "group2")])
+fisher.test(PresAbsTable[c("Healedby12", "group3")])
+
+
+summary(Group2["", "group1"])
+summary(Group3)
+summary(Group4)
+summary(Group5)
+summary(Group6)
+
+Group3 = glm(data=PresAbsTable, Healedby12~factor(group3))
+
+Group4 = glm(data=PresAbsTable, Healedby12~factor(group4))
+
+Group5 = glm(data=PresAbsTable, Healedby12~factor(group5))
+
+Group6 = glm(data=PresAbsTable, Healedby12~factor(group6))
+
