@@ -60,8 +60,6 @@ LindsayMGdata$subject_timepoint = LindsayMGdata$id
 LindsayMGdata$XLindsay = LindsayMGdata$X
 LindsayMGdata = LindsayMGdata[c("XLindsay", "subject_timepoint")]
 
-# 
-
 
 # Metadata
 ###########
