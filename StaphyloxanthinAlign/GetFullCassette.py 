@@ -1,0 +1,34 @@
+
+# Amy Campbell
+# October 2020
+# Use the loci identified by ID_Sxanthin_Loci.R to extract the crtOPQMN operon
+
+import pandas
+import os
+inputfolder = "/project/grice/storage/HiSeq/WGS/HiSeq_19/AssemblyFastas/DFU100_Cleaned_Assemblies/FinalContigs/"
+
+extraction = open("ExtractionTable.csv", 'r')
+outputfile  = open("crtOPQMNmulti.fasta", 'w')
+linelist = extraction.readlines()
+for l in range(1,len(linelist)):
+    rowitems = (linelist[l]).split(',')
+    genome = rowitems[1]
+    contig = rowitems[2]
+    start = rowitems[3]
+    stop = rowitems[4]
+    fasta = open(os.path.join(inputfolder, str(genome + "_cleaned.fasta")), 'r')
+    fastastring = fasta.read()
+
+    fastalist = fasta.split('>')
+    contiglist = list(map(lambda i: int(str((i.split(' '))[0]).replace('>', ''))))
+    contig_index = contiglist.index(contig)
+
+    # Now, fastalist is just a list of the nts
+    fastalist = list(map(lambda i: str((i.split('x'))[1])))
+    # Remove all newlines
+    fastalist = list(map(lambda i: i.replace('\n', '')))
+    contigstring = fastalist[contig_index]
+    outputstring = contigstring[(start - 1 ):(stop-1)]
+    outputfile.write(str('> ' + genome + '\n' + outputstring + '\n'))
+    fasta.close()
+outputfile.close()
