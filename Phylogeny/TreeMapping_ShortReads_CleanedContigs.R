@@ -9,11 +9,12 @@
 # (in AI) to make a more legible tree of healing outcomes 
 # This version is specifically updated to deal with the tree output by Pplacer/RaxML, 
 # built on core genome alignments
-setwd('/Users/amycampbell/Desktop/GriceLabGit/Club_Grice/scripts/acampbe/DFU/scripts/isolates_analysis_scripts/')
+setwd('/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/')
 library("treeio")
 library("ggtree")
 library("dplyr")
 library("ggplot2")
+library("ape")
 
 ############
 # FUNCTIONS
@@ -28,15 +29,15 @@ SubjTime = function(row){
   }}
 
 # list of Isolates and what subjects and timepoints they correspond to 
-Isolates = "DFU_Staph_aureus_isolates.csv"
+Isolates = "data/DFU_Staph_aureus_isolates.csv"
 
 # Amelia's phenotypes, which also have the healing outcome/subject for each isolate. 
 # Only thing to note here is that 'weeks to heal' is listed as '50' 
 # if the wound never healed (which would be NA in the December Gardner metadata)
-ARM_Phenotypes = read.csv("/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/Phenotypes_01.15.20.csv")
-StaphIsolateDORNs=read.csv("DFU_Staph_aureus_isolates.csv")
-CoreTree_PosteriorReferences = "core_gene_alignment.newick"
-ViewTree=treeio::read.jplace("core_gene_alignment.jplace")
+ARM_Phenotypes = read.csv("data/Phenotypes_01.15.20.csv")
+StaphIsolateDORNs=read.csv("data/DFU_Staph_aureus_isolates.csv")
+CoreTree_PosteriorReferences = "data/core_gene_alignment.newick"
+ViewTree=treeio::read.jplace("data/core_gene_alignment.jplace")
 
 
 
@@ -61,7 +62,7 @@ ReferenceNames=c("SA_502A","S_epidermidis",
                  "CC398_ATCC6538","CC5_Mu50",
                  "CC5_N315","CC72_CN1", "SA_CFSAN007883", "SA_MCRF184", "SA_AR464", "SA_UP_1150")
 
-snpdists_references = read.csv("snp-dists-References.tsv", sep='\t', row.names=1)
+snpdists_references = read.csv("data/snp-dists-References.tsv", sep='\t', row.names=1)
 rownames(snpdists_references) = colnames(snpdists_references)
 
 snpdists_references$firstgenome = rownames(snpdists_references)
@@ -122,7 +123,7 @@ PPlacerTree = ggtree::read.tree(CoreTree_PosteriorReferences)
 apeRooted = ape::root(PPlacerTree,"S_epidermidis", resolve.root=T)
 
 # Adjust Outgroup length
-apeplot <- ggtree(apeRooted, size=.25, layout = "rectangular") + geom_tiplab(size=2)
+apeplot <- ggtree::ggtree(apeRooted, size=.25, layout = "rectangular") + geom_tiplab(size=2)
 
 #S epi branch originally 0.324, becomes 0.0199
 # 0.0199/0.324
@@ -165,7 +166,7 @@ apeplot_subjlabeled$data$label = apeplot_subjlabeled$data$SubjTime
 ggsave(apeplot_subjlabeled + geom_tippoint(aes(colour=HealingTime)) +  scale_colour_manual(values=c("#FFFF99","darkgoldenrod1", "darkorange2", "darkred", "black")), file="treewithOutScaled_SubjTime.pdf",width=20, height=25)
 ggsave(apeplot + geom_tippoint(aes(colour=HealingTime)) +  scale_colour_manual(values=c("#FFFF99","darkgoldenrod1", "darkorange2", "darkred", "black")), file="treewithOutScaled_DORNS.pdf",width=20, height=25)
 
-Selected_ONP = read.table("AllDORNs_ONP.txt", col.names=c("DORN"))
+Selected_ONP = read.table("data/AllDORNs_ONP.txt", col.names=c("DORN"))
 Selected_ONP$Index = row.names(Selected_ONP)
 
 apeplotsave= apeplot
@@ -213,7 +214,7 @@ currentplot=apeplot_labeled
 ChildrenList = list()
 for (i in 1:length(newnodelist)){
   ChildrenList[[i]] = c(phytools::getDescendants(as.phylo(currentplot), node=newnodelist[i]))
-  newplot = collapse(currentplot, node=newnodelist[i])
+  newplot = ggtree::collapse(currentplot, node=newnodelist[i])
   dataforrearrange = newplot$data
   dataforrearrange = dataforrearrange %>% mutate(isTip = if_else((node==newnodelist[i]), TRUE, isTip)) %>% mutate(label = if_else((node==newnodelist[i]), paste0("NODE", as.character(i)), as.character(label)))
   newplot$data = dataforrearrange
@@ -268,6 +269,31 @@ BarPlotNew  <- ggplot(newdata_melted_uniqueSubjects, aes(x=as.factor(grouping), 
                                                                                                                                                                                                                                                                                                                                                           "DORN1732", "DORN1473", "7", "DORN933", "DORN801", "DORN929", "DORN882", "DORN1679", "DORN900","CC22_HO", "8", "9", "CC398", "DORN1523", "DORN1520", "5", "S_epidermidis")))
 BarPlotfinalNEW = BarPlotNew + theme(panel.background = element_rect(fill = "transparent", colour = NA), plot.background  = element_rect(fill = "transparent", colour = NA), axis.ticks.y = element_blank(), axis.text.y=element_blank())
 ggsave(BarPlotfinalNEW, file="BarPlotForTreeAnnotation_UniqueSubjectSet.pdf", height=15, width=30)
+
+
+# Try collapsing by 1000 snp
+############################
+# Collapsing tree at a 1000-SNP level
+#######################################################################
+Melted_refs_diffgenomes_for1000 = Melted_refs %>% filter(Genome1 != Genome2)
+Melted_refs_diffgenomes_for1000 = Melted_refs_diffgenomes_for1000 %>% mutate(AlmostIdentical1000= (Distance<1000))
+AlmostIdenticalPairs_1000 = Melted_refs_diffgenomes_for1000 %>% filter(AlmostIdentical1000)
+ClusterSizeCounts1000 = AlmostIdenticalPairs_1000 %>% group_by(Genome1) %>% count(AlmostIdentical1000)
+AlmostIdentical1000RefList = (ClusterSizeCounts1000 %>% arrange(-n))$Genome1
+
+
+j=1
+AlmostIdentical1000ClustersRef = list()
+while(length(AlmostIdentical1000RefList) > 0){
+  RepGenome = AlmostIdentical1000RefList[1]
+  print(RepGenome)
+  LittleList=sapply((AlmostIdenticalPairs_1000 %>% filter(Genome1==RepGenome))$Genome2, function(x) toString(x))
+  AlmostIdentical1000ClustersRef[[j]] <- append(LittleList, RepGenome)
+  j=j+1
+  AlmostIdentical1000RefList = setdiff(AlmostIdentical1000RefList, LittleList)
+  AlmostIdentical1000RefList = setdiff(AlmostIdentical1000RefList, c(RepGenome))
+}
+
 
 
 # Trying to figure out a hypothesis test. 
