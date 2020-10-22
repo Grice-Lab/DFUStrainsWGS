@@ -1,0 +1,36 @@
+R version 3.6.0 (2019-04-26)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS  10.15.7
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib
+
+Random number generation:
+ RNG:     Mersenne-Twister 
+ Normal:  Inversion 
+ Sample:  Rounding 
+ 
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] tibble_3.0.4  ape_5.4-1     ggplot2_3.3.2 dplyr_1.0.2   ggtree_2.0.4  treeio_1.10.0
+
+loaded via a namespace (and not attached):
+ [1] phangorn_2.5.5          gtools_3.8.2            tidyselect_1.1.0        reshape2_1.4.4          purrr_0.3.4            
+ [6] lattice_0.20-41         phytools_0.7-70         colorspace_1.4-1        vctrs_0.3.4             generics_0.0.2         
+[11] expm_0.999-5            yaml_2.2.1              utf8_1.1.4              rlang_0.4.8             pillar_1.4.6           
+[16] glue_1.4.2              withr_2.3.0             rvcheck_0.1.8           lifecycle_0.2.0         plyr_1.8.6             
+[21] stringr_1.4.0           munsell_0.5.0           combinat_0.0-8          gtable_0.3.0            coda_0.19-4            
+[26] labeling_0.3            parallel_3.6.0          fansi_0.4.1             Rcpp_1.0.5              scales_1.1.1           
+[31] BiocManager_1.30.10     plotrix_3.7-8           clusterGeneration_1.3.5 scatterplot3d_0.3-41    jsonlite_1.7.1         
+[36] tmvnsim_1.0-2           farver_2.0.3            fastmatch_1.1-0         mnormt_2.0.2            digest_0.6.25          
+[41] stringi_1.5.3           numDeriv_2016.8-1.1     grid_3.6.0              quadprog_1.5-8          cli_2.1.0              
+[46] tools_3.6.0             magrittr_1.5            maps_3.3.0              lazyeval_0.2.2          crayon_1.3.4           
+[51] tidyr_1.1.2             pkgconfig_2.0.3         ellipsis_0.3.1          MASS_7.3-53             Matrix_1.2-18          
+[56] tidytree_0.3.3          assertthat_0.2.1        rstudioapi_0.11         R6_2.4.1                igraph_1.2.6           
+[61] nlme_3.1-149            compiler_3.6.0 
