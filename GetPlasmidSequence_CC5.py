@@ -39,16 +39,20 @@ filenames = ["DORN315_cleaned.fasta","DORN2144_cleaned.fasta","DORN2187_cleaned.
 "DORN1829_cleaned.fasta"]
 
 
-
+output_table = open("PlasmidSizes.txt", "w")
 for filename in filenames:
     fasta = open(os.path.join(inputfolder, str(filename)), 'r')
     fastastring = fasta.read()
     stringlist = fastastring.split('>')
-    plasmidlist = filter(lambda s: "circular=true" in s, stringlist)
+    plasmidlist = list(filter(lambda s: "circular=true" in s, stringlist))
     if len(plasmidlist) > 0:
-        outputname = string.replace(filename, "cleaned.fasta", "circular.fasta")
-        outputfile = open(outputname, "w")
+        outputname = filename.replace("cleaned.fasta", "circular.fasta")
+        outputfile = open(str("/home/acampbe/CC5Plasmids/" + outputname), "w")
+
+
         for p in plasmidlist:
-            outputfile.write(str(p + "\n"))
+            length_p = ((p.split(" "))[1].split("length="))[1]
+            output_table.write(str(filename.replace("_cleaned.fasta", "")+ "," + length_p + "\n"))
+            outputfile.write(str(">" + p + "\n"))
 
         outputfile.close()
