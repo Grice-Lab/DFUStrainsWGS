@@ -143,6 +143,7 @@ Pplacer estimates the maximum posterior probable location of each reference geno
 This R script visualizes the ML tree of isolates with references placed on it, collapsing clades of closely related genomes, recording the descendants contained in each collapsed clade. ***outputs plots for tree visualization as well as a mapping of the closest reference genome by SNP distance to each of the isolates' core genomes***
 #### Commands
 > Rscript [TreeMapping_ShortReads_CleanedContigs.R](https://github.com/Grice-Lab/DFUStrainsWGS/blob/master/Phylogeny/TreeMapping_ShortReads_CleanedContigs.R)
+
 ## **Final assembly quality and genome characteristics**
 
 - Get sequencing depth and breadth of coverage estimates for each isolate
@@ -196,7 +197,33 @@ The **SubsettingCleanedAssemblies_forONP.R** script constructs groups of isolate
 >[SubsettingCleanedAssemblies_forONP.R](https://github.com/Grice-Lab/DFUStrainsWGS/blob/master/Phylogeny/SubsettingCleanedAssemblies_forONP.R)
 
 
+## **Testing our sequences for potential strain admixtures**
+- Another QC step I added in early 2021 (will subsequently update previous steps listed here to reflect repeated analyses with now filtered set of genomes)
+- Test the sequences we have for evidence of within-species contamination, as based mostly on [this paper]( https://doi.org/10.1099/mgen.0.000354)
+- Basically, map trimmed reads back to the cleaned contigs using Bowtie again
+- This time, perform SNP calling on those alignments
+- Filter to SNPs in 10X or higher depth positions of the contigs
+- Based on the Raven et al. paper's findings, identify and remove genomes in which there are >30 SNPs that don't fall within 'hot spots' of SNPs <50bp of one another
+- This identified 14 genomes in our set
 
+### 1. Bowtie2 alignment
+Run [Run_Bowtie_DORN_PostCleaning.sh](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/Run_Bowtie_DORN_PostCleaning.sh) to align trimmed raw reads against cleaned contigs for each genome. 
+
+### 2. Samtools and BCFtools to perform variant calling
+Run [TestAdmixture.sh](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/TestAdmixture.sh). This script uses: 
+- samtools faidx, view, sort, and index to make a sorted bam representation of the bowtie alignment and samtools indexed representation of the contigs file
+- samtools mpileup and bcftools call to call SNPs on the bowtie alignments
+It outputs a .bcf file for each of the 221 genomes
+
+### 3. Parse the .bcf variant calling summaries
+[getDP4Counts.py](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/getDP4Counts.py) parses the .bcf output and sticks every called variant from every genome into BCF_output_stats.csv, a .csv with the following fields:
+- **# Genome** (DORN ID for the genome)
+- **Position** (Position on the genome)
+- **Depth** (Depth of read alignments to the position)
+- **VariantFrequency** (From DP4 column of BCF, the (# forward reads mapped to variant allele + # reverse reads mapped to variant allele)/(Total reads mapped at the position)
+
+### 4. Perform contamination test based on [Raven et al.](https://doi.org/10.1099/mgen.0.000354)
+[AdmixtureOutput.R](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/AdmixtureOutput.R) filters the table generated in step 3 to 10X or higher positions, then counts # of >50 bp apart SNPs per genome. Identifies genomes that have >30 of these SNPs, and outputs to **ContaminatedIsolates2-12-21.csv**
 
 
 
