@@ -3,7 +3,7 @@ from Bio import(SeqIO)
 import pandas
 import os
 
-genepresence_table  = "/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/gene_presence_absence_intermediates.csv"
+genepresence_table  = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput_bigMemory/gene_presence_absence.csv"
 gene_alignments_folder = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput_bigMemory/pan_genome_sequences/"
 outputfilepath = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput_bigMemory/core_genes.xmfa"
 
