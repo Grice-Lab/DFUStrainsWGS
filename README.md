@@ -225,7 +225,8 @@ It outputs a .bcf file for each of the 221 genomes
 ### 4. Perform contamination test based on [Raven et al.](https://doi.org/10.1099/mgen.0.000354)
 [AdmixtureOutput.R](https://github.com/Grice-Lab/EAGenomeAssembly/blob/master/CoverageAnalyses/DFU_Coverage/AdmixtureOutput.R) filters the table generated in step 3 to 10X or higher positions, then counts # of >50 bp apart SNPs per genome. Identifies genomes that have >30 of these SNPs, and outputs to **ContaminatedIsolates2-12-21.csv**
 
-
+## **Association Testing**
+Note: the DBGWAS-related steps were performed initially on the full set of 221 isolates in Dec 2020-Jan 2021 (as reflected in commit history), but I added this documentation when I'd done them instead on the set of 207 isolates (having performed the purity tests above and subsequently removed 14 isolates). 
 
 
  
