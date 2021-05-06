@@ -3,21 +3,22 @@ from Bio import(SeqIO)
 import pandas
 import os
 
-genepresence_table  = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput_bigMemory/gene_presence_absence.csv"
-gene_alignments_folder = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput_bigMemory/pan_genome_sequences/"
-outputfilepath = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput_bigMemory/core_genes.xmfa"
+genepresence_table  = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput/gene_presence_absence.csv"
+gene_alignments_folder = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput/pan_genome_sequences/"
+outputfilepath = "/home/acampbe/DFU/data/WGS_2020/RoaryResults/roaryoutput/core_genes.xmfa"
 coregenelist = "/home/acampbe/DFUStrainsWGS/Phylogeny/core_gene_filelist.txt"
 
 
-print(filelist)
 genepresence_table = pandas.read_csv(genepresence_table)
 genepresence_table = genepresence_table[genepresence_table.columns[14:len(genepresence_table.columns)]]
 transposed_gene_presence = (genepresence_table.transpose())
 
 output = open(outputfilepath, "w")
-filelist = open(coregenelist, "r")
-filelist = filelist.readlines()
+filelistfile = open(coregenelist, "r")
+filelist = filelistfile.readlines()
 filelist  = [fname.replace("\n", "") for fname in filelist]
+
+filelistfile.close()
 
 i=0
 for f in filelist:
