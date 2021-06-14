@@ -20,5 +20,5 @@ raxmlHPC-PTHREADS -T 8 -m GTRGAMMA -p 19104 -x 19104 -# 1000 -s /home/acampbe/DF
 mv *newick* /home/acampbe/DFU/data/WGS_2020/Trees/NoEpiBootstrapped1000/
 
 # Use the bootstrapped topologies to draw partitions on the best ML tree 
-raxmlHPC -m GTRGAMMA -p 19104 -f b -t /home/acampbe/DFU/data/WGS_2020/Trees/NoEpi100/RAxML_bestTree.RaxMLTreeNoRefs.newick -z /home/acampbe/DFU/data/WGS_2020/Trees/NoEpiBootstrapped1000/RAxML_bootstrap.RaxMLTreeBS.newick -n RaxMLTreeParitioned
+raxmlHPC -m GTRGAMMA -p 19104 -f b -t /home/acampbe/DFU/data/WGS_2020/Trees/NoEpi100/RAxML_bestTree.RaxMLTreeNoRefs.newick -z /home/acampbe/DFU/data/WGS_2020/Trees/NoEpiBootstrapped1000/RAxML_bootstrap.RaxMLTreeNoRefsBS.newick -n RaxMLTreeParitioned
 
