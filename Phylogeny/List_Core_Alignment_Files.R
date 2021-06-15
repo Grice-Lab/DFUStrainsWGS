@@ -22,7 +22,7 @@ if(length(args) == 0 | length(args) == 1 | length(args) == 2){
 gene_list = read.csv(paste0(genelistpath, "gene_presence_absence.csv"))
 
 gene_list = gene_list %>% select(Gene, No..isolates)
-core_list = gene_list %>% filter(No..isolates > (.99*num_isolates))
+core_list = gene_list %>% filter(No..isolates == num_isolates)
 
 core_list$Filename = paste0(core_list$Gene, ".fa.aln")
 core_list = core_list %>% mutate(Filename = str_replace(Filename, '\'', '_'))
