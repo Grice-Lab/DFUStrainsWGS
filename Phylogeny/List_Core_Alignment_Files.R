@@ -7,7 +7,7 @@
 
 library(dplyr)
 library(stringr)
-setwd("/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS")
+# setwd("/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS")
 args = commandArgs(trailingOnly=TRUE)
 if(length(args) == 0 | length(args) == 1 | length(args) == 2){
   print("Please provide the folder path containing gene_presence_absence.csv as first argument, the output file name (.txt) as the second argument, and the number of isolates included as the third")
