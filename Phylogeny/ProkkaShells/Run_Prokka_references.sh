@@ -53,3 +53,18 @@ prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/SA_MCRF18
 prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/SA_UP_1150 --force --prefix SA_UP_1150 --genus Staphylococcus /home/acampbe/DFU/data/WGS_2020/RoaryResults/SAReferences/SA_UP_1150.fasta
 
 
+prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/NewReferences/CC12 --force --prefix CC12 --genus Staphylococcus /home/acampbe/DFU/data/WGS_2020/RoaryResults/SAReferences/ReferencesAdded2-21/CC12.fasta
+
+prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/NewReferences/CC80 --force --prefix CC80 --genus Staphylococcus /home/acampbe/DFU/data/WGS_2020/RoaryResults/SAReferences/ReferencesAdded2-21/CC80.fasta
+
+prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/NewReferences/CC133 --force --prefix CC133 --genus Staphylococcus /home/acampbe/DFU/data/WGS_2020/RoaryResults/SAReferences/ReferencesAdded2-21/CC133.fasta
+
+prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/NewReferences/CC59 --force --prefix CC59 --genus Staphylococcus /home/acampbe/DFU/data/WGS_2020/RoaryResults/SAReferences/ReferencesAdded2-21/CC59.fasta
+
+prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/NewReferences/CC15 --force --prefix CC15 --genus Staphylococcus /home/acampbe/DFU/data/WGS_2020/RoaryResults/SAReferences/ReferencesAdded2-21/CC15.fasta
+
+prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/NewReferences/CC1-ST188 --force --prefix CC1-ST188 --genus Staphylococcus /home/acampbe/DFU/data/WGS_2020/RoaryResults/SAReferences/CC1-ST188.fasta
+
+prokka --outdir /home/acampbe/DFU/data/WGS_2020/RoaryResults/gff_files/NewReferences/CC7 --force --prefix CC7 --genus Staphylococcus /home/acampbe/DFU/data/WGS_2020/RoaryResults/SAReferences/CC7.fasta         
+
+
