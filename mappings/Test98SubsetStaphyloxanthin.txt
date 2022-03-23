@@ -1,99 +1,99 @@
-"ID"	"Phenotype"	"Path"
-"1"	"DORN22"	3.52636052461616	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN22_Final.fasta"
-"2"	"DORN31"	3.25809653802148	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN31_Final.fasta"
-"3"	"DORN56"	4.20469261939097	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN56_Final.fasta"
-"4"	"DORN76"	3.78418963391826	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN76_Final.fasta"
-"5"	"DORN105"	3.71357206670431	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN105_Final.fasta"
-"6"	"DORN142"	3.71357206670431	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN142_Final.fasta"
-"7"	"DORN152"	3.95124371858143	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN152_Final.fasta"
-"8"	"DORN251"	3.76120011569356	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN251_Final.fasta"
-"9"	"DORN243"	3.52636052461616	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN243_Final.fasta"
-"10"	"DORN244"	3.63758615972639	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN244_Final.fasta"
-"11"	"DORN315"	4.33073334028633	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN315_Final.fasta"
-"12"	"DORN280"	4.18965474202643	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN280_Final.fasta"
-"13"	"DORN283"	4.14313472639153	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN283_Final.fasta"
-"14"	"DORN328"	3.3322045101752	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN328_Final.fasta"
-"15"	"DORN333"	4.20469261939097	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN333_Final.fasta"
-"16"	"DORN434"	3.85014760171006	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN434_Final.fasta"
-"17"	"DORN408"	3.89182029811063	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN408_Final.fasta"
-"18"	"DORN459"	3.78418963391826	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN459_Final.fasta"
-"19"	"DORN468"	3.98898404656427	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN468_Final.fasta"
-"20"	"DORN523"	3.80666248977032	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN523_Final.fasta"
-"21"	"DORN659"	4.07753744390572	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN659_Final.fasta"
-"22"	"DORN717"	4.11087386417331	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN717_Final.fasta"
-"23"	"DORN781"	4.11087386417331	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN781_Final.fasta"
-"24"	"DORN575"	3.29583686600433	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN575_Final.fasta"
-"25"	"DORN620"	3.58351893845611	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN620_Final.fasta"
-"26"	"DORN672"	3.2188758248682	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN672_Final.fasta"
-"27"	"DORN892"	4.12713438504509	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN892_Final.fasta"
-"28"	"DORN684"	4.36944785246702	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN684_Final.fasta"
-"29"	"DORN807"	4.04305126783455	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN807_Final.fasta"
-"30"	"DORN801"	4.51085950651685	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN801_Final.fasta"
-"31"	"DORN825"	4.31748811353631	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN825_Final.fasta"
-"32"	"DORN869"	3.98898404656427	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN869_Final.fasta"
-"33"	"DORN925"	4.58496747867057	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN925_Final.fasta"
-"34"	"DORN1061"	4.43081679884331	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1061_Final.fasta"
-"35"	"DORN1088"	3.29583686600433	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1088_Final.fasta"
-"36"	"DORN900"	3.89182029811063	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN900_Final.fasta"
-"37"	"DORN1151"	3.49650756146648	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1151_Final.fasta"
-"38"	"DORN1197"	3.66356164612965	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1197_Final.fasta"
-"39"	"DORN1207"	4.07753744390572	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1207_Final.fasta"
-"40"	"DORN1214"	3.95124371858143	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1214_Final.fasta"
-"41"	"DORN1219"	4.11087386417331	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1219_Final.fasta"
-"42"	"DORN1258"	4.06044301054642	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1258_Final.fasta"
-"43"	"DORN1285"	3.98898404656427	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1285_Final.fasta"
-"44"	"DORN1289"	3.04452243772342	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1289_Final.fasta"
-"45"	"DORN1340"	3.66356164612965	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1340_Final.fasta"
-"46"	"DORN1353"	3.68887945411394	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1353_Final.fasta"
-"47"	"DORN1337"	3.97029191355212	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1337_Final.fasta"
-"48"	"DORN1373"	4.39444915467244	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1373_Final.fasta"
-"49"	"DORN1368"	4.31748811353631	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1368_Final.fasta"
-"50"	"DORN1395"	4.65396035015752	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1395_Final.fasta"
-"51"	"DORN1399"	3.68887945411394	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1399_Final.fasta"
-"52"	"DORN1410"	3.8286413964891	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1410_Final.fasta"
-"53"	"DORN1416"	3.40119738166216	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1416_Final.fasta"
-"54"	"DORN1455"	4.20469261939097	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1455_Final.fasta"
-"55"	"DORN1465"	4.12713438504509	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1465_Final.fasta"
-"56"	"DORN1471"	3.73766961828337	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1471_Final.fasta"
-"57"	"DORN1502"	3.97029191355212	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1502_Final.fasta"
-"58"	"DORN1520"	3.55534806148941	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1520_Final.fasta"
-"59"	"DORN1531"	3.98898404656427	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1531_Final.fasta"
-"60"	"DORN1540"	3.68887945411394	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1540_Final.fasta"
-"61"	"DORN1575"	3.46573590279973	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1575_Final.fasta"
-"62"	"DORN1585"	3.95124371858143	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1585_Final.fasta"
-"63"	"DORN1602"	4.24849524204936	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1602_Final.fasta"
-"64"	"DORN1646"	3.98898404656427	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1646_Final.fasta"
-"65"	"DORN1696"	4.07753744390572	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1696_Final.fasta"
-"66"	"DORN1731"	3.91202300542815	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1731_Final.fasta"
-"67"	"DORN1818"	4.35670882668959	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1818_Final.fasta"
-"68"	"DORN1610"	4.02535169073515	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1610_Final.fasta"
-"69"	"DORN1740"	4.36944785246702	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1740_Final.fasta"
-"70"	"DORN1657"	4.12713438504509	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1657_Final.fasta"
-"71"	"DORN1755"	4.04305126783455	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1755_Final.fasta"
-"72"	"DORN1679"	3.55534806148941	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1679_Final.fasta"
-"73"	"DORN1722"	3.68887945411394	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1722_Final.fasta"
-"74"	"DORN1743"	3.78418963391826	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1743_Final.fasta"
-"75"	"DORN1782"	4.00733318523247	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1782_Final.fasta"
-"76"	"DORN1794"	4.02535169073515	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1794_Final.fasta"
-"77"	"DORN1869"	4.47733681447821	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1869_Final.fasta"
-"78"	"DORN2166"	3.29583686600433	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2166_Final.fasta"
-"79"	"DORN1881"	4.49980967033027	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1881_Final.fasta"
-"80"	"DORN1943"	4.15888308335967	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1943_Final.fasta"
-"81"	"DORN2093"	4.24849524204936	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2093_Final.fasta"
-"82"	"DORN2221"	4.21950770517611	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2221_Final.fasta"
-"83"	"DORN1974"	3.76120011569356	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1974_Final.fasta"
-"84"	"DORN2059"	4.00733318523247	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2059_Final.fasta"
-"85"	"DORN2064"	4.07753744390572	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2064_Final.fasta"
-"86"	"DORN2144"	4.06044301054642	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2144_Final.fasta"
-"87"	"DORN2187"	3.98898404656427	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2187_Final.fasta"
-"88"	"DORN2205"	4.27666611901606	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2205_Final.fasta"
-"89"	"DORN2109"	3.49650756146648	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2109_Final.fasta"
-"90"	"DORN2136"	3.71357206670431	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2136_Final.fasta"
-"91"	"DORN2148"	2.83321334405622	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2148_Final.fasta"
-"92"	"DORN286"	3.68887945411394	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN286_Final.fasta"
-"93"	"DORN383"	3.36729582998647	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN383_Final.fasta"
-"94"	"DORN767"	3.61091791264422	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN767_Final.fasta"
-"95"	"DORN962"	4.36944785246702	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN962_Final.fasta"
-"96"	"DORN1027"	4.67282883446191	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1027_Final.fasta"
-"97"	"DORN1081"	4.65396035015752	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1081_Final.fasta"
-"98"	"DORN1082"	4.77912349311153	"/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1082_Final.fasta"
+ID	Phenotype	Path
+DORN22	34	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN22_Final.fasta
+DORN31	26	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN31_Final.fasta
+DORN56	67	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN56_Final.fasta
+DORN76	44	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN76_Final.fasta
+DORN105	41	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN105_Final.fasta
+DORN142	41	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN142_Final.fasta
+DORN152	52	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN152_Final.fasta
+DORN251	43	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN251_Final.fasta
+DORN243	34	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN243_Final.fasta
+DORN244	38	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN244_Final.fasta
+DORN315	76	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN315_Final.fasta
+DORN280	66	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN280_Final.fasta
+DORN283	63	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN283_Final.fasta
+DORN328	28	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN328_Final.fasta
+DORN333	67	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN333_Final.fasta
+DORN434	47	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN434_Final.fasta
+DORN408	49	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN408_Final.fasta
+DORN459	44	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN459_Final.fasta
+DORN468	54	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN468_Final.fasta
+DORN523	45	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN523_Final.fasta
+DORN659	59	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN659_Final.fasta
+DORN717	61	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN717_Final.fasta
+DORN781	61	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN781_Final.fasta
+DORN575	27	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN575_Final.fasta
+DORN620	36	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN620_Final.fasta
+DORN672	25	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN672_Final.fasta
+DORN892	62	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN892_Final.fasta
+DORN684	79	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN684_Final.fasta
+DORN807	57	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN807_Final.fasta
+DORN801	91	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN801_Final.fasta
+DORN825	75	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN825_Final.fasta
+DORN869	54	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN869_Final.fasta
+DORN925	98	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN925_Final.fasta
+DORN1061	84	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1061_Final.fasta
+DORN1088	27	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1088_Final.fasta
+DORN900	49	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN900_Final.fasta
+DORN1151	33	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1151_Final.fasta
+DORN1197	39	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1197_Final.fasta
+DORN1207	59	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1207_Final.fasta
+DORN1214	52	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1214_Final.fasta
+DORN1219	61	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1219_Final.fasta
+DORN1258	58	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1258_Final.fasta
+DORN1285	54	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1285_Final.fasta
+DORN1289	21	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1289_Final.fasta
+DORN1340	39	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1340_Final.fasta
+DORN1353	40	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1353_Final.fasta
+DORN1337	53	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1337_Final.fasta
+DORN1373	81	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1373_Final.fasta
+DORN1368	75	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1368_Final.fasta
+DORN1395	105	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1395_Final.fasta
+DORN1399	40	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1399_Final.fasta
+DORN1410	46	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1410_Final.fasta
+DORN1416	30	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1416_Final.fasta
+DORN1455	67	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1455_Final.fasta
+DORN1465	62	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1465_Final.fasta
+DORN1471	42	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1471_Final.fasta
+DORN1502	53	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1502_Final.fasta
+DORN1520	35	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1520_Final.fasta
+DORN1531	54	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1531_Final.fasta
+DORN1540	40	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1540_Final.fasta
+DORN1575	32	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1575_Final.fasta
+DORN1585	52	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1585_Final.fasta
+DORN1602	70	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1602_Final.fasta
+DORN1646	54	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1646_Final.fasta
+DORN1696	59	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1696_Final.fasta
+DORN1731	50	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1731_Final.fasta
+DORN1818	78	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1818_Final.fasta
+DORN1610	56	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1610_Final.fasta
+DORN1740	79	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1740_Final.fasta
+DORN1657	62	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1657_Final.fasta
+DORN1755	57	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1755_Final.fasta
+DORN1679	35	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1679_Final.fasta
+DORN1722	40	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1722_Final.fasta
+DORN1743	44	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1743_Final.fasta
+DORN1782	55	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1782_Final.fasta
+DORN1794	56	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1794_Final.fasta
+DORN1869	88	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1869_Final.fasta
+DORN2166	27	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2166_Final.fasta
+DORN1881	90	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1881_Final.fasta
+DORN1943	64	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1943_Final.fasta
+DORN2093	70	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2093_Final.fasta
+DORN2221	68	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2221_Final.fasta
+DORN1974	43	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1974_Final.fasta
+DORN2059	55	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2059_Final.fasta
+DORN2064	59	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2064_Final.fasta
+DORN2144	58	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2144_Final.fasta
+DORN2187	54	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2187_Final.fasta
+DORN2205	72	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2205_Final.fasta
+DORN2109	33	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2109_Final.fasta
+DORN2136	41	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2136_Final.fasta
+DORN2148	17	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN2148_Final.fasta
+DORN286	40	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN286_Final.fasta
+DORN383	29	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN383_Final.fasta
+DORN767	37	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN767_Final.fasta
+DORN962	79	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN962_Final.fasta
+DORN1027	107	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1027_Final.fasta
+DORN1081	105	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1081_Final.fasta
+DORN1082	119	/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/DORN1082_Final.fasta
