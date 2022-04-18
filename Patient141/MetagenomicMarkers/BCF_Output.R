@@ -53,19 +53,20 @@ for(FilePath in BCF_files){
   trystatement = try(read.delim(FullPath, comment.char = "#", header=F), silent=T)
   
   # If it's empty other than comment lines, 
-  #colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth")
+  #colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth", "dvalue", "rvalue", "lvalue", "qvalue")
   
   if(inherits(trystatement, "try-error")){
     
-    marker1 = c("Marker1", 0,0,0)
+    marker1 = c("Marker1", 0,0,0,dvalue,rvalue,lvalue,qvalue)
     NewRow = append(BCFPrefix,marker1)
+    NewRow = append(NewRow, c(dvalue,rvalue,lvalue,qvalue))
     OutputDF = rbind(OutputDF, NewRow)
     
-    marker2= c("Marker2", 0,0,0)
+    marker2= c("Marker2", 0,0,0,dvalue,rvalue,lvalue,qvalue)
     NewRow = append(BCFPrefix,marker2)
     OutputDF = rbind(OutputDF, NewRow)
     
-    marker3=c("Marker3", 0,0,0)
+    marker3=c("Marker3", 0,0,0,dvalue,rvalue,lvalue,qvalue)
     NewRow = append(BCFPrefix,marker3)
     OutputDF = rbind(OutputDF, NewRow)
     
@@ -92,7 +93,7 @@ for(FilePath in BCF_files){
   
 }
 
-colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth")
+colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth", "dvalue", "rvalue", "lvalue", "qvalue")
 write.csv(OutputDF, file=outputfilepath, quote = F, row.names = F)
 
 
