@@ -34,10 +34,14 @@ BCF_files= AllFiles[grepl(AllFiles, pattern=".bcf")]
 
 
 OutputDF = data.frame()
-colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth")
+#colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth")
 
 for(FilePath in BCF_files){
-  FileObject=read.delim(FilePath,comment.char = "#", header=F)
+  print(FilePath)
+
+  FullPath=paste0(FDirectory, FilePath)
+	
+  FileObject=read.delim(FullPath,comment.char = "#", header=F)
   colnames(FileObject) = c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO","FORMAT", "V10")
   filename=basename(FilePath)
   
@@ -64,7 +68,7 @@ for(FilePath in BCF_files){
   
 }
 
-
+colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth")
 write.csv(OutputDF, file=outputfilepath, quote = F, row.names = F)
 
 
