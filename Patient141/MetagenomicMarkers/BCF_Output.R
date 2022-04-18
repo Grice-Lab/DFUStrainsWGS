@@ -37,33 +37,43 @@ OutputDF = data.frame()
 #colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth")
 
 for(FilePath in BCF_files){
-  print(FilePath)
 
   FullPath=paste0(FDirectory, FilePath)
-	
-  FileObject=read.delim(FullPath,comment.char = "#", header=F)
-  colnames(FileObject) = c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO","FORMAT", "V10")
-  filename=basename(FilePath)
+  trystatement = try(read.delim(FullPath, comment.char = "#", header=F), silent=T)
+  if(inherits(trystatement, "try-error")){
+    print("Empty File, sRy!")} else{
+      
+      FileObject=read.delim(FullPath,comment.char = "#", header=F)
+      colnames(FileObject) = c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO","FORMAT", "V10")
+      filename=basename(FilePath)
+      
+      BCFPrefix <- (str_split(filename, pattern="reads_"))[[1]][1]
+      BCFSuffix <- str_remove((str_split(filename, pattern="reads_"))[[1]][2], pattern=".bcf")
+      listparams=str_split(BCFSuffix, pattern="_")
+      dvalue <- as.numeric(listparams[[1]][1])
+      rvalue <-  as.numeric(listparams[[1]][2])
+      lvalue <-  as.numeric(listparams[[1]][3])
+      qvalue <-  as.numeric(listparams[[1]][4])
+      
+      marker1 =MarkerVals(FileObject, 250, "Marker1")
+      NewRow = append(BCFPrefix,marker1)
+      OutputDF = rbind(OutputDF, NewRow)
+      
+      marker2 =MarkerVals(FileObject, 250, "Marker2")
+      NewRow = append(BCFPrefix,marker2)
+      OutputDF = rbind(OutputDF, NewRow)
+      
+      marker3 =MarkerVals(FileObject, 250, "Marker3")
+      NewRow = append(BCFPrefix,marker3)
+      OutputDF = rbind(OutputDF, NewRow)
+      
+      
+    
+      
+    }
   
-  BCFPrefix <- (str_split(filename, pattern="reads_"))[[1]][1]
-  BCFSuffix <- str_remove((str_split(filename, pattern="reads_"))[[1]][2], pattern=".bcf")
-  listparams=str_split(BCFSuffix, pattern="_")
-  dvalue <- as.numeric(listparams[[1]][1])
-  rvalue <-  as.numeric(listparams[[1]][2])
-  lvalue <-  as.numeric(listparams[[1]][3])
-  qvalue <-  as.numeric(listparams[[1]][4])
   
-  marker1 =MarkerVals(FileObject, 250, "Marker1")
-  NewRow = append(BCFPrefix,marker1)
-  OutputDF = rbind(OutputDF, NewRow)
   
-  marker2 =MarkerVals(FileObject, 250, "Marker2")
-  NewRow = append(BCFPrefix,marker2)
-  OutputDF = rbind(OutputDF, NewRow)
-  
-  marker3 =MarkerVals(FileObject, 250, "Marker3")
-  NewRow = append(BCFPrefix,marker3)
-  OutputDF = rbind(OutputDF, NewRow)
   
   
 }
