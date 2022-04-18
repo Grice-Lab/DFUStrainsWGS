@@ -33,10 +33,13 @@ BCF_files= AllFiles[grepl(AllFiles, pattern=".bcf")]
 
 
 
-OutputDF = data.frame()
 
+OutputDF = data.frame(Source="Source", MarkerID="MarkerID", TotalUseableDepth="TotalUseableDepth", RefAlleleDepth="RefAlleleDepth", AltAlleleDepth="AltAlleleDepth", dvalue="dvalue", rvalue="rvalue", lvalue="lvalue", qvalue="qvalue")
+#OutputDF = rbind(OutputDF, c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth", "dvalue", "rvalue", "lvalue", "qvalue"))
+i=0
 for(FilePath in BCF_files){
-  
+  i=i+1
+  filename=basename(FilePath)
   # Get info for this file
   BCFPrefix <- (str_split(filename, pattern="reads_"))[[1]][1]
   BCFSuffix <- str_remove((str_split(filename, pattern="reads_"))[[1]][2], pattern=".bcf")
@@ -58,42 +61,64 @@ for(FilePath in BCF_files){
   if(inherits(trystatement, "try-error")){
     
     marker1 = c("Marker1", 0,0,0,dvalue,rvalue,lvalue,qvalue)
-    NewRow = append(BCFPrefix,marker1)
-    NewRow = append(NewRow, c(dvalue,rvalue,lvalue,qvalue))
-    OutputDF = rbind(OutputDF, NewRow)
-    
+    NewRow = append(BCFPrefix,marker1) 
+    #NewRow = list(NewRow)
+    #NewRow = append(NewRow, c(dvalue,rvalue,lvalue,qvalue))
+    OutputDF[i,] = NewRow
+ 
     marker2= c("Marker2", 0,0,0,dvalue,rvalue,lvalue,qvalue)
     NewRow = append(BCFPrefix,marker2)
-    OutputDF = rbind(OutputDF, NewRow)
-    
+    #NewRow = list(NewRow)
+    #NewRow = append(NewRow, c(dvalue,rvalue,lvalue,qvalue))
+    #OutputDF = rbind(OutputDF, NewRow)
+     #print(length(NewRow))
+
+    OutputDF[i,] = NewRow
+
+  
     marker3=c("Marker3", 0,0,0,dvalue,rvalue,lvalue,qvalue)
     NewRow = append(BCFPrefix,marker3)
-    OutputDF = rbind(OutputDF, NewRow)
-    
+    #NewRow = list(NewRow)
+    #NewRow = append(NewRow, c(dvalue,rvalue,lvalue,qvalue))
+    #print(length(NewRow))
+    #OutputDF = rbind(OutputDF, NewRow)
+    OutputDF[i,] = NewRow      
     print("Empty File, sRy!")} else{
       
       FileObject=read.delim(FullPath,comment.char = "#", header=F)
       colnames(FileObject) = c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO","FORMAT", "V10")
-      filename=basename(FilePath)
+      #filename=basename(FilePath)
       
       marker1 =MarkerVals(FileObject, 250, "Marker1")
       NewRow = append(BCFPrefix,marker1)
-      OutputDF = rbind(OutputDF, NewRow)
-      
+      NewRow = append(NewRow, c(dvalue,rvalue,lvalue,qvalue))
+      #NewRow = list(NewRow)
+      print(NewRow)
+      #OutputDF = rbind(OutputDF, NewRow)
+      OutputDF[i,] = NewRow  
+
       marker2 =MarkerVals(FileObject, 250, "Marker2")
       NewRow = append(BCFPrefix,marker2)
-      OutputDF = rbind(OutputDF, NewRow)
-      
+      NewRow = append(NewRow, c(dvalue,rvalue,lvalue,qvalue))
+      #print(NewRow)
+      #NewRow = list(NewRow)
+      #OutputDF = rbind(OutputDF, NewRow)
+      OutputDF[i,] = NewRow  
       marker3 =MarkerVals(FileObject, 250, "Marker3")
       NewRow = append(BCFPrefix,marker3)
-      OutputDF = rbind(OutputDF, NewRow)
-      
+      NewRow = append(NewRow, c(dvalue,rvalue,lvalue,qvalue))
+      #NewRow = list(NewRow)
+      print(NewRow)
+      #OutputDF = rbind(OutputDF, NewRow)
+      OutputDF[i,] = NewRow  
+      print(tail(OutputDF))      
       
     }
   
 }
 
 colnames(OutputDF) = c("Source", "MarkerID", "TotalUseableDepth", "RefAlleleDepth", "AltAlleleDepth", "dvalue", "rvalue", "lvalue", "qvalue")
+print(OutputDF)
 write.csv(OutputDF, file=outputfilepath, quote = F, row.names = F)
 
 
