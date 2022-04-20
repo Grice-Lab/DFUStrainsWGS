@@ -23,9 +23,9 @@ MarkerVals = function(BCF, MarkerPosition, MarkerName){
   
 }
 
-outputfilepath="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/ParameterRangeUTD.csv"
+outputfilepath="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/ParameterRange_N0s.csv"
 
-FDirectory="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/BTalignments/TestRangeParameters/"
+FDirectory="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/BTalignments/TestRangeParameters/N0Tests/"
 AllFiles = list.files(FDirectory) 
 BCF_files= AllFiles[grepl(AllFiles, pattern=".bcf")]
 
@@ -39,21 +39,22 @@ dvaluelist=c()
 rvaluelist=c()
 lvaluelist=c()
 qvaluelist=c()
-s2list = c()
+s2list=c()
 i=0
 for(FilePath in BCF_files){
 
   filename=basename(FilePath)
-
+  
+  # StaphEpireads_30_5_20_75_N0_13.bcf
+  
   BCFPrefix <- (str_split(filename, pattern="reads_"))[[1]][1]
   BCFSuffix <- str_remove((str_split(filename, pattern="reads_"))[[1]][2], pattern=".bcf")
   listparams=str_split(BCFSuffix, pattern="_")
   dvalue <- as.numeric(listparams[[1]][1])
   rvalue <-  as.numeric(listparams[[1]][2])
   lvalue <-  as.numeric(listparams[[1]][3])
-  s2value <- as.numeric(listparams[[1]][4])
-  qvalue <-  as.numeric(listparams[[1]][5])
-  
+  qvalue <- as.numeric(listparams[[1]][6])
+  s2value <-as.numeric(listparams[[1]][4])
   
   for(marker in c("Marker1", "Marker2", "Marker3")){
     i=i+1
@@ -106,8 +107,7 @@ OutputDF = data.frame(Source=sourcelist,
                       Lvalue=lvaluelist,
                       Qvalue=qvaluelist,
                       S2value=s2list)
-
-OutputDF$Nvalue = "N1"
+OutputDF$Nvalue = "N0"
 write.csv(OutputDF, file=outputfilepath, quote = F, row.names = F)
 
 
