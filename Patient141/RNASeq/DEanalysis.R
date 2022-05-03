@@ -1,5 +1,6 @@
 
 # Amy Campbell
+# 04/2022
 # Differential expression analysis for DORN925 and DORN1088 exposed to H202 in vitro 
 library(dplyr)
 library(Rsubread)
@@ -11,6 +12,7 @@ library(ggpubr)
 library(clusterProfiler)
 library(enrichplot)
 library(ggrepel)
+library(tidyr)
 
 
 samplemap=read.csv2("/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/MappingRNASeq.txt", sep="\t", header=F)
@@ -18,6 +20,8 @@ colnames(samplemap) = c("Sample", "SampleTreatment", "Condition")
 genemap=read.csv2("/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/GeneNamesPreliminary.csv", sep=',')
 load("/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNACounts.rda")
 
+# make GeneAdjust column where if no gene name available, list RefSeq ID with homology as ID'd by PGAP 
+########################################################################################################
 genemap = genemap %>% mutate(GeneAdjust= if_else( (is.na(Gene) | Gene==""), RefSeqID, Gene))
 
 # Manipulate sample ID mapping file and make plot of Sample vs. Total Reads assigned
@@ -27,7 +31,7 @@ CountsBySample$Sample=sapply(row.names(CountsBySample), function(x) str_split(x,
 colnames(CountsBySample) = c("TotalAssignedReads", "Sample")
 
 CountsBySample = samplemap %>% left_join(CountsBySample, by="Sample")
-CountsBySample[6,4 ] <- 0
+CountsBySample[is.na(CountsBySample)] <- 0
 CountsBySample$Strain = sapply(CountsBySample$SampleTreatment, function(x) if_else(grepl(x, pattern="ARM72"),"DORN925(high)","DORN1088(low)") )
 
 CountsBySample$ConditionStrain = paste(CountsBySample$Strain, CountsBySample$Condition, sep=" : ")
@@ -36,9 +40,8 @@ TotalCountsPlot = ggplot(CountsBySample, aes(x=Sample, y=TotalAssignedReads, fil
 TotalCountsPlot$data$Sample = factor(TotalCountsPlot$data$Sample , levels=(TotalCountsPlot$data %>% arrange(ConditionStrain))$Sample)
 
 TotalCountsPlot$data$Sample = factor(TotalCountsPlot$data$Sample , levels=(TotalCountsPlot$data %>% arrange(Strain, Condition))$Sample)
-max(TotalCountsPlot$data$TotalAssignedReads)
-# Low_control, Low_Treatment, High_control, High_Treatment
 
+# Low_control, Low_Treatment, High_control, High_Treatment
 treatmentcombos = c("#BCD2E8", "#2E5984", "#FCF787", "#EAAA00")
 TotalCountsPlot=TotalCountsPlot + scale_fill_manual(values=treatmentcombos) + scale_y_continuous(limits=c(0, 25000000), breaks=seq(0, 25000000, 1000000))
 ggsave(TotalCountsPlot,file= "/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/ReadCountsAssigned.png")
@@ -48,11 +51,10 @@ CountsBySample$TotalAssignedReads = NULL
 
 # Read counts data into DEseq
 ##############################
-
 columndataDE = SampleMapping %>% select(Condition, Strain)
 columndataDE$Condition= factor(columndataDE$Condition)
-columndataDE$Strain = sapply(columndataDE$Strain, function(x) str_split(x, pattern='\\(')[[1]][1])
 
+columndataDE$Strain = sapply(columndataDE$Strain, function(x) str_split(x, pattern='\\(')[[1]][1])
 columndataDE$Strain= factor(columndataDE$Strain)
 
 rownames(columndataDE) = SampleMapping$Sample
@@ -61,6 +63,7 @@ CountsMatrix = MyCounts$counts
 colnames(CountsMatrix) = sapply(colnames(CountsMatrix), function(x) str_split(x, pattern="_")[[1]][1])
 CountsMatrix = CountsMatrix[,row.names(columndataDE)]
 
+# "group" is the condition_strain (so ctrl_DORN925, treatment_925, etc.)
 columndataDE$group = factor(paste(columndataDE$Condition, columndataDE$Strain, sep="_"))
 
 DEData =DESeqDataSetFromMatrix(countData=CountsMatrix, 
@@ -71,73 +74,73 @@ myDESeqObj = DESeq(DEData)
 # Sanity check:sak should be 0 counts in DORN1088 samples
 ##########################################################
 CountsMatrix[c("cds-pgaptmp_000025"),]
+# 0 in all of what are supposed to be 1088 genomes so that's good. (ARMs 3,4, 7,8, 11, 12)
 
 
 ##########################################
 # How does DORN925 respond to H202 stress?
 ###########################################
+
+# This should show results for 
+# (expression after treatment in DORN925)/(expression before treatment in DORN925) AKA log2(treatment_ex/control_ex)
 results_DORN925_Stress <- results(myDESeqObj, contrast=c("group", "treatment_DORN925","ctrl_DORN925"))
 results_DORN925_StressDF = (data.frame(results_DORN925_Stress))
+
+# Add Uniprot, gene names, GOs
 results_DORN925_StressDF$AnnotID = row.names(results_DORN925_StressDF)
 results_DORN925_StressDF = results_DORN925_StressDF %>% left_join(genemap, by="AnnotID")
 
-MapGenes925 = data.frame(AnnotID = row.names(results_DORN925_StressDF))
-MapGenes925 = MapGenes925 %>% left_join(genemap, by="AnnotID") %>% unique()
 
-MAplot925 = ggmaplot(results_DORN925_StressDF,size=1, genenames = MapGenes925$GeneAdjust) + ggtitle("Differentially expressed genes in DORN925\nin Response to H202 Stress")
-MAplot925= MAplot925 + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
+# Make some variables for plotting & filtering
+##############################################
 
-ggsave(MAplot925, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/MAPlotDORN925Stress.png", height=)
-
-
-crtGenes = c("cds-pgaptmp_002177", "cds-pgaptmp_002178", "cds-pgaptmp_002179", "cds-pgaptmp_002180", "cds-pgaptmp_002181")
-
-CountsMatrix[crtGenes, ]
-
-
-#########################################################
-# DE in response to stress in DORN1088 (lowxanthin)
-##########################################################
-
-results_DORN1088_Stress <- results(myDESeqObj, contrast=c("group", "treatment_DORN1088","ctrl_DORN1088"))
-results_DORN1088_StressDF = (data.frame(results_DORN1088_Stress))
-
-MapGenes1088 = data.frame(AnnotID = row.names(results_DORN1088_StressDF))
-MapGenes1088 = MapGenes1088 %>% left_join(genemap, by="AnnotID") %>% unique()
-
-MAplot1088 = ggmaplot(results_DORN1088_StressDF,size=1, genenames = MapGenes1088$GeneAdjust) + ggtitle("Differentially expressed genes in DORN1088\nin Response to H202 Stress")
-
-MAplot1088= MAplot1088 + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
-
-ggsave(MAplot1088, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/MAPlotDORN1088Stress.png", height=)
-
-
-# Volcano plot for 925
-#########################
-# Make log2fold change cutoff .6, representing 1.5X-fold change 
+# DE: whether log-fold change > ±.6 (~ 1.5X fold change) and whether FDR- adjusted p value < .05
 results_DORN925_StressDF$DE = if_else( abs(results_DORN925_StressDF$log2FoldChange) < .6  | results_DORN925_StressDF$padj >= .05 | is.na(results_DORN925_StressDF$padj), FALSE, TRUE)
 
+# DirectionDE: whether DE is true and whether up-regulated or down-regulated if so
 results_DORN925_StressDF = results_DORN925_StressDF %>% mutate(DirectionDE = case_when( log2FoldChange > 0 & DE==TRUE ~ "Up",
                                                                                         log2FoldChange <0 & DE== TRUE ~ "Down", 
                                                                                         TRUE ~ "None"))
-# only label those with 4X and higher (log2Foldchange>=2)
+
+# Label: "Up" / "Down" if the total log2foldchange >2 (4x-fold change) and DE is true; NA otherwise (so as not to crowd the volcano plot)
 results_DORN925_StressDF = results_DORN925_StressDF %>% mutate(Label = if_else( ((DirectionDE == "Up" | DirectionDE == "Down" ) & abs(log2FoldChange) >2 ), GeneAdjust,""))
 results_DORN925_StressDF$Label[results_DORN925_StressDF$Label==""] <- NA
 
+
+# Volcano plot for 925 -- everything that fits with a >4X fold change and < .05 p-value labeled 
+################################################################################################
 VolcPlot925 = ggplot(data=results_DORN925_StressDF, aes(x=log2FoldChange, y=-log10(pvalue), col=DirectionDE, label=Label)) + 
   geom_point() + 
   theme_minimal() +geom_text_repel() + scale_color_manual(values=c("royalblue4", "black", "firebrick3")) +  geom_vline(xintercept=c(-0.6, 0.6), col="grey52",linetype="dashed") +geom_vline(xintercept=c(-2, 2), col="grey52",linetype="dashed") +
   geom_hline(yintercept=-log10(0.05), col="grey52", linetype="dashed") + geom_hline(yintercept=-log10(0.01), col="grey52", linetype="dashed")  + ggtitle("Differentially expressed genes in DORN925\nin Response to H202 Stress") + theme_minimal() + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
 
+# MA plot for 925
+####################
+labels=results_DORN925_StressDF$Label[!is.na(results_DORN925_StressDF$Label)]
+MAplot925 = ggmaplot(results_DORN925_StressDF,size=1, genenames = results_DORN925_StressDF$GeneAdjust, label.select=labels) + ggtitle("Differentially expressed genes in DORN925\nin Response to H202 Stress")
+MAplot925= MAplot925 + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
 
-# Volcano plot for 1088
-#########################
+ggsave(MAplot925, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/MAPlotDORN925Stress.png", height=10, width=20)
+
+
+#########################################################
+# DE in response to stress in DORN1088 (lowxanthin)
+##########################################################
+## (expression after treatment in DORN1088)/(expression before treatment in DORN1088) AKA log2(treatment_ex/control_ex)
+results_DORN1088_Stress <- results(myDESeqObj, contrast=c("group", "treatment_DORN1088","ctrl_DORN1088"))
+results_DORN1088_StressDF = (data.frame(results_DORN1088_Stress))
+
+# Add Uniprot, gene names, GOs
 results_DORN1088_StressDF$AnnotID = row.names(results_DORN1088_StressDF)
-results_DORN1088_StressDF = results_DORN1088_StressDF %>% left_join(MapGenes1088, by="AnnotID")
+results_DORN1088_StressDF = results_DORN1088_StressDF %>% left_join(genemap, by="AnnotID")
 
-# Make log2fold change cutoff .6, representing 1.5X-fold change 
+# Make some variables for plotting & filtering
+############################################## 
+
+# DE: whether log-fold change > ±.6 (~ 1.5X fold change) and whether FDR- adjusted p value < .05
 results_DORN1088_StressDF$DE = if_else( abs(results_DORN1088_StressDF$log2FoldChange) < .6  | results_DORN1088_StressDF$padj >= .05 | is.na(results_DORN1088_StressDF$padj), FALSE, TRUE)
 
+# DirectionDE: whether DE is true and whether up-regulated or down-regulated if so
 results_DORN1088_StressDF = results_DORN1088_StressDF %>% mutate(DirectionDE = case_when( log2FoldChange > 0 & DE==TRUE ~ "Up",
                                                                                           log2FoldChange <0 & DE== TRUE ~ "Down", 
                                                                                           TRUE ~ "None"))
@@ -151,40 +154,61 @@ VolcPlot1088 = ggplot(data=results_DORN1088_StressDF, aes(x=log2FoldChange, y=-l
   theme_minimal() +geom_text_repel() + scale_color_manual(values=c("royalblue4", "black", "firebrick3")) +  geom_vline(xintercept=c(-0.6, 0.6), col="grey52",linetype="dashed") +geom_vline(xintercept=c(-2, 2), col="grey52",linetype="dashed") +
   geom_hline(yintercept=-log10(0.05), col="grey52", linetype="dashed") + geom_hline(yintercept=-log10(0.01), col="grey52", linetype="dashed")  + ggtitle("Differentially expressed genes in DORN1088\nin Response to H202 Stress") + theme_minimal() + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
 
+# MA plot1088
+#######################
+mylabels = results_DORN1088_StressDF$Label[!is.na(results_DORN1088_StressDF$Label)]
+MAplot1088 = ggmaplot(results_DORN1088_StressDF,size=1, genenames = results_DORN1088_StressDF$Label, label.select=mylabels) + ggtitle("Differentially expressed genes in DORN1088\nin Response to H202 Stress")
 
+MAplot1088= MAplot1088 + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
 
+ggsave(MAplot1088, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/MAPlotDORN1088Stress.png", height=10, width=20)
 
 
 gridarrange= gridExtra::grid.arrange(VolcPlot1088, VolcPlot925, ncol=2)
-ggsave(gridarrange, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/SideBySide.pdf", width=20, height=10)
+ggsave(gridarrange, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/SideBySide.pdf", width=30, height=15)
 
-
+# Upregulated genes in DORN1088 in response to H202 stress
 UP_1088 = results_DORN1088_StressDF %>% filter(DirectionDE=="Up")
-DOWN_1088 = results_DORN1088_StressDF %>% filter(DirectionDE=="Down")
+write.csv(UP_1088 %>% select(log2FoldChange, pvalue, padj, AnnotID, RefSeqID, UniprotID, GeneAdjust, GO_terms, DirectionDE), file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/UpDE_ARM81.csv")
 
+# Downregulated genes in DORN1088 in response to H202 stress 
+DOWN_1088 = results_DORN1088_StressDF %>% filter(DirectionDE=="Down")
+write.csv(DOWN_1088 %>% select(log2FoldChange, pvalue, padj, AnnotID, RefSeqID, UniprotID, GeneAdjust, GO_terms, DirectionDE), file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/DownDE_ARM81.csv")
+
+# Upregulated genes in DORN925 in response to H202 stress
 UP_925 = results_DORN925_StressDF %>% filter(DirectionDE=="Up")
+write.csv(UP_925 %>% select(log2FoldChange, pvalue, padj, AnnotID, RefSeqID, UniprotID, GeneAdjust, GO_terms, DirectionDE), file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/UpDE_ARM72.csv")
+
+# Downregulated genes in DORN925 in response to H202 stress 
 DOWN_925 = results_DORN925_StressDF %>% filter(DirectionDE=="Down")
+write.csv(DOWN_925 %>% select(log2FoldChange, pvalue, padj, AnnotID, RefSeqID, UniprotID, GeneAdjust, GO_terms, DirectionDE), file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/DownDE_ARM72.csv")
+
 
 UniqueUp925 = results_DORN925_StressDF %>% filter(AnnotID %in% setdiff(UP_925$AnnotID, UP_1088$AnnotID))
 UniqueDown925 = results_DORN925_StressDF %>% filter( (AnnotID %in% setdiff(DOWN_925$AnnotID, DOWN_1088$AnnotID)) )
-
-
 UniqueUp1088 = results_DORN1088_StressDF %>% filter(AnnotID %in% setdiff(UP_1088$AnnotID,UP_925$AnnotID) )
 UniqueDown1088 = results_DORN1088_StressDF %>% filter(AnnotID %in% setdiff(DOWN_1088$AnnotID,DOWN_925$AnnotID) )
 
+write.csv(UniqueUp925 %>% select(log2FoldChange, pvalue, padj, AnnotID, RefSeqID, UniprotID, GeneAdjust, GO_terms, DirectionDE), file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/UpDE_ARM72_Unique.csv")
+write.csv(UniqueDown925 %>% select(log2FoldChange, pvalue, padj, AnnotID, RefSeqID, UniprotID, GeneAdjust, GO_terms, DirectionDE), file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/DownDE_ARM72_Unique.csv")
+write.csv(UniqueDown1088 %>% select(log2FoldChange, pvalue, padj, AnnotID, RefSeqID, UniprotID, GeneAdjust, GO_terms, DirectionDE), file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/DownDE_ARM81_Unique.csv")
+write.csv(UniqueUp1088 %>% select(log2FoldChange, pvalue, padj, AnnotID, RefSeqID, UniprotID, GeneAdjust, GO_terms, DirectionDE), file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/UpDE_ARM81_Unique.csv")
 
 
 results_DORN925_StressDF = results_DORN925_StressDF %>% mutate(LabelUnique = if_else(DE==TRUE & (AnnotID %in%   append(UniqueUp925$AnnotID, UniqueDown925$AnnotID)),GeneAdjust, ""))
 results_DORN925_StressDF$LabelUnique[results_DORN925_StressDF$LabelUnique ==""] <- NA
+
+# Volcano plot but label only the genes that fit and are uniquely up or down-regulated in DORN925
 VolcPlot925UniqueGr2 = ggplot(data=results_DORN925_StressDF, aes(x=log2FoldChange, y=-log10(pvalue), col=DirectionDE, label=LabelUnique)) + 
   geom_point() + 
   theme_minimal() +geom_text_repel(color="black") + scale_color_manual(values=c("royalblue4", "black", "firebrick3")) +  geom_vline(xintercept=c(-0.6, 0.6), col="grey52",linetype="dashed") +geom_vline(xintercept=c(-2, 2), col="grey52",linetype="dashed") +
   geom_hline(yintercept=-log10(0.05), col="grey52", linetype="dashed") + geom_hline(yintercept=-log10(0.01), col="grey52", linetype="dashed")  + ggtitle("Differentially expressed genes in DORN925\nin Response to H202 Stress (Unique)") + theme_minimal() + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
 
 
-
 results_DORN1088_StressDF = results_DORN1088_StressDF %>% mutate(LabelUnique = if_else(DE==TRUE & (AnnotID %in%   append(UniqueUp1088$AnnotID, UniqueDown1088$AnnotID)),GeneAdjust, ""))
 results_DORN1088_StressDF$LabelUnique[results_DORN1088_StressDF$LabelUnique ==""] <- NA
+
+# Volcano plot but label only the genes that fit and are uniquely up or down-regulated in DORN925
 VolcPlot1088UniqueGr2 = ggplot(data=results_DORN1088_StressDF, aes(x=log2FoldChange, y=-log10(pvalue), col=DirectionDE, label=LabelUnique)) + 
   geom_point() + 
   theme_minimal() +geom_text_repel(color="black") + scale_color_manual(values=c("royalblue4", "black", "firebrick3")) +  geom_vline(xintercept=c(-0.6, 0.6), col="grey52",linetype="dashed") +geom_vline(xintercept=c(-2, 2), col="grey52",linetype="dashed") +
@@ -192,7 +216,65 @@ VolcPlot1088UniqueGr2 = ggplot(data=results_DORN1088_StressDF, aes(x=log2FoldCha
 
 
 arranged = gridExtra::grid.arrange(VolcPlot1088UniqueGr2,VolcPlot925UniqueGr2,ncol=2)
-ggsave(arranged, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/SideBySideUnique.pdf", width=20, height=10)
+ggsave(arranged, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/SideBySideUnique.pdf", width=30, height=15)
+
+
+# Looking just at  genes of interest in each strain in response to stress
+###########################################################################
+crtGenes = c("cds-pgaptmp_002177", "cds-pgaptmp_002178", "cds-pgaptmp_002179", "cds-pgaptmp_002180", "cds-pgaptmp_002181")
+sigBGenes=c("cds-pgaptmp_002685", "cds-pgaptmp_002686", "cds-pgaptmp_002687", "cds-pgaptmp_002688")
+perGenes = c("cds-pgaptmp_000116", "cds-pgaptmp_000756", "cds-pgaptmp_001682", "cds-pgaptmp_001683", "cds-pgaptmp_001275")
+
+
+crts925 = results_DORN925_StressDF %>% filter(AnnotID %in% crtGenes) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID)
+crts1088 = results_DORN1088_StressDF %>% filter(AnnotID %in% crtGenes) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID)
+
+sig925 = results_DORN925_StressDF %>% filter(AnnotID %in% sigBGenes) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID) 
+sig1088 = results_DORN1088_StressDF %>% filter(AnnotID %in% sigBGenes) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID) 
+
+write.csv(crts925, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/crt925.csv", row.names=F)
+write.csv(sig925, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/sig925.csv", row.names=F)
+
+write.csv(crts1088, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/crt1088.csv", row.names=F)
+write.csv(sig1088, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/sig1088.csv", row.names=F)
+  
+sods925 = results_DORN925_StressDF %>% filter(AnnotID %in% c("cds-pgaptmp_000470", "cds-pgaptmp_001935")) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID) 
+sods1088 = results_DORN1088_StressDF %>% filter(AnnotID %in% c("cds-pgaptmp_000470", "cds-pgaptmp_001935")) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID) 
+
+write.csv(sods925, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/sod925.csv", row.names=F)
+write.csv(sods1088, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/sod1088.csv", row.names=F)
+
+kat925 = results_DORN925_StressDF %>% filter(AnnotID %in% c("cds-pgaptmp_000756")) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID) 
+kat1088 = results_DORN1088_StressDF %>% filter(AnnotID %in% c("cds-pgaptmp_000756")) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID) 
+
+per925 = results_DORN925_StressDF %>% filter(AnnotID %in% perGenes) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID)
+per1088 = results_DORN1088_StressDF %>% filter(AnnotID %in% perGenes) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID)
+
+write.csv(per925, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/per925.csv", row.names=F)
+write.csv(per1088, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/per1088.csv", row.names=F)
+
+agr925 = results_DORN925_StressDF %>% filter(GeneAdjust %in% c("agrA", "agrB", "agrC", "agrD")) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID) 
+agr1088 = results_DORN1088_StressDF %>% filter(GeneAdjust %in% c("agrA", "agrB", "agrC", "agrD")) %>% select(GeneAdjust, log2FoldChange, pvalue, padj, AnnotID) 
+write.csv(agr925, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/agr925.csv", row.names=F)
+write.csv(agr1088, quote=F, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/agr1088.csv", row.names=F)
+
+
+# Gene set enrichment analysis for GO terms
+################################################
+
+# Which gene ontologies are enriched in genes upregulated in DORN925 in response to stress? 
+
+MakeGOMapForCP = genemap %>% select(GO_terms,AnnotID)
+MakeGOMapForCP$GO_terms = sapply(MakeGOMapForCP$GO_terms, function(x) str_remove_all(x," "))
+UncollapsedGOs = tidyr::separate_rows(MakeGOMapForCP,GO_terms, sep=";" )
+
+UncollapsedGOs = data.frame(UncollapsedGOs)
+UncollapsedGOs = UncollapsedGOs %>% filter(GO_terms!= "" & !is.na(GO_terms))
+UncollapsedGOs
+CPGo = clusterProfiler::buildGOmap(UncollapsedGOs)
+
+enrichGO
+go2ont(CPGo$GO)
 ###########################################################
 # (i) Comparing DORN925 to DORN1088 in control conditions 
 ###########################################################
@@ -212,6 +294,7 @@ results_genotypeDF = data.frame(results_genotype) %>% select(padj,pvalue, log2Fo
 results_genotypeDF$AnnotID = row.names(results_genotypeDF)
 results_genotypeDF = results_genotypeDF %>% left_join(MapGenes, by="AnnotID")
 
+geneList
 
 ###########################################################
 # (ii) Comparing DORN925 to DORN1088 in H202 conditions 
@@ -228,8 +311,6 @@ ggsave(MAplotStrainH202, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrains
 
 results_genotypeH202DF$AnnotID = row.names(results_genotypeH202DF)
 results_genotypeH202DF = results_genotypeH202DF %>% left_join(MapGenesH202, by="AnnotID")
-
-
 
 
 # Which genes are DE between low-high only in control? Only under stress? under both conditions?
