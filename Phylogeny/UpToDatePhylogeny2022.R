@@ -15,17 +15,25 @@ library("ggtree")
 library("dplyr")
 library("ggplot2")
 library("ggtreeExtra")
-
+library("ggstar")
+library("ggnewscale")
+library("cowplot")
 TreeFilePath = "data/Phylogeny2022Data/RAxML_bestTree.RaxMLTree2022.newick"
 clonalframetreepath="data/Phylogeny2022Data/clonalframe_tree.newick.labelled_tree.newick"
 CCmapping="data/Phylogeny2022Data/CCMapPlotting.csv"
 
 StaphIsolateDORNs=read.csv("data/DFU_Staph_aureus_isolates.csv")
 UpdatedPhenotypes=read.csv("data/staphyloxanthin_paper_data.csv")
+PhenotypesUpdatedSak= read.csv("data/staphyloxanthin_paper_UpdatedSakClassifications.csv")
+PhenotypesUpdatedSak = PhenotypesUpdatedSak %>% select(DORN, SakUpdated)
 UpdatedPhenotypes$DORN=paste0("DORN", UpdatedPhenotypes$DORN)
 
 StaphIsolateDORNs$DORN=paste0("DORN", StaphIsolateDORNs$Doern.lab.bank.)
 CCgroupings=read.csv(CCmapping)
+
+
+
+
 # Read in the clonalframeML-corrected tree :) 
 ###############################################
 TreeObjectCF = ggtree::read.tree(clonalframetreepath)
@@ -98,16 +106,76 @@ ggsave(CircularPlotColors, file="ColorsCCplotUTD.pdf", width=26, height=25)
 ggsave(apeplotcirc, file="CircularPlotCF_UTD.pdf", width=25, height=25)
 
 
-# Patient 149 
-Stx = UpdatedPhenotypes %>% select(staphyloxanthin,DORN)
+# Adding min-max-normalized phenotypes to each tree 
+
+Phenotypes = UpdatedPhenotypes %>% select(staphyloxanthin,staphylokinase, siderophore, biofilm, DORN)
+Phenotypes$staphyloxanthin = ((Phenotypes$staphyloxanthin  - min(Phenotypes$staphyloxanthin))/(max(Phenotypes$staphyloxanthin) - min(Phenotypes$staphyloxanthin)))
+
+Phenotypes$staphylokinase = ((Phenotypes$staphylokinase  - min(Phenotypes$staphylokinase, na.rm=T))/(max(Phenotypes$staphylokinase, na.rm = T) - min(Phenotypes$staphylokinase,na.rm = T)))
+
+Phenotypes$biofilm = ((Phenotypes$biofilm  - min(Phenotypes$biofilm))/(max(Phenotypes$biofilm) - min(Phenotypes$biofilm)))
+Phenotypes$siderophore = ((Phenotypes$siderophore  - min(Phenotypes$siderophore))/(max(Phenotypes$siderophore) - min(Phenotypes$siderophore)))
+
+
+# CC vs. each phenotype (kruskall-wallis)
+#########################################
+# Phenotypes by CC 
+PhenotypesCC = Phenotypes
+PhenotypesCC = PhenotypesCC %>% left_join(CCgroupings,by="DORN")
+
+# Biofilm
+############
+PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
+kruskal.test(biofilm ~ CCLabel, data = PhenotypesCC)
+pairwise.wilcox.test(PhenotypesCC$biofilm, PhenotypesCC$CCLabel,
+                     p.adjust.method = "BH")
+BiofilmPlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=biofilm)) + geom_boxplot(fill="#83B44B") + xlab("Clonal Complex") + ylab("Normalized Biofilm Formation") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Biofilm") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+
+# Staphyloxanthin
+################
+PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
+kruskal.test(staphyloxanthin ~ CCLabel, data = PhenotypesCC)
+pairwise.wilcox.test(PhenotypesCC$staphyloxanthin, PhenotypesCC$CCLabel,
+                     p.adjust.method = "BH")
+staphyloxanthinPlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=staphyloxanthin)) + geom_boxplot(fill="#B8860B") + xlab("Clonal Complex") + ylab("Normalized Staphyloxanthin Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Staphyloxanthin") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+
+# staphylokinase
+################
+PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
+kruskal.test(staphylokinase ~ CCLabel, data = PhenotypesCC)
+pairwise.wilcox.test(PhenotypesCC$staphylokinase, PhenotypesCC$CCLabel,
+                     p.adjust.method = "BH")
+staphylokinasePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=staphylokinase)) + geom_boxplot(fill="#2D9D92") + xlab("Clonal Complex") + ylab("Normalized Staphylokinase Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Staphylokinase") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+
+
+# staphylokinase No sak
+#######################
+PhenotypesCCSak = PhenotypesCC %>% filter(!is.na(CCLabel)) %>% left_join((PhenotypesUpdatedSak %>% select(DORN, SakUpdated)),by="DORN" ) %>% filter(SakUpdated=="yes")
+kruskal.test(staphylokinase ~ CCLabel, data = PhenotypesCCSak)
+pairwise.wilcox.test(PhenotypesCCSak$staphylokinase, PhenotypesCCSak$CCLabel,
+                     p.adjust.method = "BH")
+staphylokinasePlotNoSak = ggplot(PhenotypesCCSak, aes(x=CCLabel, y=staphylokinase)) + geom_boxplot(fill="#2D9D92") + xlab("Clonal Complex") + ylab("Normalized Staphylokinase Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Staphylokinase(sak-positive Only)") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+
+
+# Siderophore production
+#######################
+PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
+kruskal.test(siderophore ~ CCLabel, data = PhenotypesCC)
+pairwise.wilcox.test(PhenotypesCC$siderophore, PhenotypesCC$CCLabel,
+                     p.adjust.method = "BH")
+siderophorePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=siderophore)) + geom_boxplot(fill="#8B0000") + xlab("Clonal Complex") + ylab("Normalized Siderophore Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Siderophore") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
 
 
 
-apeplotcircXanthin<- ggtree::ggtree(apeRootedCF, size=.25, layout = "circular", branch.length = "none") + geom_tiplab(size=1.7)
+gridExtra::grid.arrange(staphyloxanthinPlot, BiofilmPlot, staphylokinasePlot, siderophorePlot)
+gridExtra::grid.arrange(staphyloxanthinPlot, BiofilmPlot, staphylokinasePlotNoSak, siderophorePlot)
 
-apeplotcircXanthin$data$DORN = apeplotcirc$data$label
-apeplotcircXanthin$data = apeplotcircXanthin$data %>% left_join(CCgroupings, by="DORN")
-apeplotcircXanthin$data  = apeplotcircXanthin$data %>% mutate(CCRefs =  case_when(label=="CC1_MSSA476" ~"CC1",
+apeplotcircPhenotypes<- ggtree::ggtree(apeRootedCF, size=.25, layout = "circular", branch.length = "none") #+ geom_tiplab(size=1.7)
+
+apeplotcircPhenotypes$data$DORN = apeplotcirc$data$label
+#apeplotcircPhenotypes$data$label = NA
+apeplotcircPhenotypes$data = apeplotcircPhenotypes$data %>% left_join(CCgroupings, by="DORN")
+apeplotcircPhenotypes$data  = apeplotcircPhenotypes$data %>% mutate(CCRefs =  case_when(label=="CC1_MSSA476" ~"CC1",
                                                                label=="CC1_MW2" ~ "CC1",
                                                                label=="CC1-ST188" ~ "CC1", 
                                                                label=="CC12" ~ "CC12", 
@@ -139,19 +207,71 @@ apeplotcircXanthin$data  = apeplotcircXanthin$data %>% mutate(CCRefs =  case_whe
 
 
 
-apeplotcircXanthin$data = apeplotcircXanthin$data %>% left_join(Stx, by="DORN")
-apeplotcircXanthin$data = apeplotcircXanthin$data %>% left_join(StaphIsolateDORNs, by="DORN")
-apeplotcircXanthin$data$label=apeplotcircXanthin$data$patient_id
+apeplotcircPhenotypes$data = apeplotcircPhenotypes$data %>% left_join(Phenotypes, by="DORN")
+apeplotcircPhenotypes$data = apeplotcircPhenotypes$data %>% left_join(StaphIsolateDORNs, by="DORN")
+apeplotcircPhenotypes$data$label=apeplotcircPhenotypes$data$patient_id
 
 # Plot with bars for staphyloxanthin production & CC 
 #####################################################
-WithXanthin = apeplotcircXanthin + geom_fruit(geom=geom_star, aes(y=label,fill=CCRefs), starshape=13,size=4, pwidth=6, color=NA) +
+WithXanthin = apeplotcircPhenotypes + geom_fruit(geom=geom_star, aes(y=label,fill=CCRefs), starshape=13,size=4, pwidth=6, color=NA, offset=.08) +
   scale_fill_manual(values=randpalette18)+  new_scale_fill()+
-  geom_fruit(aes(x=(staphyloxanthin)),fill="#B8860B", geom=geom_bar, stat="identity", orientation="y",offset=.1, pwidth=20)
+  geom_fruit(aes(x=(staphyloxanthin)),fill="#B8860B", geom=geom_bar, stat="identity", orientation="y",offset=.1, pwidth=10)
+commonlegend = get_legend(WithXanthin)
 
-ggsave(WithXanthin, file="TestXanthinTree.pdf", width=11,height=11)
+ggsave(WithXanthin, file="data/Phylogeny2022Data/TestXanthinTree.pdf", width=11,height=11)
+WithXanthin = WithXanthin + theme(legend.position="None")
+
+# Plot with bars for staphylokinase production & CC 
+#####################################################
+WithKinase = apeplotcircPhenotypes + geom_fruit(geom=geom_star, aes(y=label,fill=CCRefs), starshape=13,size=4, pwidth=6, color=NA) +
+  scale_fill_manual(values=randpalette18)+  new_scale_fill()+
+  geom_fruit(aes(x=(staphylokinase)),fill="#2D9D92", geom=geom_bar, stat="identity", orientation="y",offset=.1, pwidth=10)
+
+ggsave(WithKinase, file="data/Phylogeny2022Data/TestKinaseTree.pdf", width=11,height=11)
 
 
+WithKinaseAndGene = apeplotcircPhenotypes + geom_fruit(geom=geom_star, aes(y=label,fill=CCRefs), starshape=13,size=4, pwidth=6, color=NA) +
+  scale_fill_manual(values=randpalette18)+  new_scale_fill()+
+  geom_fruit(aes(x=(staphylokinase)),fill="#2D9D92", geom=geom_bar, stat="identity", orientation="y",offset=.1, pwidth=10)
+
+WithKinaseAndGene$data = WithKinaseAndGene$data %>% left_join(PhenotypesUpdatedSak, by="DORN")
+WithKinaseAndGene$data$SakUpdated = if_else(is.na(WithKinaseAndGene$data$SakUpdated), "Reference", WithKinaseAndGene$data$SakUpdated)
+WithKinaseAndGene = WithKinaseAndGene +geom_tippoint(aes(color=factor(SakUpdated)), shape=16,position=position_nudge(x=1)) + scale_color_manual(values=(c("transparent", "transparent","black")))
+
+ggsave(WithKinaseAndGene, file="data/Phylogeny2022Data/TestKinaseTreeWithGene.pdf", width=11,height=11)
+
+
+WithKinase = WithKinase + theme(legend.position="None")
+
+
+
+# Plot with bars for siderophore production & CC
+################################################
+WithSiderophore = apeplotcircPhenotypes + geom_fruit(geom=geom_star, aes(y=label,fill=CCRefs), starshape=13,size=4, pwidth=6, color=NA, offset=.08) +
+  scale_fill_manual(values=randpalette18)+  new_scale_fill()+
+  geom_fruit(aes(x=(siderophore)),fill="#8B0000", geom=geom_bar, stat="identity", orientation="y",offset=.1, pwidth=10)
+ggsave(WithSiderophore, file="data/Phylogeny2022Data/TestSiderophoreTree.pdf", width=11,height=11)
+
+WithSiderophore= WithSiderophore + theme(legend.position="None")
+
+
+# Plot with bars for siderophore production & CC
+################################################
+WithBiofilm = apeplotcircPhenotypes + geom_fruit(geom=geom_star, aes(y=label,fill=CCRefs), starshape=13,size=4, pwidth=6, color=NA, offset=.08) +
+  scale_fill_manual(values=randpalette18)+  new_scale_fill()+
+  geom_fruit(aes(x=(biofilm)),fill="#83B44B", geom=geom_bar, stat="identity", orientation="y",offset=.1, pwidth=10)
+
+ggsave(WithBiofilm, file="data/Phylogeny2022Data/TestBiofilmTree.pdf", width=11,height=11)
+WithBiofilm = WithBiofilm + theme(legend.position="None")
+
+# WithBiofilm
+##################################
+
+grid1  = plot_grid(WithXanthin, WithKinase, WithSiderophore,WithBiofilm )
+
+##############################################################
+# Full circular plot where each isolate is labeled by healing
+##############################################################
 circdata_healing = ggtree(circdata, layout="circular", size=.5) + geom_tiplab(size=0) +
   geom_tippoint(aes(color = HealedBy12),  size=2) + scale_color_manual(values=c("darkred", "#9FE2BF"),na.value ="#00000000" ) +
   new_scale_fill()+ geom_fruit(geom=geom_star, aes(y=label,fill=CCRefs), starshape=13,size=8,color=NA, offset=.05) + scale_fill_manual(values=randpalette18)
@@ -162,8 +282,10 @@ circdata_healing
 ggsave(circdata_healing, file="CircularPlotCF_HealingAlone.pdf", width=10, height=10)
 ggsave(circdata_healing, file="CircularPlotCF_Healing.pdf", width=12, height=12)
 
-# Make simplified version of the plot with healing outcomes
-############################################################
+
+#############################################################################
+# Make simplified version of the full rectangular tree with healing outcomes
+##############################################################################
 UpdatedPhenotypes = UpdatedPhenotypes %>% mutate(HealedBy12 = if_else(week_healed > 12 | is.na(week_healed), "No", "Yes"))
 HealingOutcomes = UpdatedPhenotypes %>% select(DORN, HealedBy12,patient)
 circdata = circdata %>% left_join(HealingOutcomes, by="DORN")
@@ -245,3 +367,4 @@ ggsave(BarPlotPrint, file="BarplotforHealingByCC.pdf")
 
 
 #
+
