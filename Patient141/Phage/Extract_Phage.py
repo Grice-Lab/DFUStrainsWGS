@@ -21,6 +21,6 @@ phagebeginning=contig1[1:25619]
 otpt = open(outputPath, "w")
 otpt.write(">DORN925phage1\n")
 otpt.write(phageend)
-otpt.write(">DORN925phage2\n")
+otpt.write("\n>DORN925phage2\n")
 otpt.write(phagebeginning)
 otpt.close()
