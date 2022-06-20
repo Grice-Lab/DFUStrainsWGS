@@ -8,10 +8,12 @@
 
 source /home/acampbe/software/miniconda3/bin/activate BowtieEnv
 
-readspath="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/SimReads/DORN925sorted.fastq"
-readsname="DORN925reads"
+readspath="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/SimReads/S_pettenkoferisorted.fastq"
+readsname="StaphPettenkoferireads"
 
 underscore="_"
+# S_pettenkoferisorted.fastq"
+#readsname="StaphPettenkoferireads"
 
 markerpath="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/XanthinMarkersExtended.fasta"
 markername="XanthinMarkersExt"
@@ -48,7 +50,7 @@ for dvalue in 20 25 30; do
         	iterationkey=$outputpath$readsname$underscore$dvalue$underscore$rvalue$underscore$lvalue$underscore$i2value
 
 
-        	bowtie2 --local -N 1 -D $dvalue -R $rvalue -L $lvalue -i $ival -x $markername -U $readspath -S $iterationkey$samext
+        	bowtie2 -N 1 -D $dvalue -R $rvalue -L $lvalue -i $ival -x $markername -U $readspath -S $iterationkey$samext
         	samtools view -bS $iterationkey$samext > $iterationkey$bamext 
         	samtools sort $iterationkey$bamext > $iterationkey$sortedbamext
 

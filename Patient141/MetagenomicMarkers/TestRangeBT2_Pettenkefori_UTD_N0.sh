@@ -8,10 +8,12 @@
 
 source /home/acampbe/software/miniconda3/bin/activate BowtieEnv
 
-readspath="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/SimReads/DORN925sorted.fastq"
-readsname="DORN925reads"
+readspath="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/SimReads/S_pettenkoferisorted.fastq"
+readsname="StaphPettenkoferireads"
 
 underscore="_"
+# S_pettenkoferisorted.fastq"
+#readsname="StaphPettenkoferireads"
 
 markerpath="/home/acampbe/DFU/data/WGS_2020/SimulateGenomes141/XanthinMarkersExtended.fasta"
 markername="XanthinMarkersExt"
@@ -30,12 +32,14 @@ export BOWTIE2_INDEXES=$bowtiepath
 
 iterationkey1=$outputpath$readsname$underscore$samtoolsd
 
-bowtie2 -N 1 --very-sensitive-local -x $markername -U $readspath -S $iterationkey1$samext
-samtools view -bS $iterationkey1$samext > $iterationkey1$bamext
-samtools sort $iterationkey1$bamext > $iterationkey1$sortedbamext
-samtools mpileup -uf $filename $markerpath $iterationkey1$sortedbamext | bcftools view -Ov -o $iterationkey1$bcfext
+#bowtie2 -N 1 --very-sensitive-local -x $markername -U $readspath -S $iterationkey1$samext
+#samtools view -bS $iterationkey1$samext > $iterationkey1$bamext
+#samtools sort $iterationkey1$bamext > $iterationkey1$sortedbamext
+#samtools mpileup -uf $filename $markerpath $iterationkey1$sortedbamext | bcftools view -Ov -o $iterationkey1$bcfext
 
 ivalprefix="S,1,0."
+n0suffix="_N0"
+
 for dvalue in 20 25 30; do
 
   for rvalue in 3 5 7 9; do
@@ -45,10 +49,10 @@ for dvalue in 20 25 30; do
 	for i2value in "75" "50" "25" "10" "05" ; do 
 
 		ival=$ivalprefix$i2value    
-        	iterationkey=$outputpath$readsname$underscore$dvalue$underscore$rvalue$underscore$lvalue$underscore$i2value
+        	iterationkey=$outputpath$readsname$underscore$dvalue$underscore$rvalue$underscore$lvalue$underscore$i2value$n0suffix
 
 
-        	bowtie2 --local -N 1 -D $dvalue -R $rvalue -L $lvalue -i $ival -x $markername -U $readspath -S $iterationkey$samext
+        	bowtie2 -N 0 -D $dvalue -R $rvalue -L $lvalue -i $ival -x $markername -U $readspath -S $iterationkey$samext
         	samtools view -bS $iterationkey$samext > $iterationkey$bamext 
         	samtools sort $iterationkey$bamext > $iterationkey$sortedbamext
 

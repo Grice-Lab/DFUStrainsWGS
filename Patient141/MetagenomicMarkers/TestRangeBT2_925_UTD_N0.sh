@@ -34,7 +34,7 @@ bowtie2 -N 1 --very-sensitive-local -x $markername -U $readspath -S $iterationke
 samtools view -bS $iterationkey1$samext > $iterationkey1$bamext
 samtools sort $iterationkey1$bamext > $iterationkey1$sortedbamext
 samtools mpileup -uf $filename $markerpath $iterationkey1$sortedbamext | bcftools view -Ov -o $iterationkey1$bcfext
-
+n0suffix="_N0"
 ivalprefix="S,1,0."
 for dvalue in 20 25 30; do
 
@@ -45,10 +45,10 @@ for dvalue in 20 25 30; do
 	for i2value in "75" "50" "25" "10" "05" ; do 
 
 		ival=$ivalprefix$i2value    
-        	iterationkey=$outputpath$readsname$underscore$dvalue$underscore$rvalue$underscore$lvalue$underscore$i2value
+        	iterationkey=$outputpath$readsname$underscore$dvalue$underscore$rvalue$underscore$lvalue$underscore$i2value$n0suffix
 
 
-        	bowtie2 --local -N 1 -D $dvalue -R $rvalue -L $lvalue -i $ival -x $markername -U $readspath -S $iterationkey$samext
+        	bowtie2 -N 0 -D $dvalue -R $rvalue -L $lvalue -i $ival -x $markername -U $readspath -S $iterationkey$samext
         	samtools view -bS $iterationkey$samext > $iterationkey$bamext 
         	samtools sort $iterationkey$bamext > $iterationkey$sortedbamext
 
