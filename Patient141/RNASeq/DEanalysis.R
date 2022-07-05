@@ -13,7 +13,7 @@ library(clusterProfiler)
 library(enrichplot)
 library(ggrepel)
 library(tidyr)
-
+library(viridis)
 
 samplemap=read.csv2("/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/MappingRNASeq.txt", sep="\t", header=F)
 colnames(samplemap) = c("Sample", "SampleTreatment", "Condition")
@@ -71,6 +71,12 @@ DEData =DESeqDataSetFromMatrix(countData=CountsMatrix,
                                design= ~group)
 myDESeqObj = DESeq(DEData)
 
+
+# PCA on VST-transformed
+########################
+myDESeqObjVST = vst(myDESeqObj)
+plotPCA(myDESeqObjVST,intgroup=c("group")) + scale_color_manual()
+
 # Sanity check:sak should be 0 counts in DORN1088 samples
 ##########################################################
 CountsMatrix[c("cds-pgaptmp_000025"),]
@@ -107,7 +113,7 @@ results_DORN925_StressDF = results_DORN925_StressDF %>% mutate(DirectionDE = cas
 # Label: "Up" / "Down" if the total log2foldchange >2 (4x-fold change) and DE is true; NA otherwise (so as not to crowd the volcano plot)
 results_DORN925_StressDF = results_DORN925_StressDF %>% mutate(Label = if_else( ((DirectionDE == "Up" | DirectionDE == "Down" ) & abs(log2FoldChange) >2 ), GeneAdjust,""))
 results_DORN925_StressDF$Label[results_DORN925_StressDF$Label==""] <- NA
-results_DORN925_StressDF
+
 
 
 resultsStress925 = results_DORN925_StressDF %>% select(log2FoldChange, padj, AnnotID, RefSeqID, UniprotID, Gene)
@@ -160,12 +166,14 @@ results_DORN1088_StressDF$Label[results_DORN1088_StressDF$Label==""] <- NA
 
 
 resultsStress1088 = results_DORN1088_StressDF %>% select(log2FoldChange, padj, AnnotID, RefSeqID, UniprotID, Gene)
-write.csv(resultsStress1088, file="Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqDataSets/TotalGenesStressVsControl1088.csv")
+write.csv(resultsStress1088, file="data/RNASeqDataSets/TotalGenesStressVsControl1088.csv")
 
 VolcPlot1088 = ggplot(data=results_DORN1088_StressDF, aes(x=log2FoldChange, y=-log10(pvalue), col=DirectionDE, label=Label)) + 
   geom_point() + 
   theme_minimal() +geom_text_repel() + scale_color_manual(values=c("royalblue4", "black", "firebrick3")) +  geom_vline(xintercept=c(-0.6, 0.6), col="grey52",linetype="dashed") +geom_vline(xintercept=c(-2, 2), col="grey52",linetype="dashed") +
-  geom_hline(yintercept=-log10(0.05), col="grey52", linetype="dashed") + geom_hline(yintercept=-log10(0.01), col="grey52", linetype="dashed")  + ggtitle("Differentially expressed genes in DORN1088\nin Response to H202 Stress") + theme_minimal() + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
+  geom_hline(yintercept=-log10(0.05), col="grey52", linetype="dashed") + geom_hline(yintercept=-log10(0.01), col="grey52", linetype="dashed")  + ggtitle("Differentially expressed genes in DORN1088\nin Response to H202 Stress") + theme_minimal() + theme(plot.title=element_text(face="bold", size=20, hjust=.5)) +
+
+
 
 # MA plot1088
 #######################
@@ -174,7 +182,7 @@ MAplot1088 = ggmaplot(results_DORN1088_StressDF,size=1, genenames = results_DORN
 
 MAplot1088= MAplot1088 + theme(plot.title=element_text(face="bold", size=20, hjust=.5))
 
-ggsave(MAplot1088, file="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/RNASeqPlots/MAPlotDORN1088Stress.png", height=10, width=20)
+ggsave(MAplot1088, file="data/RNASeqPlots/MAPlotDORN1088Stress.png", height=10, width=20)
 
 
 gridarrange= gridExtra::grid.arrange(VolcPlot1088, VolcPlot925, ncol=2)
@@ -313,6 +321,74 @@ write.csv(UniqueUpH202,"/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/dat
 
 # Looking just at  genes of interest in each strain in response to stress
 ###########################################################################
+stressGenes = read.csv("data/StressResponseGenesInclude.csv")
+stressGenes = stressGenes %>% filter(! (GeneName %in% c("psmA1",
+                                     "psmA2",
+                                     "psmA3",
+                                     "psmA4","hld")))
+# Stress genes in DORN925 re: stress
+results_DORN925_StressDFjoined = results_DORN925_StressDF %>% left_join(stressGenes, by="AnnotID")
+StressResponsive925stress = results_DORN925_StressDFjoined %>% filter(!is.na(GeneName))
+StressResponsive925stress = StressResponsive925stress %>% group_by(Grouping, OperonRegulonSubgrouping) %>% arrange(Grouping,OperonRegulonSubgrouping,  GeneName) %>% ungroup()
+StressResponsive925stress = StressResponsive925stress %>% mutate(GeneAdjust= if_else(is.na(GeneName), GeneAdjust, GeneName))
+StressResponsive925stress$comparison = "SA925_h2o2"
+StressResponsive925 = StressResponsive925stress %>% select(GeneAdjust, comparison, log2FoldChange, padj)
+
+
+order = StressResponsive925stress$GeneAdjust
+# Stress genes in DORN1088 re: stress
+results_DORN1088_Stressjoined = results_DORN1088_StressDF %>% left_join(stressGenes, by="AnnotID")
+results_DORN1088stress = results_DORN1088_Stressjoined %>% filter(!is.na(GeneName))
+results_DORN1088stress = results_DORN1088stress %>% group_by(Grouping, OperonRegulonSubgrouping) %>% arrange(Grouping,OperonRegulonSubgrouping,  GeneName) %>% ungroup()
+StressResponsive1088stress = results_DORN1088stress %>% mutate(GeneAdjust= if_else(is.na(GeneName), GeneAdjust, GeneName))
+StressResponsive1088stress$comparison = "SA1088_h2o2"
+StressResponsive1088stress = StressResponsive1088stress %>% select(GeneAdjust, comparison, log2FoldChange, padj)
+
+# Stress genes in 925 vs. 1088 under control conditions
+results_Genotype_joined = results_genotypeDF %>% left_join(stressGenes, by="AnnotID")
+results_Genotype_joined = results_Genotype_joined %>% filter(!is.na(GeneName))
+results_Genotype_joined = results_Genotype_joined %>% group_by(Grouping, OperonRegulonSubgrouping) %>% arrange(Grouping,OperonRegulonSubgrouping,  GeneName) %>% ungroup()
+StressResponsiveGenotype = results_Genotype_joined %>% mutate(GeneAdjust= if_else(is.na(GeneName), GeneAdjust, GeneName))
+StressResponsiveGenotype$comparison = "SA925_1088_Control"
+StressResponsiveGenotype = StressResponsiveGenotype %>% select(GeneAdjust, comparison, log2FoldChange, padj)
+
+
+View(results_Genotype_joined)
+
+StressGenesAll = rbind(StressResponsive925, StressResponsive1088stress)
+StressGenesAll = rbind(StressGenesAll, StressResponsiveGenotype)
+
+StressGenesMelted = StressGenesAll %>% reshape2::melt(id.vars=c("comparison", "GeneAdjust"))
+StressGenesMeltedPvalues =  StressGenesMelted %>% filter(variable=="padj")
+  
+StressGenesMeltedLFCs =  StressGenesMelted %>% filter(variable=="log2FoldChange")
+
+StressGenesMeltedPvalues = StressGenesMeltedPvalues %>%  mutate(sigLabel=case_when(value < .05 & value >= .01 ~"*",
+                                                               value <.01 & value >= .001 ~"**",
+                                                               value < .001 & value >= .0001 ~ "***",
+                                                               value < .0001~ "****",
+
+                                                               TRUE~ ""))
+StressGenesMeltedPvalues
+StressGenesMeltedLFCs = StressGenesMeltedLFCs %>% left_join(StressGenesMeltedPvalues %>% select(comparison, GeneAdjust, sigLabel), by=c("comparison", "GeneAdjust"))
+
+
+
+#View(StressGenesMeltedLFCs)
+testplot = ggplot(StressGenesMeltedLFCs, aes(x=comparison, y=GeneAdjust, fill=value)) + geom_tile() + scale_fill_viridis(option="plasma") + geom_text(aes(label=sigLabel), vjust=.5, color="white") + theme_classic() + labs(fill="log2FC") + ylab("Gene")
+testplot$data$GeneAdjust = factor(testplot$data$GeneAdjust, levels=rev(order))
+testplot$data$comparison = factor(testplot$data$comparison, levels=c("SA925_1088_Control", "SA925_h2o2", "SA1088_h2o2"))
+testplot
+testplot + scale_fill_viridis(option="inferno")
+
+ggplot(StressGenesMeltedLFCs, aes(x=comparison, y=GeneAdjust, fill=value)) + geom_tile() + scale_fill_gradient(high="#FFFF00" , low="#800080") + geom_text(aes(label=sigLabel), vjust=.5, color="white") + theme_classic() + labs(fill="log2FC") + ylab("Gene")
+
+
+
+#FFD014 60339B
+
+#scale_fill_gradient2(high="red", mid="white", low="blue", midpoint = 0)
+
 crtGenes = c("cds-pgaptmp_002177", "cds-pgaptmp_002178", "cds-pgaptmp_002179", "cds-pgaptmp_002180", "cds-pgaptmp_002181")
 sigBGenes=c("cds-pgaptmp_002685", "cds-pgaptmp_002686", "cds-pgaptmp_002687", "cds-pgaptmp_002688")
 
