@@ -86,7 +86,6 @@ bfilm1 = Biofilm1Means %>% select(Strain, Normalized)
 
 
 Biofilm2 = read.csv("~/Desktop/GriceLabGit/DFUStrainsWGS/data/Validations/BIOFILM_2/biofilm_07.14.22_Values_LexyRep2.csv")
-
 Biofilm2Means = Biofilm2 %>% group_by(Strain) %>% summarise(mean570= round(mean(OD570), 10), mean600= round(mean(OD600), 10))
 Biofilm2Means$Ratio = round(Biofilm2Means$mean570/Biofilm2Means$mean600, 10)
 Biofilm2_502A = Biofilm2Means %>% filter(Strain=="502A") %>% select(Ratio)
