@@ -126,10 +126,14 @@ PhenotypesCC = PhenotypesCC %>% left_join(CCgroupings,by="DORN")
 # Biofilm
 ############
 PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
+meansbiofilm= PhenotypesCC %>% select(CCLabel, biofilm) %>% group_by(CCLabel) %>% summarize(CCLabel=CCLabel, biofilm=mean(biofilm)) %>% arrange(biofilm) 
+OrderBiofilm = unique(meansbiofilm$CCLabel)
 kruskal.test(biofilm ~ CCLabel, data = PhenotypesCC)
 pairwise.wilcox.test(PhenotypesCC$biofilm, PhenotypesCC$CCLabel,
                      p.adjust.method = "BH")
-BiofilmPlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=biofilm)) + geom_boxplot(fill="#83B44B") + xlab("Clonal Complex") + ylab("Normalized Biofilm Formation") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Biofilm") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+BiofilmPlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=biofilm)) + geom_boxplot(fill="#83B44B") + xlab("Clonal Complex") + ylab("Normalized Biofilm Formation") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Biofilm") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+BiofilmPlot$data$CCLabel = factor(BiofilmPlot$data$CCLabel, levels=OrderBiofilm)
+
 
 # Staphyloxanthin
 ################
@@ -137,7 +141,8 @@ PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
 kruskal.test(staphyloxanthin ~ CCLabel, data = PhenotypesCC)
 pairwise.wilcox.test(PhenotypesCC$staphyloxanthin, PhenotypesCC$CCLabel,
                      p.adjust.method = "BH")
-staphyloxanthinPlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=staphyloxanthin)) + geom_boxplot(fill="#B8860B") + xlab("Clonal Complex") + ylab("Normalized Staphyloxanthin Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Staphyloxanthin") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+staphyloxanthinPlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=staphyloxanthin)) + geom_boxplot(fill="#B8860B") + xlab("Clonal Complex") + ylab("Normalized Staphyloxanthin Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Staphyloxanthin") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+staphyloxanthinPlot$data$CCLabel = factor(staphyloxanthinPlot$data$CCLabel, levels=OrderBiofilm)
 
 # staphylokinase
 ################
@@ -145,7 +150,8 @@ PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
 kruskal.test(staphylokinase ~ CCLabel, data = PhenotypesCC)
 pairwise.wilcox.test(PhenotypesCC$staphylokinase, PhenotypesCC$CCLabel,
                      p.adjust.method = "BH")
-staphylokinasePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=staphylokinase)) + geom_boxplot(fill="#2D9D92") + xlab("Clonal Complex") + ylab("Normalized Staphylokinase Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Staphylokinase") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+staphylokinasePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=staphylokinase)) + geom_boxplot(fill="#2D9D92") + xlab("Clonal Complex") + ylab("Normalized Staphylokinase Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Staphylokinase") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+staphylokinasePlot$data$CCLabel = factor(staphylokinasePlot$data$CCLabel, levels=OrderBiofilm)
 
 
 # staphylokinase No sak
@@ -154,7 +160,8 @@ PhenotypesCCSak = PhenotypesCC %>% filter(!is.na(CCLabel)) %>% left_join((Phenot
 kruskal.test(staphylokinase ~ CCLabel, data = PhenotypesCCSak)
 pairwise.wilcox.test(PhenotypesCCSak$staphylokinase, PhenotypesCCSak$CCLabel,
                      p.adjust.method = "BH")
-staphylokinasePlotNoSak = ggplot(PhenotypesCCSak, aes(x=CCLabel, y=staphylokinase)) + geom_boxplot(fill="#2D9D92") + xlab("Clonal Complex") + ylab("Normalized Staphylokinase Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Staphylokinase(sak-positive Only)") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+staphylokinasePlotNoSak = ggplot(PhenotypesCCSak, aes(x=CCLabel, y=staphylokinase)) + geom_boxplot(fill="#2D9D92") + xlab("Clonal Complex") + ylab("Normalized Staphylokinase Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Staphylokinase(sak-positive Only)") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+staphylokinasePlotNoSak$data$CCLabel = factor(staphylokinasePlotNoSak$data$CCLabel, levels=OrderBiofilm)
 
 
 # Siderophore production
@@ -163,7 +170,8 @@ PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
 kruskal.test(siderophore ~ CCLabel, data = PhenotypesCC)
 pairwise.wilcox.test(PhenotypesCC$siderophore, PhenotypesCC$CCLabel,
                      p.adjust.method = "BH")
-siderophorePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=siderophore)) + geom_boxplot(fill="#8B0000") + xlab("Clonal Complex") + ylab("Normalized Siderophore Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.1, label.x=2.5) + ggtitle("Siderophore") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+siderophorePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=siderophore)) + geom_boxplot(fill="#8B0000") + xlab("Clonal Complex") + ylab("Normalized Siderophore Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Siderophore") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+siderophorePlot$data$CCLabel = factor(siderophorePlot$data$CCLabel, levels=OrderBiofilm)
 
 
 
