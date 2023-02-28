@@ -1,44 +1,43 @@
-bsub -e patient_301.e -o patient_301.o sh Run_Cladebreaker_301.sh
-bsub -e patient_159.e -o patient_159.o sh Run_Cladebreaker_159.sh
-bsub -e patient_123.e -o patient_123.o sh Run_Cladebreaker_123.sh
-bsub -e patient_178.e -o patient_178.o sh Run_Cladebreaker_178.sh
-bsub -e patient_116.e -o patient_116.o sh Run_Cladebreaker_116.sh
-bsub -e patient_161.e -o patient_161.o sh Run_Cladebreaker_161.sh
-bsub -e patient_131.e -o patient_131.o sh Run_Cladebreaker_131.sh
-bsub -e patient_196.e -o patient_196.o sh Run_Cladebreaker_196.sh
-bsub -e patient_173.e -o patient_173.o sh Run_Cladebreaker_173.sh
-bsub -e patient_191.e -o patient_191.o sh Run_Cladebreaker_191.sh
-bsub -e patient_122.e -o patient_122.o sh Run_Cladebreaker_122.sh
-bsub -e patient_179.e -o patient_179.o sh Run_Cladebreaker_179.sh
-bsub -e patient_141.e -o patient_141.o sh Run_Cladebreaker_141.sh
-bsub -e patient_111.e -o patient_111.o sh Run_Cladebreaker_111.sh
-bsub -e patient_105.e -o patient_105.o sh Run_Cladebreaker_105.sh
-bsub -e patient_124.e -o patient_124.o sh Run_Cladebreaker_124.sh
-bsub -e patient_197.e -o patient_197.o sh Run_Cladebreaker_197.sh
-bsub -e patient_183.e -o patient_183.o sh Run_Cladebreaker_183.sh
-bsub -e patient_166.e -o patient_166.o sh Run_Cladebreaker_166.sh
-bsub -e patient_153.e -o patient_153.o sh Run_Cladebreaker_153.sh
-bsub -e patient_114.e -o patient_114.o sh Run_Cladebreaker_114.sh
-bsub -e patient_186.e -o patient_186.o sh Run_Cladebreaker_186.sh
-bsub -e patient_192.e -o patient_192.o sh Run_Cladebreaker_192.sh
-bsub -e patient_119.e -o patient_119.o sh Run_Cladebreaker_119.sh
-bsub -e patient_149.e -o patient_149.o sh Run_Cladebreaker_149.sh
-bsub -e patient_127.e -o patient_127.o sh Run_Cladebreaker_127.sh
-bsub -e patient_106.e -o patient_106.o sh Run_Cladebreaker_106.sh
-bsub -e patient_112.e -o patient_112.o sh Run_Cladebreaker_112.sh
-bsub -e patient_308.e -o patient_308.o sh Run_Cladebreaker_308.sh
-bsub -e patient_201.e -o patient_201.o sh Run_Cladebreaker_201.sh
-bsub -e patient_171.e -o patient_171.o sh Run_Cladebreaker_171.sh
-bsub -e patient_165.e -o patient_165.o sh Run_Cladebreaker_165.sh
-bsub -e patient_302.e -o patient_302.o sh Run_Cladebreaker_302.sh
-bsub -e patient_162.e -o patient_162.o sh Run_Cladebreaker_162.sh
-bsub -e patient_176.e -o patient_176.o sh Run_Cladebreaker_176.sh
-bsub -e Untitled.e -o Untitled.o sh Run_Cladebreaker_Untitled.sh
-bsub -e patient_139.e -o patient_139.o sh Run_Cladebreaker_139.sh
-bsub -e patient_126.e -o patient_126.o sh Run_Cladebreaker_126.sh
-bsub -e patient_310.e -o patient_310.o sh Run_Cladebreaker_310.sh
-bsub -e patient_132.e -o patient_132.o sh Run_Cladebreaker_132.sh
-bsub -e patient_169.e -o patient_169.o sh Run_Cladebreaker_169.sh
-bsub -e patient_145.e -o patient_145.o sh Run_Cladebreaker_145.sh
-bsub -e patient_309.e -o patient_309.o sh Run_Cladebreaker_309.sh
-bsub -e patient_170.e -o patient_170.o sh Run_Cladebreaker_170.sh
+bsub -e patient_301.e -o patient_301.o -J "patient_301_job" sh Run_Cladebreaker_301.sh
+bsub -e patient_159.e -o patient_159.o -w "done(patient_301_job)" -J "patient_159_job" sh Run_Cladebreaker_159.sh
+bsub -e patient_123.e -o patient_123.o -w "done(patient_159_job)" -J "patient_123_job" sh Run_Cladebreaker_123.sh
+bsub -e patient_178.e -o patient_178.o -w "done(patient_123_job)" -J "patient_178_job" sh Run_Cladebreaker_178.sh
+bsub -e patient_116.e -o patient_116.o -w "done(patient_178_job)" -J "patient_116_job" sh Run_Cladebreaker_116.sh
+bsub -e patient_161.e -o patient_161.o -w "done(patient_116_job)" -J "patient_161_job" sh Run_Cladebreaker_161.sh
+bsub -e patient_131.e -o patient_131.o -w "done(patient_161_job)" -J "patient_131_job" sh Run_Cladebreaker_131.sh
+bsub -e patient_196.e -o patient_196.o -w "done(patient_131_job)" -J "patient_196_job" sh Run_Cladebreaker_196.sh
+bsub -e patient_173.e -o patient_173.o -w "done(patient_196_job)" -J "patient_173_job" sh Run_Cladebreaker_173.sh
+bsub -e patient_191.e -o patient_191.o -w "done(patient_173_job)" -J "patient_191_job" sh Run_Cladebreaker_191.sh
+bsub -e patient_122.e -o patient_122.o -w "done(patient_191_job)" -J "patient_122_job" sh Run_Cladebreaker_122.sh
+bsub -e patient_179.e -o patient_179.o -w "done(patient_122_job)" -J "patient_179_job" sh Run_Cladebreaker_179.sh
+bsub -e patient_141.e -o patient_141.o -w "done(patient_179_job)" -J "patient_141_job" sh Run_Cladebreaker_141.sh
+bsub -e patient_111.e -o patient_111.o -w "done(patient_141_job)" -J "patient_111_job" sh Run_Cladebreaker_111.sh
+bsub -e patient_105.e -o patient_105.o -w "done(patient_111_job)" -J "patient_105_job" sh Run_Cladebreaker_105.sh
+bsub -e patient_124.e -o patient_124.o -w "done(patient_105_job)" -J "patient_124_job" sh Run_Cladebreaker_124.sh
+bsub -e patient_197.e -o patient_197.o -w "done(patient_124_job)" -J "patient_197_job" sh Run_Cladebreaker_197.sh
+bsub -e patient_183.e -o patient_183.o -w "done(patient_197_job)" -J "patient_183_job" sh Run_Cladebreaker_183.sh
+bsub -e patient_166.e -o patient_166.o -w "done(patient_183_job)" -J "patient_166_job" sh Run_Cladebreaker_166.sh
+bsub -e patient_153.e -o patient_153.o -w "done(patient_166_job)" -J "patient_153_job" sh Run_Cladebreaker_153.sh
+bsub -e patient_114.e -o patient_114.o -w "done(patient_153_job)" -J "patient_114_job" sh Run_Cladebreaker_114.sh
+bsub -e patient_186.e -o patient_186.o -w "done(patient_114_job)" -J "patient_186_job" sh Run_Cladebreaker_186.sh
+bsub -e patient_192.e -o patient_192.o -w "done(patient_186_job)" -J "patient_192_job" sh Run_Cladebreaker_192.sh
+bsub -e patient_119.e -o patient_119.o -w "done(patient_192_job)" -J "patient_119_job" sh Run_Cladebreaker_119.sh
+bsub -e patient_149.e -o patient_149.o -w "done(patient_119_job)" -J "patient_149_job" sh Run_Cladebreaker_149.sh
+bsub -e patient_127.e -o patient_127.o -w "done(patient_149_job)" -J "patient_127_job" sh Run_Cladebreaker_127.sh
+bsub -e patient_106.e -o patient_106.o -w "done(patient_127_job)" -J "patient_106_job" sh Run_Cladebreaker_106.sh
+bsub -e patient_112.e -o patient_112.o -w "done(patient_106_job)" -J "patient_112_job" sh Run_Cladebreaker_112.sh
+bsub -e patient_308.e -o patient_308.o -w "done(patient_112_job)" -J "patient_308_job" sh Run_Cladebreaker_308.sh
+bsub -e patient_201.e -o patient_201.o -w "done(patient_308_job)" -J "patient_201_job" sh Run_Cladebreaker_201.sh
+bsub -e patient_171.e -o patient_171.o -w "done(patient_201_job)" -J "patient_171_job" sh Run_Cladebreaker_171.sh
+bsub -e patient_165.e -o patient_165.o -w "done(patient_171_job)" -J "patient_165_job" sh Run_Cladebreaker_165.sh
+bsub -e patient_302.e -o patient_302.o -w "done(patient_165_job)" -J "patient_302_job" sh Run_Cladebreaker_302.sh
+bsub -e patient_162.e -o patient_162.o -w "done(patient_302_job)" -J "patient_162_job" sh Run_Cladebreaker_162.sh
+bsub -e patient_176.e -o patient_176.o -w "done(patient_162_job)" -J "patient_176_job" sh Run_Cladebreaker_176.sh
+bsub -e patient_139.e -o patient_139.o -w "done(patient_176_job)" -J "patient_139_job" sh Run_Cladebreaker_139.sh
+bsub -e patient_126.e -o patient_126.o -w "done(patient_139_job)" -J "patient_126_job" sh Run_Cladebreaker_126.sh
+bsub -e patient_310.e -o patient_310.o -w "done(patient_126_job)" -J "patient_310_job" sh Run_Cladebreaker_310.sh
+bsub -e patient_132.e -o patient_132.o -w "done(patient_310_job)" -J "patient_132_job" sh Run_Cladebreaker_132.sh
+bsub -e patient_169.e -o patient_169.o -w "done(patient_132_job)" -J "patient_169_job" sh Run_Cladebreaker_169.sh
+bsub -e patient_145.e -o patient_145.o -w "done(patient_169_job)" -J "patient_145_job" sh Run_Cladebreaker_145.sh
+bsub -e patient_309.e -o patient_309.o -w "done(patient_145_job)" -J "patient_309_job" sh Run_Cladebreaker_309.sh
+bsub -e patient_170.e -o patient_170.o -w "done(patient_309_job)" -J "patient_170_job" sh Run_Cladebreaker_170.sh
