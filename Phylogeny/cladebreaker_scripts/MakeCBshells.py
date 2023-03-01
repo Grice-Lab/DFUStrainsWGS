@@ -9,17 +9,27 @@ configstring="/home/acampbe/DFU/data/WGS_2020/cladebreaker/penn_cluster.config"
 
 
 listInputs = os.listdir(PathToInputs)
+listInputs.remove(".DS_Store")
 #len(listInputs)
 jobcommands=[]
+
+OldJobIDname = listInputs[0].replace("_input.csv", "") + "_job"
+
 for l in range(len(listInputs)):
-    inputcsvpath = PathToInputs + str(listInputs[l])
+    inputcsvpath = "/home/acampbe/DFU/data/WGS_2020/cladebreaker/InputCSVs/" + str(listInputs[l])
     jobIDstring=listInputs[l].replace("_input.csv", "")
     outputpath="/home/acampbe/DFU/data/WGS_2020/cladebreaker/cladebreaker_" + jobIDstring
-    inputpath=PathToInputs + listInputs[l]
+    inputpath="/home/acampbe/DFU/data/WGS_2020/cladebreaker/InputCSVs/"  + listInputs[l]
     NumberID=jobIDstring.replace("patient_","")
     BatchFileName="Run_Cladebreaker_" + str(NumberID) +".sh"
     BatchFilePath = "/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/BatchShells/" + BatchFileName
-    jobRunCommand= "bsub -e " + jobIDstring + ".e -o " + jobIDstring + ".o sh " +  BatchFileName
+    jobIDname= jobIDstring+ "_job"
+    if jobIDname==OldJobIDname:
+        jobRunCommand = "bsub -e " + jobIDstring + ".e -o " + jobIDstring + ".o" + " -J \"" + jobIDname +"\" sh " +  BatchFileName
+    else:
+        jobRunCommand= "bsub -e " + jobIDstring + ".e -o " + jobIDstring + ".o " + "-w \"done(" +OldJobIDname +")\" " + "-J \"" + jobIDname +"\" sh " +  BatchFileName
+
+    OldJobIDname=jobIDname
     with open(BatchFilePath, "w") as outputshell:
         outputshell.write("#!bin/bash\n")
         outputshell.write("# cladebreaker\n")
