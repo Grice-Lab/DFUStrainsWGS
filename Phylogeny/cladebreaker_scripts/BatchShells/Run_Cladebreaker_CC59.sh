@@ -18,7 +18,7 @@ source ~/mambaforge/bin/activate ~/mambaforge/envs/TreeEnv2
 # Estimate tree based on roary output
 raxmlHPC -m GTRGAMMA -p 19104 \
 -s /home/acampbe/DFU/data/WGS_2020/cladebreaker/cladebreaker_CC59/roary_alignment/results/core_gene_alignment.aln \
--# 100 -nCC59.newick
+-# 100 -n CC59.newick
 
 mv *.newick /home/acampbe/DFU/data/WGS_2020/cladebreaker/cladebreaker_CC59/
 rm *_59.newick.RUN*
