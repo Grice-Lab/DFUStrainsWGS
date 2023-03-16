@@ -3,10 +3,13 @@
 # Testing the 'top hits' of WhatsGNU output  for uniqueness within the genome to reduce ambiguous mapping issues
 
 # Takes in:
-# - some genome's WhatsGNU WhatsGNU report (which includes mappings of annotation protein IDs --> WG ortholog groups)
-# - List of the whatsGNU ortholog groups to test
-# - Roary 'clustered proteins' file (which shows which Roary ortholog IDs include which protein IDs)
-# - .faa of all the annotated proteins in the genome to act as the blast database
+# - path to list of the whatsGNU ortholog groups to test (arg 2)
+#- Roary 'clustered proteins' file (which shows which Roary ortholog IDs include which protein IDs) (arg 3)
+# - some genome's WhatsGNU WhatsGNU report (which includes mappings of annotation protein IDs --> WG ortholog groups) (arg 4)
+# - .faa of all the annotated proteins in the genome to act as the blast database (arg 5 )
+
+# example call:
+# python3
 
 # Then:
 # Makes a dictionary mapping the WG orthologs to test (keys) to the genome's protein IDs (values)
@@ -16,10 +19,10 @@
 #   Does a blast search of that protein ID's sequence against all the protein sequences for the genome
 #   If there's no good hits to this OTHER than itself, INCLUDE the protein by:
 #       Adding the protein ID, its corresponding WG ortholog group ID,and its roary ortholog group as a row to a data frame
-#   If there are good hits, exclude
-
+#   If there are good hits(>60% identity), exclude
 
 # Outputs:
+#   <WGfoldername>_unique.txt which contains a list of roary orthologs to use
 
 from Bio.Blast.Applications import NcbiblastpCommandline
 from Bio.Blast.Applications import NcbimakeblastdbCommandline
@@ -33,12 +36,24 @@ import pandas
 import subprocess
 import os
 import inspect
+import sys
 
-pangenomepath= "/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/WhatsGNUscripts/pan_genome_reference.fa"
-orthologlistpath="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/WhatsGNUscripts/Patient176_ortholog_list.txt"
-clusteredproteinspath="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/clustered_proteins"
-WhatsGreport="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/WhatsGNUscripts/DORN1646_WhatsGNU_report.txt"
-GenomeFAApath = "/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/WhatsGNUscripts/DORN1646.faa"
+argsinput = sys.argv
+if len(argsinput) <5:
+    print("Not enough input files actually")
+    exit()
+else:
+    orthologlistpath = argsinput[1]
+    clusteredproteinspath = argsinput[2]
+    WhatsGreport = argsinput[3]
+    GenomeFAApath = argsinput[4]
+
+# orthologlistpath="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/WhatsGNUscripts/Patient176_ortholog_list.txt"
+# clusteredproteinspath="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/data/clustered_proteins"
+# WhatsGreport="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/WhatsGNUscripts/DORN1646_WhatsGNU_report.txt"
+# GenomeFAApath = "/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/WhatsGNUscripts/DORN1646.faa"
+
+
 GenomeDB = os.path.dirname(orthologlistpath)
 Genomestring=os.path.basename(GenomeFAApath).replace(".faa", "")
 GenomeDBpath = os.path.join(GenomeDB, Genomestring + "_blast" )
