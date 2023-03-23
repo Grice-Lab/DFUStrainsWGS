@@ -53,13 +53,13 @@ for(f in FilesInput){
   InputOrthologName=str_replace(f, "SNPs_", "")
   
   # Read in the VCF
-  inputDF = read.table(TestInputPath,skip=3,sep='\t', comment.char="$",header=T)
+  inputDF = read.table(fullpath,skip=3,sep='\t', comment.char="$",header=T)
   
   # Remove the extraneous instance of the reference gene which we used for aligning all of them 
   inputDF = inputDF %>% select(-paste0(ReferenceGenome, ".1"))
   
   # Get the length of the alignment
-  inputstring=file(TestInputPath, open="r")
+  inputstring=file(fullpath, open="r")
   inputstringLength=(readLines(inputstring))[2]
   lengthAlign = (str_split(inputstringLength,"length=" ))[[1]][2]
   lengthAlign = as.integer(str_split(lengthAlign, ">")[[1]][1])
@@ -68,6 +68,7 @@ for(f in FilesInput){
   if(nrow(inputDF) > .1*lengthAlign){
     print("Too many mismatches. Remove this gene :(")
   } else{
+    inputDF = inputDF %>% filter(nchar(ALT)==1)
     FinalGeneList = append(FinalGeneList,InputOrthologName )
     # Indices at which all 'cases' == 0
     CaseCols = inputDF %>% select(Caselist)
