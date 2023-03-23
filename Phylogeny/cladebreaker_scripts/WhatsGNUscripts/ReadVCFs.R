@@ -54,6 +54,10 @@ for(f in FilesInput){
   # Read in the VCF
   inputDF = read.table(fullpath,skip=3,sep='\t', comment.char="$",header=T)
   
+  # Fixing stupid read table assumption that string T=true lol 
+  inputDF$REF = if_else(inputDF$REF==TRUE, "T", inputDF$REF)
+  inputDF$ALT = if_else(inputDF$ALT==TRUE, "T", inputDF$ALT)
+  
   # Remove the extraneous instance of the reference gene which we used for aligning all of them 
   inputDF = inputDF %>% select(-paste0(ReferenceGenome, ".1"))
   
@@ -64,6 +68,7 @@ for(f in FilesInput){
   lengthAlign = as.integer(str_split(lengthAlign, ">")[[1]][1])
   
   # If more than 10% of the alignment's length is variants, I anticipate potential mapping issues 
+
   if(nrow(inputDF) > .1*lengthAlign){
     print("Too many mismatches. Remove this gene :(")
   } else{
@@ -84,8 +89,10 @@ for(f in FilesInput){
     
     # Now we have a little dataframe of the good rows
     DBAdd = RowsUse %>% select(REF, ALT, POS)
+    print(DBAdd)
     DBAdd$Gene = InputOrthologName
     colnames(DBAdd) = c("Case", "Control", "Position", "Gene")
+
     FullVariantDF = rbind(FullVariantDF, DBAdd)
   }
   
