@@ -77,13 +77,18 @@ for(f in FilesInput){
       
    
     # Indices at which all 'cases' == 0
+    print(InputOrthologName)
+    
     CaseCols = inputDF %>% select(Caselist)
     Req1 = which(rowSums(CaseCols)==0)
     
     # Indices at which all 'controls' == 1
+    print(colnames(inputDF))
+    print(Controllist)
     CtrlCols = inputDF %>% select(Controllist)
     Req2 = which(rowSums(CtrlCols)==ncol(CtrlCols))
-    
+  
+  
     # Rows at which all controls == 1 and all cases == 0 
     RowsUse = inputDF[intersect(Req1, Req2),]
     
