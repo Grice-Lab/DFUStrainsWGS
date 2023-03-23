@@ -55,8 +55,8 @@ for(f in FilesInput){
   inputDF = read.table(fullpath,skip=3,sep='\t', comment.char="$",header=T)
   
   # Fixing stupid read table assumption that string T=true lol 
-  inputDF = inputDF %>% mutate(REF = if_else(REF==TRUE, "T", REF))
-  inputDF = inputDF %>% mutate(ALT = if_else(ALT==TRUE, "T", ALT))
+  inputDF = inputDF %>% mutate(REF = if_else(REF==TRUE, "T", as.character(REF)))
+  inputDF = inputDF %>% mutate(ALT = if_else(ALT==TRUE, "T", as.character(ALT)))
   
   # Remove the extraneous instance of the reference gene which we used for aligning all of them 
   inputDF = inputDF %>% select(-paste0(ReferenceGenome, ".1"))
