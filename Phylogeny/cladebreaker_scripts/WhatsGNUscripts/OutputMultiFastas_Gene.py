@@ -94,11 +94,11 @@ for o in ListOrthologs:
 
     ReferenceProtein = str(rowItem[ReferenceName].item())
     if ReferenceProtein=='nan':
-        print(str(o) + " is missing from reference genome " + str(g) + "! Removing from Orthologs List.")
+        print(str(o) + " is missing from reference genome " + str(ReferenceName) + "! Removing from Orthologs List.")
     else:
         dictionary_item = (AllDicts[ReferenceName][ReferenceProtein]) # [str(ReferenceProtein)].seq )
         with open(str(ReferenceOutputPathPrefix) + "_" +  str(o) + "_" + ReferenceName + ".fasta", "w") as refotpt:
-            dictionary_item.id = g
+            dictionary_item.id = ReferenceName
             SeqIO.write(dictionary_item,refotpt, "fasta")
 
         with open(str(MultiOutputPathPrefix) + "_" + str(o) + ".fasta", "w") as multioutput:
