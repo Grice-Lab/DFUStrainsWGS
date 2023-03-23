@@ -55,8 +55,8 @@ for(f in FilesInput){
   inputDF = read.table(fullpath,skip=3,sep='\t', comment.char="$",header=T)
   
   # Fixing stupid read table assumption that string T=true lol 
-  inputDF$REF = if_else(inputDF$REF==TRUE, "T", inputDF$REF)
-  inputDF$ALT = if_else(inputDF$ALT==TRUE, "T", inputDF$ALT)
+  inputDF = inputDF %>% mutate(REF = if_else(REF==TRUE, "T", REF))
+  inputDF = inputDF %>% mutate(ALT = if_else(ALT==TRUE, "T", ALT))
   
   # Remove the extraneous instance of the reference gene which we used for aligning all of them 
   inputDF = inputDF %>% select(-paste0(ReferenceGenome, ".1"))
@@ -89,7 +89,6 @@ for(f in FilesInput){
     
     # Now we have a little dataframe of the good rows
     DBAdd = RowsUse %>% select(REF, ALT, POS)
-    print(DBAdd)
     DBAdd$Gene = InputOrthologName
     colnames(DBAdd) = c("Case", "Control", "Position", "Gene")
 
