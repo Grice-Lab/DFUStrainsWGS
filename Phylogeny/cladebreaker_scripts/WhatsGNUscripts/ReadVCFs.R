@@ -73,8 +73,9 @@ for(f in FilesInput){
     print("Too many mismatches. Remove this gene :(")
   } else{
     inputDF = inputDF %>% filter(nchar(ALT)==1)
-    print(inputDF)
- 
+    if(nrow(inputDF) > 0){
+      
+   
     # Indices at which all 'cases' == 0
     CaseCols = inputDF %>% select(Caselist)
     Req1 = which(rowSums(CaseCols)==0)
@@ -92,11 +93,11 @@ for(f in FilesInput){
       DBAdd$Gene = InputOrthologName
       colnames(DBAdd) = c("Case", "Control", "Position", "Gene")
       FinalGeneList = append(FinalGeneList,InputOrthologName )
-      
+      FullVariantDF = rbind(FullVariantDF, DBAdd)
     }
 
-    FullVariantDF = rbind(FullVariantDF, DBAdd)
-  }
+    
+  } }
   
 }
 
