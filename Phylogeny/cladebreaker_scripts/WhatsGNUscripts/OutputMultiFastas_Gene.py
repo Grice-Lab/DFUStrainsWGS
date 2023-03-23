@@ -125,5 +125,5 @@ with open(OutputScript, "w") as scriptoutput:
     scriptoutput.write("# Mafft Alignment on Genes \n")
     scriptoutput.write("################\n")
     for f in FinalListOrths:
-        outputstr = "mafft --localpair --addfragments" +  str(MultiOutputPathPrefix) + "_" + str(f) + ".fasta " + str(ReferenceOutputPathPrefix) + "_" +  str(f) + "_" + ReferenceName + ".fasta  > MafftOutput_" + str(f) + "\n"
+        outputstr = "mafft --localpair --addfragments " +  str(MultiOutputPathPrefix) + "_" + str(f) + ".fasta " + str(ReferenceOutputPathPrefix) + "_" +  str(f) + "_" + ReferenceName + ".fasta > MafftOutput_" + str(f) + "\n"
         scriptoutput.write(outputstr)
