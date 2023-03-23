@@ -46,7 +46,6 @@ else:
 
 # Read in the reference genome's ffn (nt sequences for each )
 
-OutputScript=os.path.join(OutputScriptDir, "MafftAlignGenes.sh")
 
 IncludedGenomes = (os.listdir(FFNpath))
 
@@ -76,8 +75,15 @@ OrthDF = OrthDF[OrthDF['Gene'].isin(ListOrthologs)]
 
 # make an output directory
 OutputKey = os.path.dirname(UniqueGenesList)
+
+OutputScriptMafft=os.path.join(OutputScriptDir, OutputKey + "_MafftAlignGenes.sh")
+OutputScriptSNPSites=os.path.join(OutputScriptDir, OutputKey + "_SNPsites.sh")
+
+
 OutputDir = os.path.join(OutputKey, "GeneFastas")
+OutputMAFFT = os.path.join(OutputDir, "MAFFT")
 os.mkdir(OutputDir)
+os.mkdir(OutputMAFFT)
 
 ReferenceOutputPathPrefix = os.path.join(OutputDir, str(os.path.basename(OutputKey)) + ReferenceName )
 MultiOutputPathPrefix = os.path.join(OutputDir, str(os.path.basename(OutputKey))  )
@@ -125,10 +131,22 @@ for F in FinalListOrths:
 
 ListOrths.close()
 
-with open(OutputScript, "w") as scriptoutput:
+with open(OutputScriptMafft, "w") as scriptoutput:
     scriptoutput.write("#!bin/bash\n")
     scriptoutput.write("# Mafft Alignment on Genes \n")
     scriptoutput.write("################\n")
     for f in FinalListOrths:
-        outputstr = "mafft --localpair --addfragments " +  str(MultiOutputPathPrefix) + "_" + str(f) + ".fasta " + str(ReferenceOutputPathPrefix) + "_" +  str(f) + "_" + ReferenceName + ".fasta > MafftOutput_" + str(f) + "\n"
+        outputstr = "mafft --localpair --addfragments " +  str(MultiOutputPathPrefix) + "_" + str(f) + ".fasta " + str(ReferenceOutputPathPrefix) + "_" +  str(f) + "_" + ReferenceName + ".fasta > " + os.path.join(OutputMAFFT, "Mafft_") + str(f) + "\n"
+        scriptoutput.write(outputstr)
+
+
+with open(OutputScriptMafft, "w") as scriptoutput:
+    scriptoutput.write("#!bin/bash\n")
+    scriptoutput.write("# Calls snp-sites on Mafft alignment of genes \n")
+    scriptoutput.write("###############################################\n")
+    for f in FinalListOrths:
+        MafftOut= os.path.join(OutputMAFFT, "Mafft_") + str(f)
+        SNPsitesout=MafftOut.replace("Mafft_", "SNPs_")
+        outputstr = "snp-sites -v -o " + SNPsitesout + " " MafftOut + "\n"
+        outputstr = "mafft --localpair --addfragments " +  str(MultiOutputPathPrefix) + "_" + str(f) + ".fasta " + str(ReferenceOutputPathPrefix) + "_" +  str(f) + "_" + ReferenceName + ".fasta > " + os.path.join(OutputMAFFT, "Mafft_") + str(f) + "\n"
         scriptoutput.write(outputstr)
