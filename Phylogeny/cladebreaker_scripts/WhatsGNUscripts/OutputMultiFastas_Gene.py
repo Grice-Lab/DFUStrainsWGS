@@ -108,13 +108,18 @@ for o in ListOrthologs:
                 # If any one genome is *missing* this gene (weird but possible I guess), remove it from teh list and say so.
                 if ProteinID == 'nan':
                     print(str(o) + " is missing from " + str(g) + "! Removing from Orthologs List.")
+                    KeepOrth=False
                 else:
-                    FinalListOrths.append(o)
+                    KeepOrth=True
                     dictionary_item = (AllDicts[g][ProteinID])
                     dictionary_item.id = g
                     SeqIO.write(dictionary_item, multioutput, "fasta")
-
+        if KeepOrth == True:
+            FinalListOrths.append(o)
 ListOrths = open(str(MultiOutputPathPrefix + "_FinalOrthologs.txt"), "w")
+
+
+
 for F in FinalListOrths:
     ListOrths.write(str(F) + "\n")
 
