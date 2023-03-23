@@ -66,16 +66,15 @@ for(f in FilesInput){
   inputstringLength=(readLines(inputstring))[2]
   lengthAlign = (str_split(inputstringLength,"length=" ))[[1]][2]
   lengthAlign = as.integer(str_split(lengthAlign, ">")[[1]][1])
-  
+  close(inputstring)
   # If more than 10% of the alignment's length is variants, I anticipate potential mapping issues 
 
   if(nrow(inputDF) > .1*lengthAlign){
     print("Too many mismatches. Remove this gene :(")
   } else{
     inputDF = inputDF %>% filter(nchar(ALT)==1)
-    if(nrow(inputDF>0)){
-      FinalGeneList = append(FinalGeneList,InputOrthologName )
-    }
+    print(inputDF)
+ 
     # Indices at which all 'cases' == 0
     CaseCols = inputDF %>% select(Caselist)
     Req1 = which(rowSums(CaseCols)==0)
@@ -88,9 +87,13 @@ for(f in FilesInput){
     RowsUse = inputDF[intersect(Req1, Req2),]
     
     # Now we have a little dataframe of the good rows
-    DBAdd = RowsUse %>% select(REF, ALT, POS)
-    DBAdd$Gene = InputOrthologName
-    colnames(DBAdd) = c("Case", "Control", "Position", "Gene")
+    if(nrow(RowsUse) > 0){
+      DBAdd = RowsUse %>% select(REF, ALT, POS)
+      DBAdd$Gene = InputOrthologName
+      colnames(DBAdd) = c("Case", "Control", "Position", "Gene")
+      FinalGeneList = append(FinalGeneList,InputOrthologName )
+      
+    }
 
     FullVariantDF = rbind(FullVariantDF, DBAdd)
   }
