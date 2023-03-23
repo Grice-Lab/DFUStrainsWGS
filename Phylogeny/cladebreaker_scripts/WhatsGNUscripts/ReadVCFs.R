@@ -14,7 +14,6 @@
 library(stringr)
 library(dplyr)
 
-VCFtable = VCFtable[-1,]
 
 args <- commandArgs(trailingOnly = TRUE)
 
