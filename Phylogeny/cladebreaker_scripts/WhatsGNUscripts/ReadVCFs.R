@@ -69,7 +69,9 @@ for(f in FilesInput){
     print("Too many mismatches. Remove this gene :(")
   } else{
     inputDF = inputDF %>% filter(nchar(ALT)==1)
-    FinalGeneList = append(FinalGeneList,InputOrthologName )
+    if(nrow(inputDF>0)){
+      FinalGeneList = append(FinalGeneList,InputOrthologName )
+    }
     # Indices at which all 'cases' == 0
     CaseCols = inputDF %>% select(Caselist)
     Req1 = which(rowSums(CaseCols)==0)
