@@ -106,6 +106,7 @@ for(f in FilesInput){
 
 OutputGeneList = str_replace(OutputPath, ".tsv", "_FinalGeneList.txt")
 
+colnames(FullVariantDF) = c("Case", "Control", "Position", "Gene")
 write.table(FullVariantDF, file=OutputPath, quote=F)
 
 write.table(FullVariantDF, file=OutputPath, quote=F,col.names = F, row.names=F)
