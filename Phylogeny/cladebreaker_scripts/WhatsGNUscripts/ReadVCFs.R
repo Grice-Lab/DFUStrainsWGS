@@ -70,6 +70,7 @@ for(f in FilesInput){
   # If more than 10% of the alignment's length is variants, I anticipate potential mapping issues 
 
   if( (nrow(inputDF) > .1*lengthAlign) | length(setdiff(ReadCaseCtrls$clean, colnames(inputDF))) >0 ){
+    print(InputOrthologName)
     print("Too many mismatches or SNP sites couldn't be generated for all genomes. Remove this gene :(")
   } else{
     inputDF = inputDF %>% filter(nchar(ALT)==1)
