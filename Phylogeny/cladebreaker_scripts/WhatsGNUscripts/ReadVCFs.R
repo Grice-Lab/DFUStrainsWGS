@@ -6,7 +6,7 @@
 # e.g. 
 
 # 2) case control csv which was input into whatsGNU
-# e.g. /Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/cladebreaker_scripts/WhatsGNUscript/case_controls_patient176.csv
+# e.g.
 
 # 3) Name of the reference genome
 # e.g. DORN1863
@@ -69,22 +69,19 @@ for(f in FilesInput){
   close(inputstring)
   # If more than 10% of the alignment's length is variants, I anticipate potential mapping issues 
 
-  if(nrow(inputDF) > .1*lengthAlign){
-    print("Too many mismatches. Remove this gene :(")
+  if( (nrow(inputDF) > .1*lengthAlign) | length(setdiff(ReadCaseCtrls$clean, colnames(inputDF))) >0 ){
+    print("Too many mismatches or SNP sites couldn't be generated for all genomes. Remove this gene :(")
   } else{
     inputDF = inputDF %>% filter(nchar(ALT)==1)
     if(nrow(inputDF) > 0){
       
    
     # Indices at which all 'cases' == 0
-    print(InputOrthologName)
-    
+
     CaseCols = inputDF %>% select(Caselist)
     Req1 = which(rowSums(CaseCols)==0)
     
     # Indices at which all 'controls' == 1
-    print(colnames(inputDF))
-    print(Controllist)
     CtrlCols = inputDF %>% select(Controllist)
     Req2 = which(rowSums(CtrlCols)==ncol(CtrlCols))
   
