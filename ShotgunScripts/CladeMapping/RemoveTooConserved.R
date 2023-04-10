@@ -5,6 +5,7 @@
 
 library(Biostrings)
 library(stringr)
+library(dplyr)
 
 args <- commandArgs(trailingOnly = TRUE)
 

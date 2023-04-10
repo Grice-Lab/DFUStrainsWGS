@@ -26,7 +26,8 @@ args <- commandArgs(trailingOnly = TRUE)
 if(length(args) < 6){
   print("Not enough arguments(need 6) >:( ")
   exit()
-}else{
+}else{ 
+
   BCFPath=args[1]
   
   # Absolute path to the TSV output by ReadVCFs.R listing the variants that are present in controls, absent from cases, when you use a case reference
@@ -40,9 +41,11 @@ if(length(args) < 6){
   
   # What clade does 'control' represent
   ControlString=args[5]
-  
+
+  OutputFolder=args[6]  
 }
 
+print(OutputFolder)
 
 AlleleDepth = function(DP4String, RefOrAlt){
   # DP4 string is the DP4Col value
@@ -101,12 +104,19 @@ for(bcf in ListOutputs){
   }
 }
 
+print(dim(OutputDF))
 colnames(OutputDF) = c("Timepoint", "ControlBases", "CaseBases", "PctCase")
-
+print("super ok")
 OutputDF$CaseClade=CaseString
 OutputDF$ControlClade=ControlString
 
 OutputFname=paste0("Patient_", PatientID, "_composition.csv")
 OutputFile=file.path(OutputFolder,OutputFname)
+
+OutputDF$ControlBases = sapply(OutputDF$ControlBases, function(x) as.numeric(as.character(x)))
+OutputDF$CaseBases =	sapply(OutputDF$CaseBases, function(x) as.numeric(as.character(x)))
+
+print("Total # bases:")
+print(sum(OutputDF$ControlBases) + sum(OutputDF$CaseBases))
 write.csv(OutputDF, file=OutputFile)
 

@@ -19,8 +19,8 @@ mkdir -p $outputpath
 ###################################
 IndexName="Patient176GeneMarkers_Final"
 
-#bowtie2-build $markergenepath $IndexName
-#mv *.bt2 $bowtiepath
+bowtie2-build $markergenepath $IndexName
+mv *.bt2 $bowtiepath
 
 # Run bowtie2 local alignment on 176_0 with very sensitive parameters
 ##############################################################################
@@ -41,9 +41,9 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_1 with very sensitive parameters
 ##############################################################################
@@ -64,9 +64,9 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+#samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_2 with very sensitive parameters
 ##############################################################################
@@ -87,33 +87,9 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
-
-# Run bowtie2 local alignment on 176_4 with very sensitive parameters
-##############################################################################
-ReadsPath=/home/acampbe/DFU/data/DFU_Metagenome_Microbes/DFUMetagenomes/kalan01_DFUwgs_176_4.fastq.gz
-ReadsFname=$(basename $ReadsPath)
-Readsext=".fastq.gz"
-blank=""
-metagenomename=${ReadsFname/$Readsext/$blank}
-
-samext=".sam"
-bamext=".bam"
-sortedbamext="_sorted.bam"
-bcfext=".bcf"
-markers="_marker"
-outputname=$metagenomename$markers
-
-bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$outputname$samext
-
-samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
-samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
-
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
-
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_6 with very sensitive parameters
 ##############################################################################
@@ -134,10 +110,32 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+#samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
+# Run bowtie2 local alignment on 176_4 with very sensitive parameters
+##############################################################################
+ReadsPath=/home/acampbe/DFU/data/DFU_Metagenome_Microbes/DFUMetagenomes/kalan01_DFUwgs_176_4.fastq.gz
+ReadsFname=$(basename $ReadsPath)
+Readsext=".fastq.gz"
+blank=""
+metagenomename=${ReadsFname/$Readsext/$blank}
+
+samext=".sam"
+bamext=".bam"
+sortedbamext="_sorted.bam"
+bcfext=".bcf"
+markers="_marker"
+outputname=$metagenomename$markers
+
+bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$outputname$samext
+
+samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
+samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
+#samtools faidx $markergenepath
+
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_8 with very sensitive parameters
 ##############################################################################
@@ -158,10 +156,32 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+#samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
+# Run bowtie2 local alignment on 176_6 with very sensitive parameters
+##############################################################################
+ReadsPath=/home/acampbe/DFU/data/DFU_Metagenome_Microbes/DFUMetagenomes/kalan01_DFUwgs_176_6.fastq.gz
+ReadsFname=$(basename $ReadsPath)
+Readsext=".fastq.gz"
+blank=""
+metagenomename=${ReadsFname/$Readsext/$blank}
+
+samext=".sam"
+bamext=".bam"
+sortedbamext="_sorted.bam"
+bcfext=".bcf"
+markers="_marker"
+outputname=$metagenomename$markers
+
+bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$outputname$samext
+
+samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
+samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
+#samtools faidx $markergenepath
+
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_9 with very sensitive parameters
 ##############################################################################
@@ -182,32 +202,9 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+#samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
-
-# Run bowtie2 local alignment on 176_10 with very sensitive parameters
-##############################################################################
-ReadsPath=/home/acampbe/DFU/data/DFU_Metagenome_Microbes/DFUMetagenomes/kalan01_DFUwgs_176_10.fastq.gz
-ReadsFname=$(basename $ReadsPath)
-Readsext=".fastq.gz"
-blank=""
-metagenomename=${ReadsFname/$Readsext/$blank}
-
-samext=".sam"
-bamext=".bam"
-sortedbamext="_sorted.bam"
-bcfext=".bcf"
-markers="_marker"
-outputname=$metagenomename$markers
-
-bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$outputname$samext
-
-samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
-samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
-
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_10 with very sensitive parameters
 ##############################################################################
@@ -228,9 +225,9 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+#samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_11 with very sensitive parameters
 ##############################################################################
@@ -251,9 +248,9 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+#samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_12 with very sensitive parameters
 ##############################################################################
@@ -274,9 +271,9 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+#samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
 
 # Run bowtie2 local alignment on 176_13 with very sensitive parameters
 ##############################################################################
@@ -297,7 +294,15 @@ bowtie2 -N 1 --very-sensitive-local -x $IndexName -U $ReadsPath -S $outputpath$o
 
 samtools view -bS $outputpath$outputname$samext > $outputpath$outputname$bamext
 samtools sort $outputpath$outputname$bamext > $outputpath$outputname$sortedbamext
-samtools faidx $IndexName
+#samtools faidx $markergenepath
 
-bcftools mpileup -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+bcftools mpileup --annotate FORMAT/DP4 -f $markergenepath $outputpath$outputname$sortedbamext | bcftools view -Ov -o $outputpath$outputname$bcfext
+
+BCFfolder="BCFs/"
+mkdir -p $outputpath$BCFfolder
+mv $outputpath*.bcf $outputpath$BCFfolder
+
+# These intermediate files eat up so much storage
+rm  $outputpath*.bam
+rm  $outputpath*.sam
 
