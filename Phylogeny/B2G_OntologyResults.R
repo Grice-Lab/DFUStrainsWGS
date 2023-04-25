@@ -12,12 +12,44 @@ randpalette18=c("#B300B3","#E6AB02",
                 "#A6CEE3","#6A3D9A",
                 "#666666","#F6BE00",
                 "#33A02C","#E6F5C9")
+randpalette14 = randpalette18[-c(3,6,8,15)]
+
+SplitKegg = function(x, column){
+  # Column should be 1(ortholog name) or 2(Kegg ID)
+  if(grepl(",", x)==T){
+    col1 = str_split(x, ",")[[1]][1]
+    col2 = str_split(x, ",")[[1]][2]
+  } else{
+    col1 = x
+    col2 = ""
+  }
+  if(column==1){
+    return(col1)
+  }else{
+    return(col2)
+  }
+}
 
 Patient_Genome_Info = read.csv("~/Documents/DataInputGithub/data/DFU_Staph_aureus_isolates.csv")
 Patient_Genome_Info
 Patient_Genome_Info$DORN = paste0("DORN", Patient_Genome_Info$Doern.lab.bank.)
 patient_genome = Patient_Genome_Info %>% select(patient_id, DORN)
+
 WeekHealed = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/staphyloxanthin_paper_data.csv") %>% select(patient, week_healed)
+WeekHealed$HealedBy12 = if_else(WeekHealed$week_healed>12 | is.na(WeekHealed$week_healed), "No", "Yes")
+HealedPatients = WeekHealed %>% filter(HealedBy12=="Yes")
+UnhealedPatients = WeekHealed %>% filter(HealedBy12=="No")
+Patient_Genome_Info$patient = Patient_Genome_Info$patient_id
+Genomes_healing = Patient_Genome_Info %>% select(DORN, patient) %>% left_join(WeekHealed,  by="patient") %>% unique() %>% select(HealedBy12, DORN)
+
+
+keggAnnotations = read.table("/Users/amycampbell/Documents/DataInputGithub/data/PanGenomeKegg.csv")
+
+keggAnnotations$Gene = sapply(keggAnnotations$V1, function(x) SplitKegg(x, 1))
+keggAnnotations$Kegg = sapply(keggAnnotations$V1, function(x) SplitKegg(x, 2))
+
+dim(keggAnnotations %>% filter(Kegg!=""))
+
 
 CCMap = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/Phylogeny2022Data/CCMapPlotting.csv")
 
@@ -88,7 +120,60 @@ RoaryOutputPresenceAbsence = RoaryOutputPresenceAbsence %>% select(Gene, OldPang
 
 RoaryOutputPresenceAbsence = RoaryOutputPresenceAbsence %>% mutate_at(vars(contains("DORN")), function(x) if_else(x=="", 0,1))
 
-#RoaryOutputPresenceAbsence[,4:ncol(RoaryOutputPresenceAbsence)] = apply(RoaryOutputPresenceAbsence[,4:ncol(RoaryOutputPresenceAbsence)], 1, function(x) as.numeric(as.character(x)))
+
+# Ordination of accessory gene content 
+######################################
+RoaryOutputPresenceAbsenceForTransposition = RoaryOutputPresenceAbsence %>% select(colnames(RoaryOutputPresenceAbsence)[which(grepl("DORN", colnames(RoaryOutputPresenceAbsence)))])
+RoaryOutputPresenceAbsenceForTranspositionTest = RoaryOutputPresenceAbsenceForTransposition
+
+RoaryOutputPresenceAbsenceForTranspositionTest$Sums = rowSums(RoaryOutputPresenceAbsenceForTranspositionTest)
+RoaryOutputPresenceAbsenceForTranspositionTest$Gene = RoaryOutputPresenceAbsence$Gene
+
+AccessoryGenes = RoaryOutputPresenceAbsenceForTranspositionTest %>% filter(Sums <220) %>% filter(Sums>0)
+
+AccessoryGenes$Sums = NULL
+SaveGenes = AccessoryGenes$Gene
+AccessoryGenes$Gene=NULL
+GenomeNames = colnames(AccessoryGenes)
+
+Presence_Absence_Accessory = data.frame(t(AccessoryGenes))
+colnames(Presence_Absence_Accessory) = SaveGenes
+
+
+JacDist = vegan::vegdist(Presence_Absence_Accessory,method="jaccard", binary=T )
+PCOAresult = ape::pcoa(JacDist) 
+PCOAresultVectors = data.frame(PCOAresult$vectors)
+PCOAresultVectors$DORN = row.names(PCOAresultVectors)
+PCOAresultVectors = PCOAresultVectors %>% left_join(CCMap, by="DORN")
+
+Axis1_PctVar = round( (100* (PCOAresult$values$Relative_eig)[1]), 1)
+Axis2_PctVar = round( (100* (PCOAresult$values$Relative_eig)[2]), 1)
+
+PCOAresultVectors = PCOAresultVectors %>% left_join(Genomes_healing, by="DORN") 
+
+
+
+PCoa_Plot_By_CC = ggplot(PCOAresultVectors, aes(x=Axis.1, y=Axis.2, color=factor(CCLabel), shape=factor(HealedBy12))) + geom_point(alpha=.9)+ scale_color_manual(values=randpalette14) + 
+  theme_classic() + labs(x=paste0("Axis 1 (",Axis1_PctVar, "%)" ), y =paste0("Axis 2 (",Axis2_PctVar, "%)" ) , shape="DFU Healed by 12 Weeks") + coord_equal()
+adonis()
+
+ggsave(PCoa_Plot_By_CC, file="Documents/Saureus_Genomics_Paper/PCoa_Accessory_CC.pdf", width=7, height=7)
+
+
+healinggroup=PCOAresultVectors$HealedBy12
+CCgroup=PCOAresultVectors$CCLabel
+
+# Healing group (healed or didn't by 12 weeks) has R^2 of .0348, while CC has R^2 of 0.70269
+set.seed(19104)
+HealingPermanova = vegan::adonis(formula = JacDist~ healinggroup)
+CC_Permanova = vegan::adonis(formula = JacDist~ CCgroup)
+
+
+
+######################################################################################################################################################
+
+
+
 
 
 RoaryOutputPresenceAbsence = RoaryOutputPresenceAbsence %>% left_join(FullAnnotated,by="NewpangenomeID")
@@ -183,7 +268,6 @@ listBigTree= c("CC1", "CC12","CC133", "CC15", "CC20", "CC22", "CC30", "CC398", "
 
 Indices_Remove = which(listBigTree %in% setdiff(listBigTree, ByCC$CCLabel))
 
-randpalette14 = randpalette18[-c(3,6,8,15)]
 
 randpalette14
 
@@ -281,10 +365,6 @@ MyGOlist = MyGOlist %>% left_join(GOterms, by="SlimTerm")
 MyGOlist = MyGOlist %>% select(V2, GoTerm, SlimTerm) %>% arrange(SlimTerm)
 write.csv(MyGOlist, file="/Users/amycampbell/Documents/DataInputGithub/data/SlimTermFunctions.csv")
 
-WeekHealed$week_healed
-WeekHealed$HealedBy12 = if_else(WeekHealed$week_healed>12 | is.na(WeekHealed$week_healed), "No", "Yes")
-HealedPatients = WeekHealed %>% filter(HealedBy12=="Yes")
-UnhealedPatients = WeekHealed %>% filter(HealedBy12=="No")
 
 
 HealedPatientsGO = IncludedPresAbsence %>% filter(PatientID %in% HealedPatients$patient) 
