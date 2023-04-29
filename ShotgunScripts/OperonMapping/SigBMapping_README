@@ -1,0 +1,51 @@
+
+# Amy Campbell
+# Documented 04/2023
+# Analysis to check for LoF mutations in sigB operon (rsbU,rsbV, rsbW, sigB)
+# In the DFU metagenomes
+# However, also potentially interested in other operons, so includes a step to map all reads to FPR3757, to then use
+# SNPeff to annotate predicted effects of mutations by gene
+# for the purposes of this analysis, sigB genes are all we're looking at 
+
+# MetagenomicCladeEnv and JavaEnv are the conda/mamba environments used for this
+
+# 1) Align simulated reads for other Staphylococcal species
+#    found in large abundances in some of the DFU samples
+#    to the sigB operon genes and run coverage_stats.py 
+#    to flag gene/species combinations where the simulated
+#    reads have >30X mean depth  (where mean expected depth
+#    if identical is a little over 100X)
+###########################################################
+CatReads.sh # format the reads to be the same as our metagenomes
+AlignSigBSimulated.sh # align and call covg stats
+
+
+# 2) Align all metagenomic reads to the full JE2 
+#    /LAC (GCA_000013465) genome so we can then 
+#    annotate the variants w/ SNPeff
+####################################################
+AlignFullLAC.sh
+
+# 3) replace default GCA_000013465 chromosome names with those
+#    in the snpEff pre-built database for this genome
+################################################################
+FixChromosomeTitles.sh
+
+# 4) Run snpEff to annotate the VCF files, doing one timepoint per
+#    call to run a few at once
+#    Using week 2 timepoint(visit 1) as the baseline since it's the
+#    first timepoint post-debridement
+##################################################################
+RunSnpEff_10.sh
+RunSnpEff_11.sh
+RunSnpEff_12.sh
+RunSnpEff_13.sh
+RunSnpEff_1.sh
+RunSnpEff_2.sh
+RunSnpEff_3.sh
+RunSnpEff_4.sh
+RunSnpEff_5.sh
+RunSnpEff_6.sh
+RunSnpEff_7.sh
+RunSnpEff_8.sh
+RunSnpEff_9.sh
