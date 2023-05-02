@@ -48,6 +48,7 @@ TranscriptString= args[6]
 EarlyTimepoint = read.table(EarlyTimepointPath)
 LateTimepoint = read.table(LateTimepointPath)
 
+
 BaseCounts_early = read.table(BaseCounts_earlyPath) %>% filter(V1=="Chromosome")
 BaseCounts_late = read.table(BaseCounts_latePath) %>% filter(V1=="Chromosome")
 TranscriptString="SAUSA300_2025"
@@ -117,14 +118,16 @@ OutputFilteredDF = FinalDF %>% filter(BasePosition %in% IncludedBases)
 OutputLowDepthDF = FinalDF %>% filter(!(BasePosition %in% IncludedBases))
 
 
+#print("made it to filtered DF")
 if(nrow(OutputFilteredDF>0)){
   write.table(OutputFilteredDF, file=OutputPathFiltered)
 }else{
   print(paste0("No variants in the ", OutputPrefix, " comparison with >=5X depth in both samples."))
 }
 
-if(nrow(OutputFilteredDF>0)){
-  write.table(OutputFilteredDF, file=OutputLowDepthDF)
+#print("made it to low depth DF")
+if(nrow(OutputLowDepthDF>0)){
+  write.table(OutputLowDepthDF, file=OutputPathLowDepth)
 }else{
   print(paste0("No variants in the ", OutputPrefix, " comparison with <5X depth in both samples."))
 }
