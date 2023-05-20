@@ -1,0 +1,13 @@
+INPUT:
+Ingroup1 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN1782_Final_Kmers
+Ingroup2 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN76_Final_Kmers
+Ingroup3 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN1214_Final_Kmers
+Ingroup4 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN1502_Final_Kmers
+Ingroup5 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN1755_Final_Kmers
+Ingroup6 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN2093_Final_Kmers
+Ingroup7 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN434_Final_Kmers
+Ingroup8 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN717_Final_Kmers
+Ingroup9 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/DORN892_Final_Kmers
+
+OUTPUT:
+/home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/KmerOutput/CC20_intersect = Ingroup1 * Ingroup2 * Ingroup3 * Ingroup4 * Ingroup5 * Ingroup6 * Ingroup7 * Ingroup8 * Ingroup9
