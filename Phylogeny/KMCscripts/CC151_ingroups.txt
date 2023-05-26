@@ -1,9 +1,9 @@
 INPUT:
-Ingroup1 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_900098365.1 _Kmers
-Ingroup2 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_900098405.1 _Kmers
-Ingroup3 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_900098455.1 _Kmers
-Ingroup4 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_000009005.1 _Kmers
-Ingroup5 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_900458115.1 _Kmers
+Ingroup1 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_900098365.1_Kmers
+Ingroup2 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_900098405.1_Kmers
+Ingroup3 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_900098455.1_Kmers
+Ingroup4 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_000009005.1_Kmers
+Ingroup5 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/GCA_900458115.1_Kmers
 Ingroup6 = /home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/SAMEA1708683_Kmers
 
 OUTPUT:
