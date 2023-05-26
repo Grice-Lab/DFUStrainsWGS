@@ -4,14 +4,16 @@ library(dplyr)
 library(stringr)
 
 
-CCReps = read.csv("Documents/DataInputGithub/CladeRepresentatives.csv")
+CCReps = read.csv("Documents/DataInputGithub/CladeRepresentativesExpanded.csv")
 OutputFolder = "Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/KMCscripts/"
 OutputKmers = "/home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/KmerOutput/"
 KmersPrefixLPC = "/home/acampbe/DFU/data/WGS_2020/CladeRepresentatives/Kmers/"
 CCReps = CCReps %>% mutate(KmerName=if_else(grepl("DORN", GenomeID), paste0(GenomeID, "_Final_Kmers"), paste0(GenomeID, "_Kmers")))
 
-
-for(cc in unique(CCReps$CC)){
+listCCreps=unique(CCReps$CC)
+listCCreps = listCCreps[listCCreps!="OtherStaphs"]
+for(cc in listCCreps){
+  print(cc)
   IngroupRows = CCReps %>% filter(CC==cc)
   OutgroupRows = CCReps %>% filter(CC!=cc)
   
@@ -21,7 +23,7 @@ for(cc in unique(CCReps$CC)){
   LineListIntersect = c("INPUT:")
   IngroupIDlist = c()
   for(rowid in 1:nrow(IngroupRows)){
-    GroupLine = paste0("Ingroup", rowid, " = ", KmersPrefixLPC,CCReps[rowid, 4] )
+    GroupLine = paste0("Ingroup", rowid, " = ", KmersPrefixLPC,IngroupRows[rowid, 4] )
     LineListIntersect=append(LineListIntersect, GroupLine)
     IngroupIDlist=append(IngroupIDlist, paste0("Ingroup", rowid))
   }
@@ -41,7 +43,7 @@ for(cc in unique(CCReps$CC)){
   LineListUnion = c("INPUT:")
   OutgroupIDlist = c()
   for(rowid in 1:nrow(OutgroupRows)){
-    GroupLine = paste0("Outgroup", rowid, " = ", KmersPrefixLPC,CCReps[rowid, 4] )
+    GroupLine = paste0("Outgroup", rowid, " = ", KmersPrefixLPC,OutgroupRows[rowid, 4] )
     LineListUnion=append(LineListUnion, GroupLine)
     OutgroupIDlist=append(OutgroupIDlist, paste0("Outgroup", rowid))
   }
@@ -83,3 +85,4 @@ for(cc in unique(CCReps$CC)){
 }
 
 # kmc_tools transform $outputUnique dump $outputText
+
