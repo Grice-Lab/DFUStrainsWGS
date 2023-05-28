@@ -1,7 +1,7 @@
 #!bin/bash
 # Performing KMC operations for clade-specific markers
 
-source ~/mambaforge/bin/activate ~/mambaforge/envs/pankmer
+source ~/mambaforgeOLD/bin/activate ~/mambaforgeOLD/envs/pankmer
 
 kmc_tools complex CC80_ingroups.txt
 kmc_tools complex CC80_outgroups.txt
