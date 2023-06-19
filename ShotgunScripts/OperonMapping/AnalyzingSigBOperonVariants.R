@@ -164,26 +164,32 @@ TestAltDepth <- function(fulldf, row){
 
 
 
-TestAltDepth(SigBVariantsDFModerate_High_Filtered, SigBVariantsDFModerate_High_Filtered[4,])
+SigBVariantsDFModerate_High_Filtered$Passes= sapply(1:nrow(SigBVariantsDFModerate_High_Filtered), function(x) TestAltDepth(SigBVariantsDFModerate_High_Filtered, SigBVariantsDFModerate_High_Filtered[x,]))
+
+FinalFilteredSigB = (SigBVariantsDFModerate_High_Filtered %>% filter(Passes==TRUE))
+write.csv(FinalFilteredSigB, file="/Users/amycampbell/Documents/DataInputGithub/data/VariantsSigB/FinalFilteredSigBVariants.csv")
+
+
+
 #SigBVariantsDFModerate_High_Filtered = SigBVariantsDFModerate_High_Filtered %>% filter(BasePosition %in% 2184996:2185766) %>% filter(TotalAltDepth >=2) %>% arrange(Patient, BasePosition)
 
 # Filter by allelic depth :
 
-
-
-
-
-
-SigBVariantsDFModerate_High_Filtered_Gained = SigBVariantsDFModerate_High_Filtered %>% filter(TimepointPresent > TimepointAbsent)
-
-SigBFilteredObs = data.frame(table(SigBVariantsDFModerate_High_Filtered_Gained[c("Patient","Comparison", "VariantType")]) )
-
-SigBFilteredObs = SigBFilteredObs %>% filter(Freq>0) %>% arrange(Patient, Comparison)
-
-SigBFilteredObs$EarlyTimepoint = sapply(SigBFilteredObs$Comparison, function(x) str_split(x, ":")[[1]][1])
-SigBFilteredObs$LateTimepoint = sapply(SigBFilteredObs$Comparison, function(x) str_split(x, ":")[[1]][2])
-
-SigBFilteredObs %>% select(Patient, Comparison, EarlyTimepoint, LateTimepoint) %>% tidyr::expand(Patient, Comparison, EarlyTimepoint, LateTimepoint)
+# 
+# 
+# 
+# 
+# 
+# SigBVariantsDFModerate_High_Filtered_Gained = SigBVariantsDFModerate_High_Filtered %>% filter(TimepointPresent > TimepointAbsent)
+# 
+# SigBFilteredObs = data.frame(table(SigBVariantsDFModerate_High_Filtered_Gained[c("Patient","Comparison", "VariantType")]) )
+# 
+# SigBFilteredObs = SigBFilteredObs %>% filter(Freq>0) %>% arrange(Patient, Comparison)
+# 
+# SigBFilteredObs$EarlyTimepoint = sapply(SigBFilteredObs$Comparison, function(x) str_split(x, ":")[[1]][1])
+# SigBFilteredObs$LateTimepoint = sapply(SigBFilteredObs$Comparison, function(x) str_split(x, ":")[[1]][2])
+# 
+# SigBFilteredObs %>% select(Patient, Comparison, EarlyTimepoint, LateTimepoint) %>% tidyr::expand(Patient, Comparison, EarlyTimepoint, LateTimepoint)
 
 # SigBVariantsDFModerate_High_NotInOthers = SigBVariantsDFModerate_High_NotInOthers %>% filter(BasePosition %in% 2184996:2185766)
 # SigBVariantsDFModerate_High_NotInOthers$EarlyTimepoint = sapply(SigBVariantsDFModerate_High_NotInOthers$Comparison, function(x) str_split(x, ":")[[1]][1])
@@ -278,6 +284,18 @@ rsbUVariantsDFModerate_High_InOthersSubsetFiltered  = rsbUVariantsDFModerate_Hig
 rsbUVariantsDFModerate_High_NotInOthers  = rsbUVariantsDFModerate_High_NotInOthers %>% select(Patient, TotalAltDepth, BasePosition, VariantType, PredictedEffect, TimepointPresent, TimepointAbsent, Ref, Alt, Comparison)
 
 rsbUVariantsDFModerate_High_Filtered = rbind(rsbUVariantsDFModerate_High_InOthersSubsetFiltered,rsbUVariantsDFModerate_High_NotInOthers )
+
+
+rsbUVariantsDFModerate_High_Filtered = rsbUVariantsDFModerate_High_Filtered %>% filter(!is.na(TotalAltDepth))
+rsbUVariantsDFModerate_High_Filtered$Passes= sapply(1:nrow(rsbUVariantsDFModerate_High_Filtered), function(x) TestAltDepth(rsbUVariantsDFModerate_High_Filtered, rsbUVariantsDFModerate_High_Filtered[x,]))
+
+finalRsbUFiltered = rsbUVariantsDFModerate_High_Filtered %>% filter(Passes==T)
+
+write.csv(finalRsbUFiltered, file="/Users/amycampbell/Documents/DataInputGithub/data/VariantsSigB/FinalFilteredRsbUVariants.csv")
+
+
+
+
 
 rsbUVariantsDFModerate_High_Filtered_Gained = rsbUVariantsDFModerate_High_Filtered %>% filter(TimepointPresent > TimepointAbsent)
 
@@ -389,6 +407,13 @@ rsbVFilteredObs$LateTimepoint = sapply(rsbVFilteredObs$Comparison, function(x) s
 
 rsbVFilteredObs %>% select(Patient, Comparison, EarlyTimepoint, LateTimepoint) %>% tidyr::expand(Patient, Comparison, EarlyTimepoint, LateTimepoint)
 
+rsbVVariantsDFModerate_High_Filtered = rsbVVariantsDFModerate_High_Filtered %>% filter(!is.na(TotalAltDepth))
+rsbVVariantsDFModerate_High_Filtered$Passes= sapply(1:nrow(rsbVVariantsDFModerate_High_Filtered), function(x) TestAltDepth(rsbVVariantsDFModerate_High_Filtered, rsbVVariantsDFModerate_High_Filtered[x,]))
+
+finalRsbVFiltered = rsbVVariantsDFModerate_High_Filtered %>% filter(Passes==T)
+
+write.csv(finalRsbVFiltered, file="/Users/amycampbell/Documents/DataInputGithub/data/VariantsSigB/FinalFilteredRsbVVariants.csv")
+
 
 
 
@@ -488,4 +513,10 @@ rsbWFilteredObs %>% select(Patient, Comparison, EarlyTimepoint, LateTimepoint) %
 
 
 
+rsbWVariantsDFModerate_High_Filtered = rsbWVariantsDFModerate_High_Filtered %>% filter(!is.na(TotalAltDepth))
+rsbWVariantsDFModerate_High_Filtered$Passes= sapply(1:nrow(rsbWVariantsDFModerate_High_Filtered), function(x) TestAltDepth(rsbWVariantsDFModerate_High_Filtered, rsbWVariantsDFModerate_High_Filtered[x,]))
+
+finalRsbWFiltered = rsbWVariantsDFModerate_High_Filtered %>% filter(Passes==T)
+
+write.csv(finalRsbWFiltered, file="/Users/amycampbell/Documents/DataInputGithub/data/VariantsSigB/FinalFilteredRsbWVariants.csv")
 
