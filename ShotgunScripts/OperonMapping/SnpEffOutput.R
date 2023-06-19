@@ -45,13 +45,20 @@ TranscriptString= args[6]
 # ############
 
 
+
+# EarlyTimepointPath="/Users/amycampbell/Documents/DataInputGithub/data/SigBVariantsMetagenomes/AnnotatedSNPs/kalan01_DFUwgs_171_2_LAC_sigB.vcf"
+# LateTimepointPath="/Users/amycampbell/Documents/DataInputGithub/data/SigBVariantsMetagenomes/AnnotatedSNPs/kalan01_DFUwgs_171_6_LAC_sigB.vcf"
+# BaseCounts_earlyPath="/Users/amycampbell/Documents/DataInputGithub/data/SigBVariantsMetagenomes/AnnotatedSNPs/kalan01_DFUwgs_171_2.txt"
+# BaseCounts_latePath= "/Users/amycampbell/Documents/DataInputGithub/data/SigBVariantsMetagenomes/AnnotatedSNPs/kalan01_DFUwgs_171_6.txt"
+# OutputFolder="/Users/amycampbell/Documents/DataInputGithub/data/SigBVariantsMetagenomes"
+# TranscriptString="SAUSA300_2022"
+
 EarlyTimepoint = read.table(EarlyTimepointPath)
 LateTimepoint = read.table(LateTimepointPath)
 
 
 BaseCounts_early = read.table(BaseCounts_earlyPath) %>% filter(V1=="Chromosome")
 BaseCounts_late = read.table(BaseCounts_latePath) %>% filter(V1=="Chromosome")
-TranscriptString="SAUSA300_2025"
 
 
 EarlyTPnum = str_split(basename(EarlyTimepointPath),"_")[[1]][4]
@@ -71,7 +78,88 @@ OutputPathLowDepth = file.path(OutputFolder, OutputLowDepth)
 EarlyTimepoint$VariantIdentifier = paste(EarlyTimepoint$V2, EarlyTimepoint$V5, sep="_")
 LateTimepoint$VariantIdentifier = paste(LateTimepoint$V2, LateTimepoint$V5, sep="_")
 
-SharedVars = intersect(EarlyTimepoint$VariantIdentifier, LateTimepoint$VariantIdentifier)
+EarlyIdentifiers=EarlyTimepoint$VariantIdentifier
+
+
+LateIdentifiers=LateTimepoint$VariantIdentifier
+
+
+ExtraEarlyIdentifiers=c()
+SplitUpEarly=c()
+
+for(i in EarlyIdentifiers){
+  if(str_count(i, ",") > 1){
+    SplitUpEarly = append(SplitUpEarly, i)
+    items = str_split(i, "_")[[1]][2]
+    firstpart = str_split(i, "_")[[1]][1]
+    items = str_split(items, ",")[[1]]
+    items = items[items!="<*>"]
+
+    if(length(items) == 2){
+      
+      additionalitem = paste0(firstpart, "_", items[2], ",",items[1],",","<*>")
+      ExtraEarlyIdentifiers=append(ExtraEarlyIdentifiers, additionalitem)
+    }
+    if(length(items) == 3){
+      additionalitem = paste0(firstpart, "_", items[2], ",",items[1],",", items[3], ",", "<*>")
+      ExtraEarlyIdentifiers=append(ExtraEarlyIdentifiers, additionalitem)
+      additionalitem = paste0(firstpart, "_", items[3], ",",items[2],",", items[1], ",", "<*>")
+      ExtraEarlyIdentifiers=append(ExtraEarlyIdentifiers, additionalitem)
+      additionalitem = paste0(firstpart, "_", items[1], ",",items[3],",", items[2], ",", "<*>")
+      ExtraEarlyIdentifiers=append(ExtraEarlyIdentifiers, additionalitem)
+      additionalitem = paste0(firstpart, "_", items[2], ",",items[3],",", items[1], ",", "<*>")
+      ExtraEarlyIdentifiers=append(ExtraEarlyIdentifiers, additionalitem)
+      additionalitem = paste0(firstpart, "_", items[3], ",",items[1],",", items[2], ",", "<*>")
+      ExtraEarlyIdentifiers=append(ExtraEarlyIdentifiers, additionalitem)
+    }
+    for(item in items){
+      additionalitem = paste0(firstpart, "_", item, ",", "<*>")
+      ExtraEarlyIdentifiers=append(ExtraEarlyIdentifiers, additionalitem)
+      
+    }
+  }
+}
+
+
+ExtraLateIdentifiers=c()
+SplitUpLate=c()
+
+for(i in LateIdentifiers){
+  if(str_count(i, ",") > 1){
+    SplitUpLate = append(SplitUpLate, i)
+    items = str_split(i, "_")[[1]][2]
+    firstpart = str_split(i, "_")[[1]][1]
+    items = str_split(items, ",")[[1]]
+    items = items[items!="<*>"]
+    if(length(items) == 2){
+      
+      additionalitem = paste0(firstpart, "_", items[2], ",",items[1],",","<*>")
+      ExtraLateIdentifiers=append(ExtraLateIdentifiers, additionalitem)
+    }
+    if(length(items) == 3){
+      additionalitem = paste0(firstpart, "_", items[2], ",",items[1],",", items[3], ",", "<*>")
+      ExtraLateIdentifiers=append(ExtraLateIdentifiers, additionalitem)
+      additionalitem = paste0(firstpart, "_", items[3], ",",items[2],",", items[1], ",", "<*>")
+      ExtraLateIdentifiers=append(ExtraLateIdentifiers, additionalitem)
+      additionalitem = paste0(firstpart, "_", items[1], ",",items[3],",", items[2], ",", "<*>")
+      ExtraLateIdentifiers=append(ExtraLateIdentifiers, additionalitem)
+      additionalitem = paste0(firstpart, "_", items[2], ",",items[3],",", items[1], ",", "<*>")
+      ExtraLateIdentifiers=append(ExtraLateIdentifiers, additionalitem)
+      additionalitem = paste0(firstpart, "_", items[3], ",",items[1],",", items[2], ",", "<*>")
+      ExtraLateIdentifiers=append(ExtraLateIdentifiers, additionalitem)
+    }
+    
+    for(item in items){
+      additionalitem = paste0(firstpart, "_", item, ",", "<*>")
+      ExtraLateIdentifiers=append(ExtraLateIdentifiers, additionalitem)
+      
+    }
+  }
+}
+EarlyIdentifiers = c(EarlyIdentifiers, ExtraEarlyIdentifiers )
+LateIdentifiers = c(LateIdentifiers, ExtraLateIdentifiers )
+
+SharedVars = intersect(EarlyIdentifiers, LateIdentifiers)
 
 # Filter out variants present in both
 EarlyTimepoint = EarlyTimepoint %>% filter(!(VariantIdentifier %in% SharedVars))
