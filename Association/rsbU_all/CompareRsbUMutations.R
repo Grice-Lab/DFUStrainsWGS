@@ -46,3 +46,24 @@ MismatchesCC5 = MismatchPositions %>% filter(CCLabel=="CC5")
 table(MismatchesCC5$Genome)
 
 View(MismatchesCC5)
+
+
+
+# SigB 
+#####################
+
+SigBMatchOrNo = read.csv("/Users/amycampbell/Documents/GriceLabGit/DFUStrainsWGS/Association/rsbU_all/sigB_Identities.csv")
+SigBMatchOrNo$DORN = SigBMatchOrNo$Genome
+SigBMatchOrNo = SigBMatchOrNo %>% left_join(Phenotypes %>% select(DORN, staphyloxanthin), by="DORN")
+table(SigBMatchOrNo$AAIdentity)
+ggplot(SigBMatchOrNo, aes(x=AAIdentity, y=log(staphyloxanthin))) + geom_boxplot(fill="goldenrod")+theme_classic() + ggpubr::stat_compare_means(method="t.test",label.y = 5) + ggtitle("SigB Identities")
+
+
+# RsbW
+RsbWMatchOrNo = read.csv("/Users/amycampbell/Documents/GriceLabGit/DFUStrainsWGS/Association/rsbU_all/RsbWIdentities.csv")
+RsbWMatchOrNo$Genome = sapply( RsbWMatchOrNo$Genome, function(x) stringr::str_remove(pattern="                                                                                    ", x))
+RsbWMatchOrNo$DORN = RsbWMatchOrNo$Genome
+
+RsbWMatchOrNo = RsbWMatchOrNo %>% left_join(Phenotypes %>% select(DORN, staphyloxanthin), by="DORN")
+ggplot(RsbWMatchOrNo, aes(x=AAIdentity, y=log(staphyloxanthin))) + geom_boxplot(fill="goldenrod")+theme_classic() + ggpubr::stat_compare_means(method="t.test",label.y = 5) + ggtitle("RsbW Identities")
+
