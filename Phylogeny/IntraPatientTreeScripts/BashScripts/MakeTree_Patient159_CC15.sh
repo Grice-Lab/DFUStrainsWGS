@@ -21,7 +21,7 @@ mv *newick* /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_159_CC15/T
 
 # Prepare core gene-by-gene alignment for input into ClonalFrameML
 ##################################################################
-Rscript /home/acampbe/DFUStrainsWGS/Phylogeny/DFUStrainsList_Core_Alignment_Files.R /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_159_CC15/RoaryOutput/ /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_159_CC15/RoaryOutput/core_gene_filelist.txt 7
+Rscript /home/acampbe/DFUStrainsWGS/Phylogeny/List_Core_Alignment_Files.R /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_159_CC15/RoaryOutput/ /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_159_CC15/RoaryOutput/core_gene_filelist.txt 7
 
 python3 /home/acampbe/DFUStrainsWGS/Phylogeny/Create_XMFA_File_Generalized.py /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_159_CC15/RoaryOutput /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_159_CC15/RoaryOutput/core_gene_filelist.txt
 
