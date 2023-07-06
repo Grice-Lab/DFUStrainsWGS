@@ -68,12 +68,12 @@ for (combo in unique(FilteredIsolatesAtLeast3$id_cc)){
   
   BestTree = paste0(Treedirectory,"RAxML_bestTree.",TreeName)
   coregenelistpath=paste0(RoaryOutput, "/core_gene_filelist.txt")
-  ListCoreGenesCall=paste0("Rscript /home/acampbe/DFUStrainsWGS/Phylogeny/DFUStrainsList_Core_Alignment_Files.R ", RoaryOutput, "/ ", coregenelistpath, " ", NumGenomes)
+  ListCoreGenesCall=paste0("Rscript /home/acampbe/DFUStrainsWGS/Phylogeny/List_Core_Alignment_Files.R ", RoaryOutput, "/ ", coregenelistpath, " ", NumGenomes)
   MakeXMFACAll=paste0("python3 /home/acampbe/DFUStrainsWGS/Phylogeny/Create_XMFA_File_Generalized.py ", RoaryOutput, " ",coregenelistpath )
   
   XMFApath=paste0(RoaryOutput, "/core_genes.xmfa")
   CFMLtreeName=paste0(Treedirectory,"patient_", combo, "_clonalframeML.newick")
-  CFML_Call = paste0("ClonalFrameML ", BestTree, " ", XMFApath, " ",CFMLtreeName)
+  CFML_Call = paste0("ClonalFrameML ", BestTree, " ", XMFApath, " ",CFMLtreeName, " -xmfa_file true")
   
   linelistShell = append(linelistShell, "")
   linelistShell = append(linelistShell, "# Prepare core gene-by-gene alignment for input into ClonalFrameML")
