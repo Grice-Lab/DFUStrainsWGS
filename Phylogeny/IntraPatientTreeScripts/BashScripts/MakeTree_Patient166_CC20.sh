@@ -30,4 +30,4 @@ python3 /home/acampbe/DFUStrainsWGS/Phylogeny/Create_XMFA_File_Generalized.py /h
 
 # Call ClonalFrameML
 #####################
-ClonalFrameML /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_166_CC20/Trees/RAxML_bestTree.166_CC20.newick /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_166_CC20/RoaryOutput/core_genes.xmfa /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_166_CC20/Trees/patient_166_CC20_clonalframeML.newick
+ClonalFrameML /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_166_CC20/Trees/RAxML_bestTree.166_CC20.newick /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_166_CC20/RoaryOutput/core_genes.xmfa /home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/Patient_166_CC20/Trees/patient_166_CC20_clonalframeML.newick -xmfa_file true
