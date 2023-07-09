@@ -55,7 +55,7 @@ for filename in filelist:
 
     # ignore this genome if it doesn't need modification-- just set up a cp command for a shellscript for it
     if Wrap==False and MissingBool==False:
-        linetoadd="cp " + str(os.path.join(InputPath, filename ) + " " + os.path.join(OutputPath, newfilename))
+        linetoadd="cp " + str(os.path.join(InputPath, filename ) + " " + os.path.join(OutputPath, newfilename)) + "\n"
         copyscriptlines.append(linetoadd)
 
     else:
