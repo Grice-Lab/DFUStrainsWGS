@@ -109,7 +109,7 @@ for filename in filelist:
                     sliceContig_found=True
         with open(os.path.join(OutputPath, newfilename), "w") as outputfile:
             for k in SequenceDict.keys():
-                outputfile.write(k)
+                outputfile.write(">" + str(k))
                 outputfile.write('\n')
                 outputfile.write(str(SequenceDict[k]))
                 outputfile.write('\n')
