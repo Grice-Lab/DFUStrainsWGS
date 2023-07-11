@@ -1,6 +1,6 @@
 # Amy Campbell
 # 2023
-# Parsing and renaming output of CD-hit-est clustering 
+# Parsing and renaming output of CD-hit-est clustering
 # of all complete phages identified from the 220 S. aureus genomes
 
 # Takes in (positionally):
@@ -25,11 +25,11 @@ from Bio import SeqIO
 import pandas
 import sys
 
-ClusteredPhages = "/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/CDHit/ClusteredPhages90.clstr"
-PhagesFasta = "/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/CDHit/ClusteredPhages90"
-FinalSetIsolates="/Users/amycampbell/Documents/FinalSetDFUIsolates"
-OutputCSV = "/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/CDHit/PhagePresenceAbsence.csv"
-OutputFasta = "/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/CDHit/ClusteredPhagesRenamed.fasta"
+ClusteredPhages = sys.argv[1]
+PhagesFasta = sys.argv[2]
+FinalSetIsolates=sys.argv[3]
+OutputCSV = sys.argv[4]
+OutputFasta = sys.argv[5]
 
 allIsolates=os.listdir(FinalSetIsolates)
 
