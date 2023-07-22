@@ -148,10 +148,12 @@ PCOAresultVectors = PCOAresultVectors %>% left_join(CCMap, by="DORN")
 
 Axis1_PctVar = round( (100* (PCOAresult$values$Relative_eig)[1]), 1)
 Axis2_PctVar = round( (100* (PCOAresult$values$Relative_eig)[2]), 1)
+Axis3_PctVar = round( (100* (PCOAresult$values$Relative_eig)[3]), 1)
+Axis4_PctVar = round( (100* (PCOAresult$values$Relative_eig)[4]), 1)
 
 PCOAresultVectors = PCOAresultVectors %>% left_join(Genomes_healing, by="DORN") 
 
-
+PCOAresultVectors$Axis.1
 
 PCoa_Plot_By_CC = ggplot(PCOAresultVectors, aes(x=Axis.1, y=Axis.2, color=factor(CCLabel), shape=factor(HealedBy12))) + geom_point(alpha=.9)+ scale_color_manual(values=randpalette14) + 
   theme_classic() + labs(x=paste0("Axis 1 (",Axis1_PctVar, "%)" ), y =paste0("Axis 2 (",Axis2_PctVar, "%)" ) , shape="DFU Healed by 12 Weeks") + coord_equal()
@@ -159,9 +161,47 @@ adonis()
 
 ggsave(PCoa_Plot_By_CC, file="Documents/Saureus_Genomics_Paper/PCoa_Accessory_CC.pdf", width=7, height=7)
 
+#'Misclustered' genomes
+#'
+# DORN1352 and DORN1334 are clustered with CC8 instead of the other CC15s
+# What are the different genes between them and other CC15s? 
+CC15Genes = CCMap %>% filter(CCLabel == "CC15")
+CC15Genes$DORN
+cc15s = Presence_Absence_Accessory[CC15Genes$DORN, ]
+outsiders = cc15s[c("DORN1334", "DORN1352"),]
+maincluster = cc15s[setdiff(CC15Genes$DORN,c("DORN1334", "DORN1352")),]
+
+Differential15s = data.frame( OutsiderIncidence= colSums(outsiders), InsiderIncidence = colSums(maincluster))
+
+maincluster = Differential15s %>% filter((OutsiderIncidence==2 & InsiderIncidence==0) | (OutsiderIncidence==0 & InsiderIncidence==10))
+
+OutsiderPresent = maincluster %>% filter(OutsiderIncidence==2)
+OutsiderAbsent = maincluster %>% filter(OutsiderIncidence==0)
 
 healinggroup=PCOAresultVectors$HealedBy12
 CCgroup=PCOAresultVectors$CCLabel
+
+
+# DORN1081, DORN1082, DORN1085, DORN1086 are really ST188 which could be considered its own CC 
+# What are the different genes between them and other 'CC1s'? 
+CC1Genes = CCMap %>% filter(CCLabel == "CC1")
+CC1Genes$DORN
+cc1s = Presence_Absence_Accessory[CC1Genes$DORN, ]
+outsiders = cc1s[c("DORN1081", "DORN1082", "DORN1085", "DORN1086"),]
+maincluster = cc1s[setdiff(CC1Genes$DORN,c("DORN1081", "DORN1082", "DORN1085", "DORN1086")),]
+
+Differential1s = data.frame( OutsiderIncidence= colSums(outsiders), InsiderIncidence = colSums(maincluster))
+
+maincluster = Differential1s %>% filter((OutsiderIncidence==4 & InsiderIncidence==0) | (OutsiderIncidence==0 & InsiderIncidence==27))
+
+OutsiderPresent = maincluster %>% filter(OutsiderIncidence==4)
+OutsiderAbsent = maincluster %>% filter(OutsiderIncidence==0)
+
+healinggroup=PCOAresultVectors$HealedBy12
+CCgroup=PCOAresultVectors$CCLabel
+
+
+
 
 # Healing group (healed or didn't by 12 weeks) has R^2 of .0348, while CC has R^2 of 0.70269
 set.seed(19104)
@@ -188,10 +228,6 @@ GenePresenceDB = RoaryOutputPresenceAbsence %>% select(Gene,NewpangenomeID, GO.I
 pat="141"
 
 
-
-
-
-
 for(pat in unique(patient_genome$patient_id)){
   GenomesPatient= (patient_genome %>% filter(patient_id==pat))$DORN
   ColsPatient = RoaryOutputPresenceAbsence %>% dplyr::select(NewpangenomeID,GO.IDs, GenomesPatient)
@@ -208,6 +244,85 @@ for(pat in unique(patient_genome$patient_id)){
   GenePresenceDB[paste0("patient_", pat)] = ColsPatient$InPatient
 }
 write.csv(GenePresenceDB, file="/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/GeneByPatient.csv")
+
+# Gene by patient (CC5 genomes only)
+#####################################
+CC5IDs = (CCMap %>% filter(CCLabel=="CC5"))$DORN
+
+patient_genome_CC5 = patient_genome %>% filter(DORN %in% CC5IDs)
+GenePresenceDB_CC5 = RoaryOutputPresenceAbsence %>% select(Gene,NewpangenomeID, GO.IDs)
+
+for(pat in unique(patient_genome_CC5$patient_id)){
+  GenomesPatient= (patient_genome_CC5 %>% filter(patient_id==pat))$DORN
+  ColsPatient = RoaryOutputPresenceAbsence %>% dplyr::select(NewpangenomeID,GO.IDs, GenomesPatient)
+  if(length(GenomesPatient) == 1){
+    ColsPatient$Sums = ColsPatient[,3]
+    
+  }else{
+    TestFrame=ColsPatient[,3:ncol(ColsPatient)]#apply(ColsPatient[,3:ncol(ColsPatient)],2, function(x) as.numeric(x))
+    ColsPatient$Sums = rowSums(TestFrame)
+    
+  }
+  
+  ColsPatient$InPatient = if_else(ColsPatient$Sums>0, 1,0)
+  GenePresenceDB_CC5[paste0("patient_", pat)] = ColsPatient$InPatient
+}
+write.csv(GenePresenceDB_CC5, file="/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/GeneByPatient_CC5.csv")
+
+
+
+
+# Gene by patient (CC1 genomes only)
+#####################################
+CC1IDs = (CCMap %>% filter(CCLabel=="CC1"))$DORN
+
+patient_genome_CC1 = patient_genome %>% filter(DORN %in% CC1IDs)
+GenePresenceDB_CC1 = RoaryOutputPresenceAbsence %>% select(Gene,NewpangenomeID, GO.IDs)
+
+for(pat in unique(patient_genome_CC1$patient_id)){
+  GenomesPatient= (patient_genome_CC1 %>% filter(patient_id==pat))$DORN
+  ColsPatient = RoaryOutputPresenceAbsence %>% dplyr::select(NewpangenomeID,GO.IDs, GenomesPatient)
+  if(length(GenomesPatient) == 1){
+    ColsPatient$Sums = ColsPatient[,3]
+    
+  }else{
+    TestFrame=ColsPatient[,3:ncol(ColsPatient)]#apply(ColsPatient[,3:ncol(ColsPatient)],2, function(x) as.numeric(x))
+    ColsPatient$Sums = rowSums(TestFrame)
+    
+  }
+  
+  ColsPatient$InPatient = if_else(ColsPatient$Sums>0, 1,0)
+  GenePresenceDB_CC1[paste0("patient_", pat)] = ColsPatient$InPatient
+}
+write.csv(GenePresenceDB_CC1, file="/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/GeneByPatient_CC1.csv")
+
+
+
+# Gene by patient (CC8 genomes only)
+#####################################
+CC8IDs = (CCMap %>% filter(CCLabel=="CC8"))$DORN
+
+patient_genome_CC8 = patient_genome %>% filter(DORN %in% CC8IDs)
+GenePresenceDB_CC8 = RoaryOutputPresenceAbsence %>% select(Gene,NewpangenomeID, GO.IDs)
+
+for(pat in unique(patient_genome_CC8$patient_id)){
+  GenomesPatient= (patient_genome_CC8 %>% filter(patient_id==pat))$DORN
+  ColsPatient = RoaryOutputPresenceAbsence %>% dplyr::select(NewpangenomeID,GO.IDs, GenomesPatient)
+  if(length(GenomesPatient) == 1){
+    ColsPatient$Sums = ColsPatient[,3]
+    
+  }else{
+    TestFrame=ColsPatient[,3:ncol(ColsPatient)]#apply(ColsPatient[,3:ncol(ColsPatient)],2, function(x) as.numeric(x))
+    ColsPatient$Sums = rowSums(TestFrame)
+    
+  }
+  
+  ColsPatient$InPatient = if_else(ColsPatient$Sums>0, 1,0)
+  GenePresenceDB_CC8[paste0("patient_", pat)] = ColsPatient$InPatient
+}
+write.csv(GenePresenceDB_CC8, file="/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/GeneByPatient_CC8.csv")
+
+
 
 Accessory_Genes_by_Patient = GenePresenceDB 
 Accessory_Genes_by_Patient$Sums = rowSums(Accessory_Genes_by_Patient[, 4:ncol(Accessory_Genes_by_Patient)])
