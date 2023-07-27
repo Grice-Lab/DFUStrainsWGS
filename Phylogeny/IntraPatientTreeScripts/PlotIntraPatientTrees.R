@@ -206,7 +206,7 @@ for(f in 1:length(TreeFilesList)){
   }
   
 
-  }
+
   
   colorpalettedf = colormap %>% filter(week %in%  TreePlot$data$week_collected)
   TreePlot = TreePlot+ geom_tippoint(shape=15,size=5, aes(color=factor(week_collected))) +theme(legend.position="none") + scale_color_manual(values=colorpalettedf$colors)
@@ -293,12 +293,10 @@ for(f in 1:length(TreeFilesList)){
 
     HGTplot = HGTplot + scale_y_discrete(limits= c(yorder, setdiff(megadf$IsolateID, yorder)), drop=FALSE) + scale_x_discrete(limits= c(ThingOrder, setdiff(allplasmid_phages, ThingOrder)), drop=FALSE)
 
-
     ggsave(HGTplot, file=paste0("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/ClonalFrameTreesAnnotated/", TreeString, "_HGTplot.pdf"),height=12.5,width=7)
 
-  #}
-
-
+  }
+}  
 
 
 
