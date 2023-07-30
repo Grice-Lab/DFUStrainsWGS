@@ -74,7 +74,8 @@ for(inputfilename in filenamelist){
       NewRows = data.frame(Patient=patient, CCgroup=CC, phenotype=Phenotype,
                            LowCluster=Lowcluster, HighCluster=Highcluster,PresentOrAbsent_in_High=Differential$PresentOrAbsent_in_High,
                            VariantType="Phage", VariantID=Differential$Name,
-                           HighClusterReferenceGenome=HighclusterRep, ReferenceGenomeSequenceMethod=HighclusterRep_method)
+                           HighClusterReferenceGenome=HighclusterRep, ReferenceGenomeSequenceMethod=HighclusterRep_method,
+                           numlowvariants=length(LowclusterGenomes), numhighvariants=length(HighclusterGenomes))
       
       comparisonOutputDF = rbind(comparisonOutputDF, NewRows)
       
@@ -93,7 +94,8 @@ for(inputfilename in filenamelist){
       NewRows = data.frame(Patient=patient, CCgroup=CC, phenotype=Phenotype,
                            LowCluster=Lowcluster, HighCluster=Highcluster,PresentOrAbsent_in_High=DifferentialPlasmids$PresentOrAbsent_in_High,
                            VariantType="Plasmid", VariantID=DifferentialPlasmids$Name,
-                           HighClusterReferenceGenome=HighclusterRep, ReferenceGenomeSequenceMethod=HighclusterRep_method)
+                           HighClusterReferenceGenome=HighclusterRep, ReferenceGenomeSequenceMethod=HighclusterRep_method,
+                           numlowvariants=length(LowclusterGenomes), numhighvariants=length(HighclusterGenomes))
       comparisonOutputDF = rbind(comparisonOutputDF, NewRows)
     }
     
@@ -113,7 +115,8 @@ for(inputfilename in filenamelist){
       NewRows = data.frame(Patient=patient, CCgroup=CC, phenotype=Phenotype,
                            LowCluster=Lowcluster, HighCluster=Highcluster,PresentOrAbsent_in_High=DifferentialGenes$PresentOrAbsent_in_High,
                            VariantType="Gene", VariantID=DifferentialGenes$Gene,
-                           HighClusterReferenceGenome=HighclusterRep, ReferenceGenomeSequenceMethod=HighclusterRep_method)
+                           HighClusterReferenceGenome=HighclusterRep, ReferenceGenomeSequenceMethod=HighclusterRep_method,
+                           numlowvariants=length(LowclusterGenomes), numhighvariants=length(HighclusterGenomes))
       comparisonOutputDF = rbind(comparisonOutputDF, NewRows)
       
       
