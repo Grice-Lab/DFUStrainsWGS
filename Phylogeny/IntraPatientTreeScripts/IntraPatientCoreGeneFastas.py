@@ -60,7 +60,7 @@ for mapitem in CoreGeneMapList:
         geneReformatted = geneReformatted.replace('-','_')
 
         genefastapath=os.path.join(PanGenomePath, str(geneReformatted) + ".fa.aln")
-        
+
         sequencesgene = SeqIO.to_dict(SeqIO.parse(genefastapath, "fasta"))
         sequencesgene = {key:val for key, val in sequencesgene.items() if key in list(littleDF.PanGenomeID)}
 
@@ -68,45 +68,45 @@ for mapitem in CoreGeneMapList:
         sequences = list(map(lambda x: str(x.seq), sequences))
 
         outputfastapath = os.path.join(OutputPathFastas, geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +".fasta")
-    if (len(set(sequences))) > 1:
+        if (len(set(sequences))) > 1:
+            print(gene + " has variants in " + patientNum ".")
+            numUniquegenes=numUniquegenes+1
+            with open(outputfastapath, "w") as fastoutput:
+                maxlength = 0
+                for row in range(littleDF.shape[0]):
+                    rowitem = (littleDF.iloc[row,])
+                    keytouse = rowitem['PanGenomeID']
+                    genename = rowitem['Gene']
+                    high_low = rowitem['HighOrLow']
+                    isolate = rowitem['IsolateID']
+                    sequencestring = str(sequencesgene[keytouse].seq)
+                    sequencestring = sequencestring.replace("-", "")
+                    fastoutput.write(str(">"+isolate+"_" + high_low + "\n"))
+                    fastoutput.write(sequencestring + "\n")
 
-        numUniquegenes=numUniquegenes+1
-        with open(outputfastapath, "w") as fastoutput:
-            maxlength = 0
-            for row in range(littleDF.shape[0]):
-                rowitem = (littleDF.iloc[row,])
-                keytouse = rowitem['PanGenomeID']
-                genename = rowitem['Gene']
-                high_low = rowitem['HighOrLow']
-                isolate = rowitem['IsolateID']
-                sequencestring = str(sequencesgene[keytouse].seq)
-                sequencestring = sequencestring.replace("-", "")
-                fastoutput.write(str(">"+isolate+"_" + high_low + "\n"))
-                fastoutput.write(sequencestring + "\n")
+                    # make a reference fasta with the longest 'high'
+                    if (len(sequencestring) > maxlength) & (high_low=="High"):
+                        referencegene = isolate
+                        referenceseq =  sequencestring
+                        maxlength = len(sequencestring)
 
-                # make a reference fasta with the longest 'high'
-                if (len(sequencestring) > maxlength) & (high_low=="High"):
-                    referencegene = isolate
-                    referenceseq =  sequencestring
-                    maxlength = len(sequencestring)
-
-        outputreferencefasta = os.path.join(OutputPathFastas,"Reference_"+ geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +".fasta")
-        with open(outputreferencefasta, "w") as refoutput:
-            refoutput.write( str(">" + referencegene + "\n" ))
-            refoutput.write(referenceseq)
-
-
-        mafftoutput = os.path.join(OutputMAFFT_SNPs_Outputs, geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +"_MAFFT.aln" )
-        snpsoutput = os.path.join(OutputMAFFT_SNPs_Outputs, geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +"_snpsites" )
+            outputreferencefasta = os.path.join(OutputPathFastas,"Reference_"+ geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +".fasta")
+            with open(outputreferencefasta, "w") as refoutput:
+                refoutput.write( str(">" + referencegene + "\n" ))
+                refoutput.write(referenceseq)
 
 
-        mafftcommand = "mafft --localpair --addfragments " + outputfastapath +" " + outputreferencefasta + " > " + mafftoutput + "\n"
-        mafftsedcommand = "sed -i 's/\\" + "-/" + "\*/g' " + mafftoutput
-        snpsitescommand = "snp-sites -v -o " + snpsoutput + " " + mafftoutput + "\n"
+            mafftoutput = os.path.join(OutputMAFFT_SNPs_Outputs, geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +"_MAFFT.aln" )
+            snpsoutput = os.path.join(OutputMAFFT_SNPs_Outputs, geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +"_snpsites" )
 
-        comparisonsMAFFTcommands.append(mafftcommand)
-        comparisonsSEDcommands.append(mafftsedcommand)
-        comparisonsSNPcommands.append(snpsitescommand)
+
+            mafftcommand = "mafft --localpair --addfragments " + outputfastapath +" " + outputreferencefasta + " > " + mafftoutput + "\n"
+            mafftsedcommand = "sed -i 's/\\" + "-/" + "\*/g' " + mafftoutput
+            snpsitescommand = "snp-sites -v -o " + snpsoutput + " " + mafftoutput + "\n"
+
+            comparisonsMAFFTcommands.append(mafftcommand)
+            comparisonsSEDcommands.append(mafftsedcommand)
+            comparisonsSNPcommands.append(snpsitescommand)
         # > /home/acampbe/DFU/data/WGS_2020/cladebreaker/cladebreaker_patient_159/Patient159/GeneFastas/MAFFT/Mafft_group_3858
 
         if numUniquegenes > 0 :
