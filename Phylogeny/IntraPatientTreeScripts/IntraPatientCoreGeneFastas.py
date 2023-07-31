@@ -30,6 +30,7 @@ OutputMAFFT_SNPs_Outputs = sys.argv[5]
 CoreGeneMapList = os.listdir(CoreGeneMapPath)
 
 for mapitem in CoreGeneMapList:
+    print(mapitem)
     CoreGeneMap = os.path.join(CoreGeneMapPath,mapitem )
     comparisonsMAFFTcommands = []
     comparisonsSEDcommands = []
@@ -69,7 +70,7 @@ for mapitem in CoreGeneMapList:
 
         outputfastapath = os.path.join(OutputPathFastas, geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +".fasta")
         if (len(set(sequences))) > 1:
-            print(gene + " has variants in " + patientNum ".")
+            print(gene + " has variants in " + patientNum +".")
             numUniquegenes=numUniquegenes+1
             with open(outputfastapath, "w") as fastoutput:
                 maxlength = 0
