@@ -54,7 +54,7 @@ for mapitem in CoreGeneMapList:
     for gene in set(CoreGeneDF['Gene']):
         littleDF = CoreGeneDF[CoreGeneDF['Gene']==gene]
 
-        Duplicated = CoreGeneDF[CoreGeneDF['PanGenomeID'].str.contains('\t', case=True, regex=True)]
+        Duplicated = littleDF[littleDF['PanGenomeID'].str.contains('\t', case=True, regex=True)]
         print(Duplicated)
 
 
