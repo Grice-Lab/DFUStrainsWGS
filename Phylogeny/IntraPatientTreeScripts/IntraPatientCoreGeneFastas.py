@@ -50,10 +50,14 @@ for mapitem in CoreGeneMapList:
     CoreGeneDF.columns = ['Ind','Gene','IsolateID','Phenotype', 'HighOrLow', 'PanGenomeID']
 
 
-
     numUniquegenes=0
     for gene in set(CoreGeneDF['Gene']):
         littleDF = CoreGeneDF[CoreGeneDF['Gene']==gene]
+
+        Duplicated = CoreGeneDF[CoreGeneDF['PanGenomeID'].str.contains('\t', case=True, regex=True)]
+        print(Duplicated)
+
+
         geneReformatted = gene.replace('\'','_')
         geneReformatted = geneReformatted.replace('(','_')
         geneReformatted = geneReformatted.replace(')','_')
@@ -146,3 +150,8 @@ for mapitem in CoreGeneMapList:
 
         else:
             print("No mismatching core genes for this comparison")
+
+# what to do if there's two occurrences of the same gene in a genome
+####################################################################
+#518b33a5df5e947e583ea4de63940a05_1637    518b33a5df5e947e583ea4de63940a05_1638
+#less /home/acampbe/DFU/data/WGS_2020/RoaryResultsPGAP2022/pan_genome_sequences/splF
