@@ -1,3 +1,11 @@
+# Amy Campbell
+# Takes in maps of core genes for each intra-patient comparison to their pangenomeIDs
+# Makes a multifasta of each comparator genome's version of that core gene, which notes in id whether
+# the genome is in the 'high' or 'low' cluster for the phenotype comparison
+
+# also makes a call to do a mafft pairwise multiple alignment to the longest 'high' gene representative
+# makes snp-sites call for the mafft output alignment
+
 import os
 from Bio import SeqIO
 import pandas
