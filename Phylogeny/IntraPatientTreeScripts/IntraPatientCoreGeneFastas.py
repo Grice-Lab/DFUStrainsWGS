@@ -9,6 +9,7 @@
 import os
 from Bio import SeqIO
 import pandas
+import sys
 
 # Takes in
 PanGenomePath = sys.argv[1]  # path to roary intermediates' pan_genome_sequences
@@ -29,7 +30,7 @@ OutputMAFFT_SNPs_Outputs = sys.argv[5]
 CoreGeneMapList = os.listdir(CoreGeneMapPath)
 
 for mapitem in CoreGeneMapList:
-    CoreGeneMap = os.path.join(PanGenomePath,mapitem )
+    CoreGeneMap = os.path.join(CoreGeneMapPath,mapitem )
     comparisonsMAFFTcommands = []
     comparisonsSEDcommands = []
     comparisonsSNPcommands = []
@@ -59,7 +60,7 @@ for mapitem in CoreGeneMapList:
         geneReformatted = geneReformatted.replace('-','_')
 
         genefastapath=os.path.join(PanGenomePath, str(geneReformatted) + ".fa.aln")
-        print(genefastapath)
+        
         sequencesgene = SeqIO.to_dict(SeqIO.parse(genefastapath, "fasta"))
         sequencesgene = {key:val for key, val in sequencesgene.items() if key in list(littleDF.PanGenomeID)}
 
@@ -68,6 +69,7 @@ for mapitem in CoreGeneMapList:
 
         outputfastapath = os.path.join(OutputPathFastas, geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +".fasta")
     if (len(set(sequences))) > 1:
+
         numUniquegenes=numUniquegenes+1
         with open(outputfastapath, "w") as fastoutput:
             maxlength = 0
