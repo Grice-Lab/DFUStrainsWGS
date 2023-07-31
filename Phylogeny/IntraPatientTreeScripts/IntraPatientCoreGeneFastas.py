@@ -32,7 +32,8 @@ CoreGeneMapList = os.listdir(CoreGeneMapPath)
 
 
 def count_duplications(colval):
-    return(len(colval.split('\t')))
+    stringval=str(colval)
+    return(len(stringval.split('\t')))
 
 for mapitem in CoreGeneMapList:
     print(mapitem)
@@ -64,10 +65,10 @@ for mapitem in CoreGeneMapList:
         Duplicated = littleDF[littleDF['PanGenomeID'].str.contains('\t', case=True, regex=True)]
         if(Duplicated.empty == False):
             keepGene=False
-            littleDF1 = littleDF.assign(NumOccurences = lambda(x): count_duplications(x.PanGenomeID ) )
+            littleDF['NumCopies'] = littleDF["PanGenomeID"].apply(count_duplications)
 
             duplicationoutput = os.path.join(OutputCNVinfo, CoreGeneMapFileString+ "_" + gene + "_duplications.csv")
-            littleDF1.to_csv(duplicationoutput)
+            littleDF.to_csv(duplicationoutput)
 
         else:
 
@@ -86,6 +87,7 @@ for mapitem in CoreGeneMapList:
             sequences = list(sequencesgene.values())
             sequences = list(map(lambda x: str(x.seq), sequences))
 
+            sequences = list(map(lambda x: x.replace("-",""),sequences))
             outputfastapath = os.path.join(OutputPathFastas, geneReformatted + "_" + patientNum + "_" + CC + "_" + Cluster1 + "_" + Cluster2 + "_" + Phenotype  +".fasta")
             if (len(set(sequences))) > 1:
                 print(gene + " has variants in " + patientNum +".")
@@ -137,7 +139,7 @@ for mapitem in CoreGeneMapList:
             SEDfilespath = os.path.join(OutputMAFFT_SNPsPath,mafftSEDfilename )
 
             headerstring="#!/bin/bash\n"
-            activatestring="mamba ~/mambaforge/bin/activate IntraPatientSNPsEnv \n"
+            activatestring="source ~/mambaforge/bin/activate IntraPatientSNPsEnv \n"
 
             mafftcalls = open(mafftoutputfilepath, "w")
             mafftcalls.write(headerstring)
