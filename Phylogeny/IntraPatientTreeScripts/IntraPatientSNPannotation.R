@@ -25,7 +25,8 @@ OutputSNPannotations="/Users/amycampbell/Documents/DataInputGithub/data/IntraPat
 #     Total # consistent SNP/INDEL variants for this comparison (calculate at the end)
 
 BigDF = data.frame()
-
+Big_Indel_DF = data.frame()
+list.files(snpfileprefix)
 for(snpfilename in list.files(snpfileprefix)){
   print(snpfilename)
   AnnotatedSNPs = data.frame()
@@ -64,16 +65,20 @@ for(snpfilename in list.files(snpfileprefix)){
   snpfileHigh = snpfile %>% select(colnames(snpfile)[grepl("_High",colnames(snpfile))])
   snpfileLow = snpfile %>% select(colnames(snpfile)[grepl("_Low",colnames(snpfile))])
   
-  consistentHigh  = intersect(which(all(snpfileHigh==0)), which(all(snpfileLow==1)))
-  consistentLow = intersect(which(all(snpfileHigh==1)), which(all(snpfileLow==0)))
+  snpfileHighSums = rowSums(snpfileHigh)
+  snpfileLowSums = rowSums(snpfileLow)
+  
+  
+  
+  consistentHigh  = intersect(which(snpfileHighSums==0), which(snpfileLowSums==ncol(snpfileLow)))
+  consistentLow = intersect(which(snpfileLowSums==0), which(snpfileHighSums==ncol(snpfileHigh)))
   consistent = unique(consistentHigh, consistentLow)
   consistentSNPs = snpfile[consistent,]
   
   RemainingSNPs = consistentSNPs
   
   if(nrow(consistentSNPs) > 0 ){
-    
-
+    # look for and index deletions
     for(i in 1:(nrow(consistentSNPs))){
       
       
@@ -126,6 +131,47 @@ for(snpfilename in list.files(snpfileprefix)){
     }
   
   }
+
+  # Make a map of reference gene position to alignment position
+  ##############################################################3
+  refSequence = Biostrings::readDNAStringSet(ReferenceFilePath, format="fasta")
+  refidentifier =(names(refSequence))
+  
+  alignment = Biostrings::readBStringSet(paste0(alignmentprefix,alignmentfilename), format="fasta")
+  alignment = alignment[refidentifier]
+  alignmentbases = str_split(as.character(unlist(alignment)), "")[[1]]
+  alignmentbases = sapply(alignmentbases, toupper)
+  
+  indexer =1 
+  alignmentpositions = 1:length(alignmentbases)
+  refpositions = c()
+  
+  #iterate through the bases of the alignment
+  for(b in alignmentbases ){
+    
+    # If the alignment version of the ref genome="*", then there's a gap in it there. 
+    # Append "NA" to the ref positions since the base in the reference genome at that point is NA
+    # this does deal with things that are missing from the reference genome (and therefore gaps)
+    # but what about when something is inserted into the reference genome and missing from the others? 
+    if(b == "*"){
+      refpositions = append(refpositions, "NA")
+    }else{
+      refpositions = append(refpositions, indexer)
+      indexer=indexer+1
+      
+    }
+  }
+
+  MapRef_Alignment = data.frame(POS = alignmentpositions,RefPos = refpositions)
+
+  RefBases = str_split(as.character(unlist(refSequence)), "")[[1]]
+  AANums =sapply(1:length(RefBases), function(x) ceiling(x/3))
+  refDF = data.frame(RefPos = 1:length(RefBases), refbase = RefBases, AAnum =AANums, codonPos = rep(c(1,2,3), length(RefBases)/3))
+  refDF$RefPos = sapply(refDF$RefPos, as.character)
+  MapRef_Alignment$RefPos = sapply(MapRef_Alignment$RefPos, as.character)
+  
+  refDF = MapRef_Alignment %>% left_join(refDF,by="RefPos")
+  row.names(refDF) = refDF$POS
   deletiongroups = lapply(deletiongroups,function(x) setdiff(x, 0) )
   deletiongroups = deletiongroups[!isEmpty(deletiongroups)]
   
@@ -137,9 +183,21 @@ for(snpfilename in list.files(snpfileprefix)){
       stop = max(l)
       lengthIndel = (stop-start) + 1
       
-      # Check to see if it's inframe. if it is, check whether there's a 
-      # stop codon inserted/deleted
-      if( (lengthIndel %% 3) == 0 ){
+      rows_indel_all = consistentSNPs %>% filter(POS %in% l)
+      RefBases = paste(rows_indel_all$REF, collapse="")
+      AltBases = paste(rows_indel_all$ALT, collapse="")
+      position_indel = start
+      
+      # special case where the first 9 bases or something of the ref are deleted in the alt, 
+      # but the deletion occurs at the first base; this is an in-frame mutation but can't look up
+      # the codon position 
+      if(start==1){
+        LastReferencePosition=0
+      }else{
+        LastReferencePosition = refDF[(start-1), "codonPos"]
+      }
+      
+      if( ((lengthIndel %% 3) == 0) & (LastReferencePosition %in% c(0,3)) ){
         # check to see if there's a stop codon inserted/deleted
         rows_indel = consistentSNPs %>% filter(POS %in% l)
         rows_indelRef = paste(rows_indel$REF, collapse="")
@@ -175,9 +233,11 @@ for(snpfilename in list.files(snpfileprefix)){
       }
   
     rowAnnotated = c(genename, Phenotype, CClabel, patientID, Cluster1, Cluster2,start, vartype, PresentOrAbsent_High)
+    rowAnnotatedINDELs = c(genename, Phenotype, CClabel, patientID, Cluster1, Cluster2,start, vartype, PresentOrAbsent_High, lengthIndel,RefBases, AltBases )
+    
     AnnotatedSNPs = rbind(AnnotatedSNPs, rowAnnotated)
-  
-  
+    Big_Indel_DF=rbind(Big_Indel_DF, rowAnnotatedINDELs)
+    colnames(Big_Indel_DF) = c("Gene", "Phenotype", "CC", "Patient","Cluster1", "Cluster2","Position","VariantType", "PresentOrAbsentHigh", "LengthIndel","RefBases","AltBases")
     RemainingSNPs = RemainingSNPs %>% filter(!(POS %in% l))
   }
     
@@ -191,44 +251,10 @@ for(snpfilename in list.files(snpfileprefix)){
   
   if(nrow(RemainingSNPs) > 0){
     
-    
-    
-    refSequence = Biostrings::readDNAStringSet(ReferenceFilePath, format="fasta")
-    refidentifier =(names(refSequence))
-    
-    alignment = Biostrings::readBStringSet(paste0(alignmentprefix,alignmentfilename), format="fasta")
-    alignment = alignment[refidentifier]
-    alignmentbases = str_split(as.character(unlist(alignment)), "")[[1]]
-    alignmentbases = sapply(alignmentbases, toupper)
-    
-    indexer =1 
-    alignmentpositions = 1:length(alignmentbases)
-    refpositions = c()
-    for(b in alignmentbases ){
-      if(b == "*"){
-        refpositions = append(refpositions, "NA")
-      }else{
-        refpositions = append(refpositions, indexer)
-        indexer=indexer+1
-        
-      }
-    }
-    
-    MapRef_Alignment = data.frame(POS = alignmentpositions,RefPos = refpositions)
-    
-    
-    
-    RefBases = str_split(as.character(unlist(refSequence)), "")[[1]]
-    AANums =sapply(1:length(RefBases), function(x) ceiling(x/3))
-    refDF = data.frame(RefPos = 1:length(RefBases), refbase = RefBases, AAnum =AANums, codonPos = rep(c(1,2,3), length(RefBases)/3))
-    refDF$RefPos = sapply(refDF$RefPos, as.character)
-    MapRef_Alignment$RefPos = sapply(MapRef_Alignment$RefPos, as.character)
-    
-    refDF = MapRef_Alignment %>% left_join(refDF,by="RefPos")
     refDF = refDF %>% left_join(RemainingSNPs %>% select(POS, REF, ALT), by="POS")
     row.names(refDF) = refDF$POS
     
-    
+
     for(snpInd in 1:nrow(RemainingSNPs)){
       position = RemainingSNPs[snpInd, "POS"]
       rowinfo = refDF[position,]
@@ -264,6 +290,13 @@ for(snpfilename in list.files(snpfileprefix)){
 
   }
   if(nrow(AnnotatedSNPs) > 0 ){
+    colnames(AnnotatedSNPs) = c("Gene", "Phenotype", "CC", "Patient", "Cluster1", "Cluster2", "Position", "Type", "PresentOrAbsentHigh")
+    AnnotatedSNPs = AnnotatedSNPs %>% filter(Type!="Synonymous")
+    
+    
+  
+  }
+  if(nrow(AnnotatedSNPs) > 0 ){
     AnnotatedSNPs$NumTotalSeqVariants = nrow(AnnotatedSNPs)
     colnames(AnnotatedSNPs) = c("Gene", "Phenotype", "CC", "Patient", "Cluster1", "Cluster2", "Position", "Type", "PresentOrAbsentHigh", "NumTotalVariants")
     
@@ -273,40 +306,6 @@ for(snpfilename in list.files(snpfileprefix)){
 }
 
 
-
-NonSynon = (BigDF %>% filter(Type!="Synonymous"))
-
-test_table = table(BigDF %>% filter(Type!="Synonymous") %>% select( Gene, Phenotype, Patient))
-
-test_table = table(BigDF %>% filter(Type!="Synonymous") %>% select( Gene, Patient) %>% unique() %>% select(Gene))
-
-
-NonSynonGenesFixed = sapply(NonSynon$Gene,function(x) str_replace(x, "extdb_", "extdb:"))
-NonSynonGenesFixed = sapply(NonSynonGenesFixed,function(x) str_replace(x, "_", "-"))
-
-Annotations = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence_new_WithPanGenomeIDs.csv") %>% select(Gene, Annotation, Non.unique.Gene.name, Avg.group.size.nuc) 
-
-
-Annotations$FixedGeneNames = sapply(Annotations$Gene, function(x) str_replace(x,"\\'", "_"))
-Annotations$FixedGeneNames = sapply(Annotations$FixedGeneNames, function(x) str_replace(x,"\\(", "_"))
-Annotations$FixedGeneNames = sapply(Annotations$FixedGeneNames, function(x) str_replace(x,"\\)", "_"))
-Annotations$FixedGeneNames = sapply(Annotations$FixedGeneNames, function(x) str_replace(x,":", "_"))
-Annotations$FixedGeneNames = sapply(Annotations$FixedGeneNames, function(x) str_replace(x,"-", "_"))
-annotatd = Annotations %>% filter(FixedGeneNames %in% NonSynon$Gene)
-
-
-
-BigDF %>% filter(Type!="Synonymous") %>% filter(Gene %in% c("group_2378","coa" ))
-
-BigDF %>% filter(Type!="Synonymous") %>% filter(Gene %in% c("group_70","deoC" ))
-
-BigDF %>% filter(Type!="Synonymous") %>% filter(Gene=="extdb_pgaptmp_002685")
-
-BigDF %>% filter(Type!="Synonymous") %>% filter(Gene %in% c("extdb_pgaptmp_001880","group_237" ))
-
-BigDF %>% filter(Type!="Synonymous") %>% filter(Gene %in% c("group_769","group_2438" ))
-
-multiple_patients = names(test_table[test_table>1])
 
 
 # Look at copy number variants 
@@ -347,5 +346,38 @@ for (filen in list.files("/Users/amycampbell/Documents/DataInputGithub/data/Intr
 write.csv(CNV_Variants, "Documents/DataInputGithub/data/IntraPatient/CNV_Variants_Consistent.csv")
 
 write.csv(BigDF, "Documents/DataInputGithub/data/IntraPatient/SNP_Variants_Consistent.csv")
+write.csv(Big_Indel_DF, "Documents/DataInputGithub/data/IntraPatient/INDEL_variants_Consistent.csv")
+
+NonSynon = (BigDF %>% filter(Type!="Synonymous"))
+
+test_table = table(BigDF %>% filter(Type!="Synonymous") %>% select( Gene, Phenotype, Patient))
+
+test_table = table(BigDF %>% filter(Type!="Synonymous") %>% select( Gene, Patient) %>% unique() %>% select(Gene))
 
 
+NonSynonGenesFixed = sapply(NonSynon$Gene,function(x) str_replace(x, "extdb_", "extdb:"))
+NonSynonGenesFixed = sapply(NonSynonGenesFixed,function(x) str_replace(x, "_", "-"))
+
+Annotations = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence_new_WithPanGenomeIDs.csv") %>% select(Gene, Annotation, Non.unique.Gene.name, Avg.group.size.nuc) 
+
+
+Annotations$FixedGeneNames = sapply(Annotations$Gene, function(x) str_replace(x,"\\'", "_"))
+Annotations$FixedGeneNames = sapply(Annotations$FixedGeneNames, function(x) str_replace(x,"\\(", "_"))
+Annotations$FixedGeneNames = sapply(Annotations$FixedGeneNames, function(x) str_replace(x,"\\)", "_"))
+Annotations$FixedGeneNames = sapply(Annotations$FixedGeneNames, function(x) str_replace(x,":", "_"))
+Annotations$FixedGeneNames = sapply(Annotations$FixedGeneNames, function(x) str_replace(x,"-", "_"))
+annotatd = Annotations %>% filter(FixedGeneNames %in% NonSynon$Gene)
+
+
+
+BigDF %>% filter(Type!="Synonymous") %>% filter(Gene %in% c("group_2378","coa" ))
+
+BigDF %>% filter(Type!="Synonymous") %>% filter(Gene %in% c("group_70","deoC" ))
+
+BigDF %>% filter(Type!="Synonymous") %>% filter(Gene=="extdb_pgaptmp_002685")
+
+BigDF %>% filter(Type!="Synonymous") %>% filter(Gene %in% c("extdb_pgaptmp_001880","group_237" ))
+
+BigDF %>% filter(Type!="Synonymous") %>% filter(Gene %in% c("group_769","group_2438" ))
+
+multiple_patients = names(test_table[test_table>1])
