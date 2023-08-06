@@ -1,8 +1,8 @@
 library(dplyr)
 library(stringr)
 library(ggplot2)
-#Blast2GoMappingFile = read.csv2("/Users/amycampbell/b2gWorkspace/Blast2GoMappingResults_Original.txt", sep="\t",header=T,row.names=NULL)
-#Blast2GoMappingFileNew = read.csv2("/Users/amycampbell/b2gWorkspace/Blast2GoMappingResults_2149.txt", sep="\t",header=T,row.names=NULL)
+library(clusterProfiler)
+
 randpalette18=c("#B300B3","#E6AB02",
                 "#0000B3","#006400",
                 "#A6761D","#1B9E77",
@@ -31,7 +31,6 @@ SplitKegg = function(x, column){
 }
 
 Patient_Genome_Info = read.csv("~/Documents/DataInputGithub/data/DFU_Staph_aureus_isolates.csv")
-Patient_Genome_Info
 Patient_Genome_Info$DORN = paste0("DORN", Patient_Genome_Info$Doern.lab.bank.)
 patient_genome = Patient_Genome_Info %>% select(patient_id, DORN)
 
@@ -48,47 +47,23 @@ keggAnnotations = read.table("/Users/amycampbell/Documents/DataInputGithub/data/
 keggAnnotations$Gene = sapply(keggAnnotations$V1, function(x) SplitKegg(x, 1))
 keggAnnotations$Kegg = sapply(keggAnnotations$V1, function(x) SplitKegg(x, 2))
 
-dim(keggAnnotations %>% filter(Kegg!=""))
-
-
+# CCs to isolates
+#################
 CCMap = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/Phylogeny2022Data/CCMapPlotting.csv")
 
+################################################################
+# Mapping annotations to gene presence/absence matrix from roary
+################################################################ 
 Blast2GoAnnotationFile = read.csv2("/Users/amycampbell/b2gWorkspace/Blast2GoAnnotations_Original.txt", sep="\t",header=T,row.names=NULL) %>% select(GO.IDs, SeqName)
 Blast2GoMapFile = read.csv2("/Users/amycampbell/b2gWorkspace/Blast2GoMappingResults_Original.txt", sep="\t",header=T,row.names=NULL)# %>% select(GO.IDs, SeqName)
-
 Blast2GoAnnotationFileNew = read.csv2("/Users/amycampbell/b2gWorkspace/Blast2GoAnnotations_2149.txt", sep="\t",header=T,row.names=NULL) %>% select(GO.IDs, SeqName)
 
-Gos =c("GO:0006457",
-"GO:0140662",
-"GO:0046677",
-"GO:0019835",
-"GO:0140664",
-"GO:0140359",
-"GO:0016987",
-"GO:0051301",
-"GO:0051715",
-"GO:0007155",
-"GO:0009372",
-"GO:0140663",
-"GO:0031647",
-"GO:0043462",
-"GO:0043937",
-"GO:0042026",
-"GO:0019836",
-"GO:0043708",
-"GO:0009294",
-"GO:0090729",
-"GO:0032196",
-"GO:0046685",
-"GO:0140658",
-"GO:0106256",
-"GO:0006276")
-Blast2GoAnnotationFile %>% filter()
 # SeqNames for the 'new' run of blast2go are the same as seqnames in most recent roary run
 Blast2GoAnnotationFileNew$NewpangenomeID = Blast2GoAnnotationFileNew$SeqName
 # But seqnames for the 'old' run of blast2go are the old roary run
 Blast2GoAnnotationFile$OldPangenomeID = Blast2GoAnnotationFile$SeqName
 
+# Map of pan-genome including SA2149 (new) to pan-genome excluding it(old)
 OldToNewMap=read.csv("/Users/amycampbell/Documents/DataInputGithub/data/Map_New_To_Old_Pangenome.csv")
 
 Blast2GoAnnotationFileNew = Blast2GoAnnotationFileNew %>% left_join(OldToNewMap, by="NewpangenomeID")
@@ -102,6 +77,9 @@ FullAnnotated  = rbind(Blast2GoAnnotationFileNew, Blast2GoAnnotationFile)
 RoaryOutput = read.csv2("/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence_new.csv", sep=',')
 RoaryOutput$NewpangenomeID = 1:nrow(RoaryOutput)
 
+# mapping old to new in the roary gene_presence_absence file
+# uncomment if you want to rerun this but it takes a little while
+#################################################################
 # For each item in OldToNewMap$NewpangenomeID, I want to figure out which row has an entry that == it and then stick it into a variable in that row
 #for(id in OldToNewMap$NewpangenomeID){
   #listobj=apply(RoaryOutput, 2, function(x) which(x == id))
@@ -113,14 +91,47 @@ RoaryOutput$NewpangenomeID = 1:nrow(RoaryOutput)
 
 
 RoaryComplete = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence_new_WithPanGenomeIDs.csv")
-RoaryComplete
+
 RoaryOutputPresenceAbsence = RoaryComplete
 RoaryOutputPresenceAbsence = RoaryOutputPresenceAbsence %>% select(Gene, OldPangenomeID, NewpangenomeID, colnames(RoaryOutputPresenceAbsence)[which(grepl("DORN", colnames(RoaryOutputPresenceAbsence)))])
 
 
 RoaryOutputPresenceAbsence = RoaryOutputPresenceAbsence %>% mutate_at(vars(contains("DORN")), function(x) if_else(x=="", 0,1))
 
+#####################################################
+# Genes present on phages or plasmids we're tracking
+####################################################
+all_accessory = RoaryComplete
+Binarized = all_accessory[15:(ncol(all_accessory)-2)] 
+Binarized[Binarized==""] <-0
+Binarized[Binarized!=0] <-1
+all_accessory[15:(ncol(all_accessory)-2)]  <- Binarized %>% mutate_all(function(x) as.numeric(as.character(x)))
 
+allcols = colnames(all_accessory)
+colselect = c(allcols[grepl( "DORN",allcols)],"Gene")
+all_accessory = all_accessory %>% select(colselect)
+
+all_accessory$NumGenomes = rowSums(all_accessory[1:(ncol(all_accessory)-1)])
+
+StrictCoreGenes = (all_accessory %>% filter(NumGenomes==220))$Gene
+LessStrictCoreGenes = (all_accessory %>% filter(NumGenomes>=(220*.99)))$Gene
+AccessoryGenes = (all_accessory %>% filter(NumGenomes<(220*.99)))$Gene
+
+Genes_phage_plasmid = read.csv("~/Documents/DataInputGithub/data/IntraPatient/GenePresence_ByPhage_Plasmid_Updated.csv")
+Genes_phage_plasmid$X.1=NULL
+AccessoryGenePhagePlasmid = Genes_phage_plasmid%>% filter(X %in% AccessoryGenes)
+AccessoryGenePhagePlasmid$NumOccurences = rowSums(AccessoryGenePhagePlasmid[,2:(ncol(AccessoryGenePhagePlasmid)-2)])
+dim(AccessoryGenePhagePlasmid %>% filter(NumOccurences > 0))
+
+
+CoregenePhagePlasmid =  Genes_phage_plasmid%>% filter(X %in% LessStrictCoreGenes)
+CoregenePhagePlasmid$X.1=NULL
+CoregenePhagePlasmid$NumOccurences = rowSums(CoregenePhagePlasmid[2:(ncol(CoregenePhagePlasmid)-2)])
+dim(CoregenePhagePlasmid %>% filter(NumOccurences > 0))
+
+
+
+######################################
 # Ordination of accessory gene content 
 ######################################
 RoaryOutputPresenceAbsenceForTransposition = RoaryOutputPresenceAbsence %>% select(colnames(RoaryOutputPresenceAbsence)[which(grepl("DORN", colnames(RoaryOutputPresenceAbsence)))])
@@ -157,12 +168,21 @@ PCOAresultVectors$Axis.1
 
 PCoa_Plot_By_CC = ggplot(PCOAresultVectors, aes(x=Axis.1, y=Axis.2, color=factor(CCLabel), shape=factor(HealedBy12))) + geom_point(alpha=.9)+ scale_color_manual(values=randpalette14) + 
   theme_classic() + labs(x=paste0("Axis 1 (",Axis1_PctVar, "%)" ), y =paste0("Axis 2 (",Axis2_PctVar, "%)" ) , shape="DFU Healed by 12 Weeks") + coord_equal()
-adonis()
 
-ggsave(PCoa_Plot_By_CC, file="Documents/Saureus_Genomics_Paper/PCoa_Accessory_CC.pdf", width=7, height=7)
+ggsave(PCoa_Plot_By_CC, file="~/Documents/Saureus_Genomics_Paper/PCoa_Accessory_CC.pdf", width=7, height=7)
+# Healing group (healed or didn't by 12 weeks) has R^2 of .0348, while CC has R^2 of 0.70269
+set.seed(19104)
+healinggroup=PCOAresultVectors$HealedBy12
+CCgroup=PCOAresultVectors$CCLabel
+
+
+HealingPermanova = vegan::adonis(formula = JacDist~ healinggroup)
+CC_Permanova = vegan::adonis(formula = JacDist~ CCgroup)
+both  = vegan::adonis(formula = JacDist~ CCgroup + healinggroup)
+
 
 #'Misclustered' genomes
-#'
+#########################
 # DORN1352 and DORN1334 are clustered with CC8 instead of the other CC15s
 # What are the different genes between them and other CC15s? 
 CC15Genes = CCMap %>% filter(CCLabel == "CC15")
@@ -175,12 +195,21 @@ Differential15s = data.frame( OutsiderIncidence= colSums(outsiders), InsiderInci
 
 maincluster = Differential15s %>% filter((OutsiderIncidence==2 & InsiderIncidence==0) | (OutsiderIncidence==0 & InsiderIncidence==10))
 
-OutsiderPresent = maincluster %>% filter(OutsiderIncidence==2)
-OutsiderAbsent = maincluster %>% filter(OutsiderIncidence==0)
+OutsiderPresentCC15 = maincluster %>% filter(OutsiderIncidence==2)
+OutsiderPresentCC15$Gene = row.names(OutsiderPresentCC15)
 
-healinggroup=PCOAresultVectors$HealedBy12
-CCgroup=PCOAresultVectors$CCLabel
+OutsiderAbsentcCC15 = maincluster %>% filter(OutsiderIncidence==0)
+OutsiderAbsentcCC15$Gene = row.names(OutsiderAbsentcCC15)
 
+outsider_present_phageplasmids = Genes_phage_plasmid %>% filter(X %in% OutsiderPresentCC15$Gene)
+outsider_present_phageplasmids$X.1=NULL
+outsider_present_phageplasmids$rowsums = rowSums(outsider_present_phageplasmids[2:ncol(outsider_present_phageplasmids)])
+outsider_present_phageplasmids %>% filter(rowsums>0) # group_2145, group_600, pepA1, group_1678 seem to be associated with some phages, and group_2219, group_4466, group_505 with others
+
+
+outsider_absent_phageplasmids = Genes_phage_plasmid %>% filter(X %in% OutsiderAbsentcCC15$Gene)
+outsider_absent_phageplasmids$rowsums = rowSums(outsider_absent_phageplasmids[2:ncol(outsider_absent_phageplasmids)])
+outsider_absent_phageplasmids %>% filter(rowsums>0) # group_2145, group_600, pepA1, group_1678 seem to be associated with some phages, and group_2219, group_4466, group_505 with others
 
 # DORN1081, DORN1082, DORN1085, DORN1086 are really ST188 which could be considered its own CC 
 # What are the different genes between them and other 'CC1s'? 
@@ -197,23 +226,85 @@ maincluster = Differential1s %>% filter((OutsiderIncidence==4 & InsiderIncidence
 OutsiderPresent = maincluster %>% filter(OutsiderIncidence==4)
 OutsiderAbsent = maincluster %>% filter(OutsiderIncidence==0)
 
-healinggroup=PCOAresultVectors$HealedBy12
-CCgroup=PCOAresultVectors$CCLabel
+outsider_present_phageplasmids = Genes_phage_plasmid %>% filter(X %in% row.names(OutsiderPresent))
+outsider_present_phageplasmids$rowsums = rowSums(outsider_present_phageplasmids[2:ncol(outsider_present_phageplasmids)])
+outsider_present_phageplasmids %>% filter(rowsums>0) 
+
+outsider_absent_phageplasmids = Genes_phage_plasmid %>% filter(X %in% row.names(OutsiderAbsent))
+outsider_absent_phageplasmids$rowsums = rowSums(outsider_absent_phageplasmids[2:ncol(outsider_absent_phageplasmids)])
+outsider_absent_phageplasmids %>% filter(rowsums>0) # group_2145, group_600, pepA1, group_1678 seem to be associated with some phages, and group_2219, group_4466, group_505 with others
 
 
+# GO annotation of phage and plasmid-associated functions
+#########################################################
+gene_to_id = RoaryComplete %>% select(Gene, NewpangenomeID)
+gene_to_id = gene_to_id %>% left_join(FullAnnotated, by="NewpangenomeID")
+Genes_phage_plasmid$Gene = Genes_phage_plasmid$X
+AnnotatedPhagePlasmids = Genes_phage_plasmid %>% left_join(gene_to_id, by="Gene")
+
+JustPhages = AnnotatedPhagePlasmids %>% select(c("Gene", "GO.IDs", colnames(AnnotatedPhagePlasmids)[grepl("Phage",colnames(AnnotatedPhagePlasmids))]))
+
+phagenames=colnames(AnnotatedPhagePlasmids)[grepl("Phage",colnames(AnnotatedPhagePlasmids))]
+# Mapping genes to GOs
+MakeGOMapForCP = AnnotatedPhagePlasmids %>% select("Gene", "GO.IDs")
+UncollapsedGOs = tidyr::separate_rows(MakeGOMapForCP,GO.IDs, sep="; " )
+UncollapsedGOs = data.frame(UncollapsedGOs)
+UncollapsedGOs = UncollapsedGOs %>% filter(GO.IDs!= "" & !is.na(GO.IDs))
+termtogene = UncollapsedGOs %>% select(GO.IDs,Gene)
+colnames(termtogene) = c( "GOTerms", "Gene")
+
+# Present in phages
+present_in_phages = JustPhages %>% select(-GO.IDs)
+present_in_phages$total = rowSums(present_in_phages[2:ncol(present_in_phages)])
+PhagePresentGenes = (present_in_phages %>% filter(total>0))$Gene
+termtogene = termtogene %>% filter(GOTerms!="" & !is.na(GOTerms))
+PhageEnriched = enricher(PhagePresentGenes, TERM2GENE = termtogene)
+
+PhageProcessGOsEnriched  = (PhageEnriched@result %>% filter(p.adjust<.05) %>% select(ID, p.adjust,geneID) %>% arrange(ID,p.adjust ))
+
+PhageProcessGOsEnriched$ID
+
+PhageProcessGOsEnriched$IDNoOntology = sapply(PhageProcessGOsEnriched$ID, function(x) paste(str_split(string=x, pattern=":")[[1]][2:3], collapse=":"))
+
+PhageProcessGOsEnriched$Description = sapply(PhageProcessGOsEnriched$IDNoOntology, function(x) toString(go2term(x)["Term"]))
+
+PhageProcessGOsEnriched$geneID = sapply(PhageProcessGOsEnriched$geneID, function(x) str_replace_all(x,"/",";"))
+
+PhageProcessGOsEnriched = PhageProcessGOsEnriched %>% select(ID, IDNoOntology, Description, p.adjust,geneID)
+write.csv(PhageProcessGOsEnriched, file="~/Documents/DataInputGithub/data/IntraPatient/Phages/EnrichedGOsPhageGenes.csv")
+
+# Present in plasmids
+JustPlasmids = AnnotatedPhagePlasmids %>% select(-phagenames)
+Present_In_Plasmids = JustPlasmids %>% select(-c(X, NewpangenomeID, GO.IDs))
+Present_In_Plasmids$rowsums = rowSums(Present_In_Plasmids[1:(ncol(Present_In_Plasmids)-2)])
+PlasmidPresentGenes = (Present_In_Plasmids %>% filter(rowsums > 0))$Gene
+
+PlasmidEnriched = enricher(PlasmidPresentGenes, TERM2GENE = termtogene)
+
+PlasmidEnrichedGOs  = (PlasmidEnriched@result %>% filter(p.adjust<.05) %>% select(ID, p.adjust,geneID) %>% arrange(ID,p.adjust ))
+
+PlasmidEnrichedGOs$IDNoOntology = sapply(PlasmidEnrichedGOs$ID, function(x) paste(str_split(string=x, pattern=":")[[1]][2:3], collapse=":"))
+
+PlasmidEnrichedGOs$Description = sapply(PlasmidEnrichedGOs$IDNoOntology, function(x) toString(go2term(x)["Term"]))
+
+PlasmidEnrichedGOs$geneID = sapply(PlasmidEnrichedGOs$geneID, function(x) str_replace_all(x,"/",";"))
+
+PlasmidEnrichedGOsWrite = PlasmidEnrichedGOs %>% select(ID, IDNoOntology, Description, p.adjust,geneID)
 
 
-# Healing group (healed or didn't by 12 weeks) has R^2 of .0348, while CC has R^2 of 0.70269
-set.seed(19104)
-HealingPermanova = vegan::adonis(formula = JacDist~ healinggroup)
-CC_Permanova = vegan::adonis(formula = JacDist~ CCgroup)
+PlasmidEnrichedGOs %>% filter(IDNoOntology %in% intersect(PlasmidEnrichedGOs$IDNoOntology, PhageProcessGOsEnriched$IDNoOntology))
 
 
+PlasmidEnrichedGOs %>% filter(!(IDNoOntology %in% intersect(PlasmidEnrichedGOs$IDNoOntology, PhageProcessGOsEnriched$IDNoOntology)))
+(PhageProcessGOsEnriched %>% filter(!(IDNoOntology %in% intersect(PlasmidEnrichedGOs$IDNoOntology, PhageProcessGOsEnriched$IDNoOntology))))$Description
 
-######################################################################################################################################################
+dim(PlasmidEnrichedGOsWrite)
 
+write.csv(PlasmidEnrichedGOsWrite, "~/Documents/DataInputGithub/data/IntraPatient/Plasmids/EnrichedGOsPlasmidGenes.csv")
 
+PhagesNotPlasmids = setdiff(PhageProcessGOsEnriched$ID, PlasmidEnrichedGOs$ID)
 
+PlasmidsNotPhages = setdiff(PlasmidEnrichedGOs$ID,PhageProcessGOsEnriched$ID)
 
 
 RoaryOutputPresenceAbsence = RoaryOutputPresenceAbsence %>% left_join(FullAnnotated,by="NewpangenomeID")
