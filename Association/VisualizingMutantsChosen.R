@@ -146,6 +146,7 @@ USA300_LAC = USA300_LAC %>% filter(feature=="CDS")
 ############################################################
 # 1.  Making sense of top unitigs in KDE subset of Xanthin
 ############################################################
+XanthinUnitigs = c()
 patternsSubsetXanthin = read_delim("data/dbgwas2022/XanthinSubsetZeroOne/step2/patterns.txt", " ",col_names=T)
 
 UnitigsToPatterns = read.csv2("data/dbgwas2022/XanthinSubsetZeroOne/step1/gemma_input.unitig_to_pattern.binary",sep=" ", header=F)
@@ -153,6 +154,7 @@ colnames(UnitigsToPatterns) = c("unitigID", "pattern")
 UnitigsToPatterns$NodeId = paste0("n",UnitigsToPatterns$unitigID )
 UnitigsToPatterns = UnitigsToPatterns %>% select(NodeId, pattern)
 
+UnitigsToPatterns_Xanthin=UnitigsToPatterns
 
 # Staphyloxanthin (KDE clustered)
 ###############################
@@ -167,6 +169,8 @@ AlignmentFrameKDEXanthin$UnitigPosition= positions
 AlignmentFrameKDEXanthin$ContigMapped = contigs
 strands = bamfile[[1]]$strand
 AlignmentFrameKDEXanthin$strand = strands
+
+
 #AlignmentFrameKDEXanthin$Sequence =  bamfile[[1]]$seq
 
 GWASResultsXanthinKDE = GWASResultsXanthinKDE %>% select(NodeId, AlleleFreq, q.Value, p.value, SequenceLength, Sequence) 
@@ -242,6 +246,10 @@ PresenceAbsence_nif3_STX = ggplot(PresenceAbsence10, aes(x=factor(AbsenceUnitig2
   geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitig275355), y=staphyloxanthin, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence_nif3_STX, file="data/dbgwas2022/UnitigPlots/n275355_NE1507.pdf", width=5,height=8)
 
+
+XanthinUnitigs = append(XanthinUnitigs, "n275355")
+XanthinUnitigs = append(XanthinUnitigs, "n284323")
+
 # Pattern 3979:
 ###############
 Nodes3979 =  UnitigsToPatterns %>% filter(pattern=="3979")
@@ -265,6 +273,7 @@ colors_To_use = CCmappingColors %>% arrange(CCLabel) %>% filter(CCLabel %in% uni
 PresenceAbsence_Ebh_STX = ggplot(PresenceAbsence722, aes(x=factor(AbsenceUnitig108760), y=staphyloxanthin)) + geom_boxplot()+ geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitig108760), y=staphyloxanthin, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence_Ebh_STX, file="data/dbgwas2022/UnitigPlots/n108760_NE1.pdf", width=5,height=8)
 
+XanthinUnitigs = append(XanthinUnitigs, "n108760")
 
 ################
 # q=0.03842774
@@ -306,6 +315,7 @@ PresenceAbsence_1903_STX = ggplot(PresenceAbsence1903, aes(x=factor(AbsenceUniti
   geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitig72283), y=staphyloxanthin, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence_1903_STX, file="data/dbgwas2022/UnitigPlots/n72283_NE128.pdf", width=5,height=8)
 
+XanthinUnitigs = append(XanthinUnitigs, "n72283")
 
 
 ################
@@ -353,6 +363,7 @@ PresenceAbsence_694_STX = ggplot(PresenceAbsence694, aes(x=factor(AbsenceUnitigs
   geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitigsPattern694), y=staphyloxanthin, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence_694_STX, file="data/dbgwas2022/UnitigPlots/n30383_NE1252.pdf", width=5,height=8)
 
+XanthinUnitigs = append(XanthinUnitigs, "n30383")
 
 # 4 unitigs missing from DORN1081, DORN1085, DORN1086, DORN1395, DORN1946
 # n30383 -- phnE
@@ -466,6 +477,7 @@ PresenceAbsence1869_STX = ggplot(PresenceAbsence1869, aes(x=factor(AbsenceUnitig
 ggsave(PresenceAbsence1869_STX, file="data/dbgwas2022/UnitigPlots/n244949_NE952.pdf", width=5,height=8)
 
 
+XanthinUnitigs = append(XanthinUnitigs, "n244949")
 
 ###############
 # q=0.07189534
@@ -496,6 +508,7 @@ Sig10XanthinKDE %>% filter(NodeId %in% Nodes1899$NodeId)
 # though there's a clear single AA difference in 243, this unitig corresponds to a whole variable stretch
 # of the FnbB protein in other lineages (AA440-454 of DOR684's, with many variants compared to, say, DORN1000)
 
+XanthinUnitigs = append(XanthinUnitigs, "n90728")
 
 # Pattern 1780
 ###############
@@ -543,13 +556,19 @@ PresenceAbsence8607_STX = ggplot(PresenceAbsence8607, aes(x=factor(PresenceUniti
   geom_jitter(height=0, width=.2, aes(x=factor(PresenceUnitig203631), y=staphyloxanthin, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence8607_STX, file="data/dbgwas2022/UnitigPlots/n203631_NE404.pdf", width=5,height=8)
 
+XanthinUnitigs = append(XanthinUnitigs, "n203631")
+
+
+
+
+
 
 ############################################
 # 2. Making sense of the top biofilm unitigs
 ###########################################
 # KDE-Subset biofilm
 #####################
-
+biofilmUnitigs = c()
 patternsSubsetBiofilm= read_delim("data/dbgwas2022/BiofilmSubsetZeroOne/step2/patterns.txt", " ",col_names=T)
 
 GWASResultsBiofilmKDE =  data.frame(read_tsv("data/dbgwas2022/BiofilmSubsetZeroOne/textualOutput/all_comps_nodes_info.tsv"))
@@ -592,7 +611,7 @@ UnitigsToPatterns = read.csv2("data/dbgwas2022/BiofilmSubsetZeroOne/step1/gemma_
 colnames(UnitigsToPatterns) = c("unitigID", "pattern")
 UnitigsToPatterns$NodeId = paste0("n",UnitigsToPatterns$unitigID )
 UnitigsToPatterns = UnitigsToPatterns %>% select(NodeId, pattern)
-
+UnitigsToPatternsBiofilm = UnitigsToPatterns
 
 
 AlignmentFrameKDEBiofilm = AlignmentFrameKDEBiofilm %>% left_join(UnitigsToPatterns, by="NodeId")
@@ -723,6 +742,7 @@ PresenceAbsence5621_biofilm = ggplot(PresenceAbsence5621, aes(x=factor(AbsenceUn
 ggsave(PresenceAbsence5621_biofilm, file="data/dbgwas2022/UnitigPlots/biofilm_n308928_NE53.pdf", width=5,height=8)
 
 
+biofilmUnitigs = append(biofilmUnitigs,"n308928")
 
 
 
@@ -775,7 +795,7 @@ PresenceAbsence5318_biofilm = ggplot(PresenceAbsence5318, aes(x=factor(AbsenceUn
   geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitig243947), y=biofilm, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence5318_biofilm, file="data/dbgwas2022/UnitigPlots/biofilm_n243947_NE1.pdf", width=5,height=8)
 
-
+biofilmUnitigs = append(biofilmUnitigs,"n243947")
 ###############
 # q=0.03328928
 ###############
@@ -812,7 +832,7 @@ PresenceAbsence18074_biofilm = ggplot(PresenceAbsence5263, aes(x=factor(AbsenceU
   geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitig14611), y=biofilm, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence18074_biofilm, file="data/dbgwas2022/UnitigPlots/biofilm_n14611_NE53.pdf", width=5,height=8)
 
-
+biofilmUnitigs = append(biofilmUnitigs, "n146611")
 
 setdiff(colnames(Pattern5263)[Pattern5263==1], colnames(Pattern5261)[Pattern5261==1])
 
@@ -851,6 +871,7 @@ colors_To_use = CCmappingColors %>% arrange(CCLabel) %>% filter(CCLabel %in% uni
 PresenceAbsence18074_biofilm = ggplot(PresenceAbsence3385, aes(x=factor(AbsenceUnitig220775), y=biofilm)) + geom_boxplot()+
   geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitig220775), y=biofilm, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence18074_biofilm, file="data/dbgwas2022/UnitigPlots/biofilm_n220775_NE828.pdf", width=5,height=8)
+biofilmUnitigs = append(biofilmUnitigs,"n220775")
 
 ###############
 # q=0.04624817
@@ -941,6 +962,8 @@ PresenceAbsence594_biofilm = ggplot(PresenceAbsence594, aes(x=factor(AbsenceUnit
   geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitig144640_177054), y=biofilm, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence594_biofilm, file="data/dbgwas2022/UnitigPlots/biofilm_n144640_n177054_NE216.pdf", width=5,height=8)
 
+biofilmUnitigs= append(biofilmUnitigs,"n144640" )
+biofilmUnitigs= append(biofilmUnitigs,"n177054" )
 
 # 2 unitigs in dhaK and 1 in dhaL; missing from 5 (CC97, one CC5, one CC20)
 (DFUIsolatesInfo %>% filter(DORN %in% colnames(KDEbiofilmPatternDist) ) %>% filter((DORN %in% colnames(Pattern594)[Pattern594==1])) %>% arrange(CCLabel))
@@ -969,11 +992,6 @@ Pattern3301  = KDEbiofilmPatternDist %>% filter(ps=="269297")
 # Missing from DORN1455(CC5)--pgaptmp_000627 -- F->Y AA68
 # Missing from DORN1471 (CC20)--pgaptmp_000566 --synonymous
 # Missing from DORN1395  (CC97)--pgaptmp_001386 --synonymous
-
-
-
-
-
 
 
 
@@ -1007,10 +1025,42 @@ PresenceAbsence6302_biofilm = ggplot(PresenceAbsence6302, aes(x=factor(AbsenceUn
   geom_jitter(height=0, width=.2, aes(x=factor(AbsenceUnitig221501), y=biofilm, color=CCLabel)) + scale_color_manual(values=colors_To_use$hexval) + theme_classic() + stat_compare_means()
 ggsave(PresenceAbsence6302_biofilm, file="data/dbgwas2022/UnitigPlots/biofilm_n221501_NE1527.pdf", width=5,height=8)
 
+biofilmUnitigs = append(biofilmUnitigs, "n221501")
 
 
 
+##################
+# Manhattan plots 
+###################
+UnitigsToPatterns_Xanthin = UnitigsToPatterns_Xanthin %>% select(NodeId, pattern)
+
+AlignmentFrameKDEXanthin = AlignmentFrameKDEXanthin %>% left_join(UnitigsToPatterns_Xanthin, by="NodeId")
+AlignmentFrameKDEXanthin = AlignmentFrameKDEXanthin %>% left_join((patternsSubsetXanthin %>% select(pattern, `q-value`, `p-value`)), by="pattern")
+AlignmentFrameKDEXanthin$UnitigPosition[is.na(AlignmentFrameKDEXanthin$UnitigPosition)] <- 3000000
+AlignmentFrameKDEXanthin = AlignmentFrameKDEXanthin %>% mutate(ContigMapped = if_else(is.na(ContigMapped), "Unmapped", as.character(ContigMapped)))
+AlignmentFrameKDEXanthin$NegLogTransformed = -log10(AlignmentFrameKDEXanthin$`q-value`)
+AlignmentFrameKDEXanthin$NegLogTransformedP = -log10(AlignmentFrameKDEXanthin$`p-value`)
+
+XanthinKDENoPlasmids = AlignmentFrameKDEXanthin %>% filter(ContigMapped %in% c("NC_007793.1", "Unmapped"))
+
+XanthinKDENoPlasmids$Tested = if_else(XanthinKDENoPlasmids$NodeId %in% XanthinUnitigs, "Yes", "No")
+ManhattanPlotXanthinKDE = ggplot(XanthinKDENoPlasmids, aes(x=UnitigPosition, y=NegLogTransformed, color=Tested))+ scale_color_manual(values=c("black", "red"))+ ggtitle("DBGWAS Unitigs in KDE-Subset Staphyloxanthin Production") +xlim(c(0,3100000))+ geom_point(size=3) +theme_classic() + xlab("Unitig Position on S. aureus USA300 LAC")+ ylab("-Log-10-transformed Q Value") + geom_line(y=-log10(.01), color="red", linetype="dashed") + geom_line(y=-log10(.05), color="red", linetype="dashed")+  geom_line(y=-log10(.1), color="red", linetype="dashed")  
+
+ggsave(ManhattanPlotXanthinKDE, file="~/Documents/Saureus_Genomics_Paper/Figure2Figs/ManhattanplotXanthin.png", width=10,height=5)
 
 
 
+UnitigsToPatternsBiofilm = UnitigsToPatternsBiofilm %>% select(NodeId, pattern)
 
+AlignmentFrameKDEBiofilm = AlignmentFrameKDEBiofilm %>% left_join(UnitigsToPatternsBiofilm, by="NodeId")
+AlignmentFrameKDEBiofilm = AlignmentFrameKDEBiofilm %>% left_join((patternsSubsetBiofilm %>% select(pattern, `q-value`, `p-value`)), by="pattern")
+AlignmentFrameKDEBiofilm$UnitigPosition[is.na(AlignmentFrameKDEBiofilm$UnitigPosition)] <- 3000000
+AlignmentFrameKDEBiofilm = AlignmentFrameKDEBiofilm %>% mutate(ContigMapped = if_else(is.na(ContigMapped), "Unmapped", as.character(ContigMapped)))
+AlignmentFrameKDEBiofilm$NegLogTransformed = -log10(AlignmentFrameKDEBiofilm$`q-value`)
+
+biofilmKDENoPlasmids = AlignmentFrameKDEBiofilm %>% filter(ContigMapped %in% c("NC_007793.1", "Unmapped"))
+
+biofilmKDENoPlasmids$Tested = if_else(biofilmKDENoPlasmids$NodeId %in% biofilmUnitigs, "Yes", "No")
+ManhattanPlotBiofilmKDE = ggplot(biofilmKDENoPlasmids, aes(x=UnitigPosition, y=NegLogTransformed, color=Tested))+ scale_color_manual(values=c("black", "red"))+ ggtitle("DBGWAS Unitigs in KDE-Subset Biofilm Production") +xlim(c(0,3100000))+ geom_point(size=3) +theme_classic() + xlab("Unitig Position on S. aureus USA300 LAC")+ ylab("-Log-10-transformed Q Value") + geom_line(y=-log10(.01), color="red", linetype="dashed") + geom_line(y=-log10(.05), color="red", linetype="dashed")+  geom_line(y=-log10(.1), color="red", linetype="dashed")  
+
+ggsave(ManhattanPlotBiofilmKDE, file="~/Documents/Saureus_Genomics_Paper/Figure2Figs/ManhattanplotBiofilm.png", width=10,height=5)
