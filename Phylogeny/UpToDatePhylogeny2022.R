@@ -1,7 +1,7 @@
 # amy campbell 
 # Phylogeny of DORN isolates + their references (247 genomes total)
 # Updated 05-2022
-setwd('/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/')
+setwd('/Users/amycampbell/Documents/DataInputGithub/')
 # library("treeio")
 # library("dplyr")
 # library("ggplot2")
@@ -31,7 +31,7 @@ UpdatedPhenotypes$DORN=paste0("DORN", UpdatedPhenotypes$DORN)
 StaphIsolateDORNs$DORN=paste0("DORN", StaphIsolateDORNs$Doern.lab.bank.)
 CCgroupings=read.csv(CCmapping)
 
-
+colorscheme_CCs = read.csv("~/Documents/DataInputGithub/data/Phylogeny2022Data/CC_Colorscheme.csv")
 
 
 # Read in the clonalframeML-corrected tree :) 
@@ -100,6 +100,8 @@ circdataNullLabel$TipLABEL=NULL
 CircularPlotColors = ggtree(circdataNullLabel, layout="circular",size=.5) + geom_fruit(aes(y=CCRefs,x=0,fill=CCRefs), geom=geom_tile,offset=5, size=.1)  + geom_tiplab(size=0)
 CircularPlotColors = CircularPlotColors + scale_fill_manual(values=randpalette18)
 
+
+
 apeplotcircForPlot <- ggtree::ggtree(apeRootedCF, size=.25, layout = "circular") + geom_tiplab(size=4.5)
 
 ggsave(CircularPlotColors, file="ColorsCCplotUTD.pdf", width=26, height=25)
@@ -119,9 +121,6 @@ Phenotypes$siderophore = ((Phenotypes$siderophore  - min(Phenotypes$siderophore)
 
 # CC vs. each phenotype (kruskall-wallis)
 #########################################
-# Phenotypes by CC 
-PhenotypesCC = Phenotypes
-PhenotypesCC = PhenotypesCC %>% left_join(CCgroupings,by="DORN")
 
 # Biofilm
 ############
@@ -144,6 +143,10 @@ pairwise.wilcox.test(PhenotypesCC$staphyloxanthin, PhenotypesCC$CCLabel,
 staphyloxanthinPlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=staphyloxanthin)) + geom_boxplot(fill="#B8860B") + xlab("Clonal Complex") + ylab("Normalized Staphyloxanthin Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Staphyloxanthin") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
 staphyloxanthinPlot$data$CCLabel = factor(staphyloxanthinPlot$data$CCLabel, levels=OrderBiofilm)
 
+
+
+
+
 # staphylokinase
 ################
 PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
@@ -152,6 +155,7 @@ pairwise.wilcox.test(PhenotypesCC$staphylokinase, PhenotypesCC$CCLabel,
                      p.adjust.method = "BH")
 staphylokinasePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=staphylokinase)) + geom_boxplot(fill="#2D9D92") + xlab("Clonal Complex") + ylab("Normalized Staphylokinase Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Staphylokinase") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
 staphylokinasePlot$data$CCLabel = factor(staphylokinasePlot$data$CCLabel, levels=OrderBiofilm)
+
 
 
 # staphylokinase No sak
@@ -170,13 +174,68 @@ PhenotypesCC = PhenotypesCC %>% filter(!is.na(CCLabel))
 kruskal.test(siderophore ~ CCLabel, data = PhenotypesCC)
 pairwise.wilcox.test(PhenotypesCC$siderophore, PhenotypesCC$CCLabel,
                      p.adjust.method = "BH")
-siderophorePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=siderophore)) + geom_boxplot(fill="#8B0000") + xlab("Clonal Complex") + ylab("Normalized Siderophore Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Siderophore") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
+siderophorePlot = ggplot(PhenotypesCC, aes(x=CCLabel, y=siderophore)) + geom_boxplot(fill="#8B0000")  + geom_jitter(height=0) + xlab("Clonal Complex") + ylab("Normalized Siderophore Production") + theme_classic() + ggpubr::stat_compare_means(method="kruskal.test", label.y=1.2, label.x=2.5) + ggtitle("Siderophore") + theme(plot.title=element_text(hjust=.5, face="bold", size=14))
 siderophorePlot$data$CCLabel = factor(siderophorePlot$data$CCLabel, levels=OrderBiofilm)
-
 
 
 gridExtra::grid.arrange(staphyloxanthinPlot, BiofilmPlot, staphylokinasePlot, siderophorePlot)
 gridExtra::grid.arrange(staphyloxanthinPlot, BiofilmPlot, staphylokinasePlotNoSak, siderophorePlot)
+
+
+##############################################
+# Line plots for phenotypes vs. CC (Figure 2A)
+##############################################
+# Phenotypes by CC 
+
+
+
+Phenotypes_With_CC = UpdatedPhenotypes %>% left_join(CCgroupings, by="DORN") %>% filter(!is.na(CCLabel))
+MeansByCC = Phenotypes_With_CC %>% group_by(CCLabel) %>% summarize(meanSiderophore=mean(siderophore, na.rm=T), meanStaphylokinase = mean(staphylokinase, na.rm=T), meanStaphyloxanthin=mean(staphyloxanthin, na.rm=T), meanBiofilm=mean(biofilm, na.rm=T))
+SDsByCC = Phenotypes_With_CC %>% group_by(CCLabel) %>% summarize(sdSiderophore=sd(siderophore, na.rm=T), sdStaphylokinase = sd(staphylokinase, na.rm=T), sdStaphyloxanthin=sd(staphyloxanthin, na.rm=T), sdBiofilm=sd(biofilm, na.rm=T))
+SDsByCC[is.na(SDsByCC)] <- 0
+
+
+# staphyloxanthin line plot
+MeansByCC$LowerXanthin = MeansByCC$meanStaphyloxanthin - SDsByCC$sdStaphyloxanthin
+MeansByCC$UpperXanthin = MeansByCC$meanStaphyloxanthin + SDsByCC$sdStaphyloxanthin
+MeansByCC = MeansByCC %>% left_join(colorscheme_CCs,by="CCLabel")
+CCxanthinLinePlot = ggplot(MeansByCC,aes( x=factor(CCLabel), y=meanStaphyloxanthin))+ geom_point(color="#B8860B") + geom_errorbar(color="#B8860B",width=.2,aes(ymax=UpperXanthin, ymin=LowerXanthin)) 
+CCxanthinLinePlot$data$CCLabel = factor(CCxanthinLinePlot$data$CCLabel, levels=rev(unique(CCxanthinLinePlot$data$CCLabel)))
+CCxanthinLinePlot = CCxanthinLinePlot + theme_classic() + coord_flip() + theme(axis.text.y=element_text(colour=rev(MeansByCC$hexval)))
+ggsave(CCxanthinLinePlot,file="~/Documents/Saureus_Genomics_Paper/Figure2Figs/STX_lineplot.pdf",height=6,width=2)
+MeansByCC$meanStaphyloxanthin
+
+# biofilm line plot 
+MeansByCC$LowerBiofilm = MeansByCC$meanBiofilm - SDsByCC$sdBiofilm
+MeansByCC$UpperBiofilm = MeansByCC$meanBiofilm + SDsByCC$sdBiofilm
+CCbiofilmLinePlot = ggplot(MeansByCC,aes( x=factor(CCLabel), y=meanBiofilm))+ geom_point(color="#83B44B") + geom_errorbar(color="#83B44B",width=.2,aes(ymax=UpperBiofilm, ymin=LowerBiofilm)) 
+CCbiofilmLinePlot$data$CCLabel = factor(CCbiofilmLinePlot$data$CCLabel, levels=rev(unique(CCbiofilmLinePlot$data$CCLabel)))
+CCbiofilmLinePlot = CCbiofilmLinePlot + theme_classic() + coord_flip() + theme(axis.text.y=element_text(colour=rev(MeansByCC$hexval)))
+ggsave(CCbiofilmLinePlot,file="~/Documents/Saureus_Genomics_Paper/Figure2Figs/Biofilm_lineplot.pdf",height=6,width=2)
+
+xanthin_line = ggplot(MeansByCC) + aes(x=CCLabel,y)
+ 
+# biofilm line plot 
+MeansByCC$LowerSiderophore = MeansByCC$meanSiderophore - SDsByCC$sdSiderophore
+MeansByCC$UpperSiderophore = MeansByCC$meanSiderophore + SDsByCC$sdSiderophore
+CCsiderophoreLinePlot = ggplot(MeansByCC,aes( x=factor(CCLabel), y=meanSiderophore))+ geom_point(color="#8B0000") + geom_errorbar(color="#8B0000",width=.2,aes(ymax=UpperSiderophore, ymin=LowerSiderophore)) 
+CCsiderophoreLinePlot$data$CCLabel = factor(CCsiderophoreLinePlot$data$CCLabel, levels=rev(unique(CCsiderophoreLinePlot$data$CCLabel)))
+CCsiderophoreLinePlot = CCsiderophoreLinePlot + theme_classic() + coord_flip() + theme(axis.text.y=element_text(colour=rev(MeansByCC$hexval)))
+ggsave(CCsiderophoreLinePlot,file="~/Documents/Saureus_Genomics_Paper/Figure2Figs/Siderophore_lineplot.pdf",height=6,width=2)
+
+# biofilm line plot 
+MeansByCC$LowerStaphylokinase = MeansByCC$meanStaphylokinase - SDsByCC$sdStaphylokinase
+MeansByCC$UpperStaphylokinase = MeansByCC$meanStaphylokinase + SDsByCC$sdStaphylokinase
+
+CCstaphylokinaseLinePlot = ggplot(MeansByCC,aes( x=factor(CCLabel), y=meanStaphylokinase))+ geom_point(color="#2D9D92") + geom_errorbar(color="#2D9D92",width=.2,aes(ymax=UpperStaphylokinase, ymin=LowerStaphylokinase)) 
+CCstaphylokinaseLinePlot$data$CCLabel = factor(CCstaphylokinaseLinePlot$data$CCLabel, levels=rev(unique(CCstaphylokinaseLinePlot$data$CCLabel)))
+CCstaphylokinaseLinePlot = CCstaphylokinaseLinePlot + theme_classic() + coord_flip() + theme(axis.text.y=element_text(colour=rev(MeansByCC$hexval)))
+ggsave(CCstaphylokinaseLinePlot,file="~/Documents/Saureus_Genomics_Paper/Figure2Figs/Staphylokinase_lineplot.pdf",height=6,width=2)
+
+
+
+
+
 
 apeplotcircPhenotypes<- ggtree::ggtree(apeRootedCF, size=.25, layout = "circular", branch.length = "none") #+ geom_tiplab(size=1.7)
 
