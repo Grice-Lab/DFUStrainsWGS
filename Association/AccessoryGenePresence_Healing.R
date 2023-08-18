@@ -12,7 +12,14 @@ UpdatedPhenotypes$HealedBy12= if_else(!is.na(UpdatedPhenotypes$week_healed) & Up
 PatientHealMap = UpdatedPhenotypes %>% select(patient, HealedBy12)
 PatientHealMap$patient = sapply(PatientHealMap$patient, as.character)
 
+GeneAnnotations = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence.csv")  %>% select(Gene, Annotation)
+
 GeneByPatientDF =read.csv("/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/GeneByPatient.csv")
+
+
+#########################################################################
+# Are any gene presence/absence patterns associate w healing at 12 weeks?
+#########################################################################
 cols_select = colnames(GeneByPatientDF)
 cols_select = cols_select[grepl("patient", cols_select)]
 GeneByPatientDF_Clean = GeneByPatientDF %>% select(cols_select)
@@ -84,6 +91,97 @@ for(indexitem in 1:(ncol(transposedDF) -2 )){
 ChisqP_DF = data.frame(Gene=genesTested, pvalue=chisqP)
 
 ChisqP_DF$Padjusted = p.adjust(ChisqP_DF$pvalue, length(ChisqP_DF$pvalue), method="BH")
+
+
+#######################
+# Annotation by patient
+#######################
+GeneByPatientDF_annotated = GeneByPatientDF %>% left_join(GeneAnnotations, by="Gene")
+GeneByPatientDF_annotated = GeneByPatientDF_annotated %>% select(-X, -Gene, -NewpangenomeID, -GO.IDs)
+GeneByPatientDF_annotated = GeneByPatientDF_annotated %>% filter(Annotation!="hypothetical protein")
+AnnotationByPatientDF = GeneByPatientDF_annotated %>% group_by(Annotation) %>% summarize_all(max) %>% unique()
+
+JustAnnotations=as.matrix(AnnotationByPatientDF[,2:ncol(AnnotationByPatientDF)])
+RowsToCheck = 1:nrow(JustAnnotations)
+
+NewMatrixAnnotations = c()
+
+for(rownum in 1:nrow(JustAnnotations)){
+  print(rownum)
+  # If I haven't already collapsed identically distributed rows 
+  if(rownum %in% RowsToCheck ){
+    
+    row_check=JustAnnotations[rownum,]
+    NumIdentical=which(apply(JustAnnotations, 1, function(x) identical(x,row_check)))
+    print(NumIdentical)
+    if(length(NumIdentical) >1){
+      
+      # Paste together gene names with "-" between them
+      listannotations = AnnotationByPatientDF[NumIdentical,"Annotation"]
+      listannotations= sapply(listannotations,function(x) str_remove_all(x,"\\\\"))
+      
+      GroupAnnotationName=paste(listannotations, collapse=";")
+      print(GroupAnnotationName)
+      # Remove all the identical rows bc now theyre represented
+      RowsToCheck = RowsToCheck[ !(RowsToCheck %in% NumIdentical)]
+      
+      # Add this to the matrix of gene-by-patient "haplotypes"
+      NewMatrixAnnotations = rbind(NewMatrixAnnotations, c(GroupAnnotationName,row_check ))
+    }else{
+      RowsToCheck = RowsToCheck[RowsToCheck!=rownum]
+      AnnotationName=AnnotationByPatientDF[rownum,"Annotation"]
+      NewMatrixAnnotations = rbind(NewMatrixAnnotations, c(AnnotationName,row_check ))
+    }
+    
+  }
+  
+}
+
+
+
+NewMatrixAnnotations = data.frame(NewMatrixAnnotations)
+
+NewMatrixAnnotations[,2:ncol(NewMatrixAnnotations)]  = NewMatrixAnnotations[,2:ncol(NewMatrixAnnotations)] %>% mutate_all(as.numeric)
+ 
+NewMatrixAnnotations$rowsums = rowSums(NewMatrixAnnotations[2:ncol(NewMatrixAnnotations)])
+
+NewMatrixAnnotations = NewMatrixAnnotations %>% filter(rowsums <= 60*.9 & rowsums >= 60*.1)
+NewMatrixAnnotations$rowsums=NULL
+
+annotation_haplotypes=unlist(NewMatrixAnnotations$Annotation)
+FixedAnnots=sapply(annotation_haplotypes, function(x) str_replace_all(x," ", "_"))
+FixedAnnots=sapply(FixedAnnots, function(x) str_replace_all(x,"-", "_"))
+FixedAnnots=sapply(FixedAnnots, function(x) str_replace_all(x,"/", "_"))
+FixedAnnots=sapply(FixedAnnots, function(x) str_replace_all(x,"\\(", "_"))
+FixedAnnots=sapply(FixedAnnots, function(x) str_replace_all(x,"\\)", "_"))
+
+FixedAnnots = sapply(FixedAnnots, function(x) paste0("Annot",x))
+AnnotMap = data.frame(FullString=annotation_haplotypes, FixedString=FixedAnnots)
+
+transposedDFannotations = data.frame(t(NewMatrixAnnotations[,2:ncol(NewMatrixAnnotations)]))
+colnames(transposedDFannotations) = FixedAnnots
+
+
+transposedDFannotations$patient = sapply(row.names(transposedDFannotations), function(x) str_split(x,"_")[[1]][2])
+transposedDFannotations = transposedDFannotations %>% left_join(PatientHealMap,by="patient")
+
+annotsTested = c()
+chisqPannotations=c()
+transposedDFannotations = data.frame(transposedDFannotations)
+cols_annotations = colnames(transposedDFannotations)
+chisqPannot = c()
+
+for(indexitem in 1:(ncol(transposedDFannotations)-2)){
+  print(indexitem)
+  summary_dist=table(transposedDFannotations[c(indexitem,ncol(transposedDFannotations))])
+  ChiSqResult = chisq.test(summary_dist, simulate.p.value = T)
+  annotsTested = append( annotsTested, cols_annotations[indexitem])
+  chisqPannot = append(chisqPannot, ChiSqResult$p.value)
+}
+ChisqP_DF_annot= data.frame(Gene=annotsTested, pvalue=chisqPannot)
+
+ChisqP_DF_annot$Padjusted = p.adjust(ChisqP_DF_annot$pvalue, length(ChisqP_DF_annot$pvalue), method="BH")
+
 
 
 
@@ -315,6 +413,4 @@ for(indexitem in 1:(ncol(transposedDF) -2 )){
 ChisqP_DF = data.frame(Gene=genesTested, pvalue=chisqP)
 
 ChisqP_DF$Padjusted = p.adjust(ChisqP_DF$pvalue, length(ChisqP_DF$pvalue), method="BH")
-
-
 
