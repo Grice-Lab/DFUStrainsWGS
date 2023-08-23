@@ -41,7 +41,7 @@ Multifasta = list(SeqIO.parse(PhagesFasta, "fasta"))
 
 
 
-phagelist = (list(map(lambda x: "Phage" + str(x), (list(range(69))))))
+phagelist = (list(map(lambda x: "Phage" + str(x), (list(range(len(Multifasta)))))))
 DORNlist = list(map(lambda x: str.replace(x, "_Final.fasta", ""), allIsolates))
 DORNlist = list(filter(lambda x: "DORN" in x, DORNlist)) # remove the .DSstore file (classic)
 
