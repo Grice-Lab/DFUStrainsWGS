@@ -21,7 +21,7 @@ for i in range( (plasmidDF.shape[0])):
     plasmidIDobj = ((plasmidDF.iloc[i])["PlasmidID"])
     filepath= ((plasmidDF.iloc[i])["FastaPath"])
     multifastaobj = list(SeqIO.parse(filepath, "fasta"))
-    for(j in range(len(multifastaobj))):
+    for j in range(len(multifastaobj)):
         newheader = str(plasmidIDobj) + str("_") + str(j)
         sequenceobj = multifastaobj[j]
         outputfasta.write(">" + newheader)
