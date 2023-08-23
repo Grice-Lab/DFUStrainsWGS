@@ -13,14 +13,15 @@
     # 4. CSV file and path to output presence/absence of each phage in each genome based only on CD-hit-est
     #    (e.g., /home/acampbe/DFU/data/WGS_2020/PhageResults/CheckVResults_Parsed/cdhit_80/PhagePresenceAbsence.csv)
     # 5. Fasta file to write the sequences with cleaned up IDs
-    #    /home/acampbe/DFU/data/WGS_2020/PhageResults/CheckVResults_Parsed/cdhit_80/ClusteredPhagesRenamed.fasta)
+    #    /home/acampbe/DFU/data/WGS_2020/PhageResults/CheckVResults_Parsed/cdhit_80/ClusteredPhagesRenamed80.fasta)
     # 6. Folder to write individual fastas to (named like)
     #  e.g., /home/acampbe/DFU/data/WGS_2020/PhageResults/CheckVResults_Parsed/cdhit_80/IndividualFastas/
     # 7. Folder containing all the phages input into the clustering (/home/acampbe/DFU/data/WGS_2020/PhageResults/CheckVResults_Parsed/AllPhages.fasta)
 # Outputs:
     # 1. CSV where rows are genome IDs (e.g. DORN76) and columns are phages (Phage0..Phage68), values aare presence(1) or absence (0)
     #   based only on whether their own sequence clustered into the CD-hit-est cluster
-    # 2. Multifasta where ids are Phage0 .... Phage68 instead of their current ids
+    # 2. Multifasta where ids are Phage0 .... Phage52 instead of their current ids
+    # 3. Individual fastas
 
 import os
 from Bio import SeqIO
@@ -52,7 +53,7 @@ allphagesdict = dict()
 AllUnclusteredPhages =  list(SeqIO.parse(InputFullPhageList, "fasta"))
 for j in range(len(AllUnclusteredPhages)):
     fastitem = AllUnclusteredPhages[j]
-    itemID=(AllUnclusteredPhages.id).split("|")[0]
+    itemID=(AllUnclusteredPhages.id).split(":")[0]
     allphagesdict[itemID] = fastitem.seq
 AllUnclusteredPhages=""
 # Make an empty dataframe where columns are new phage names, rows are isolate names
@@ -81,7 +82,7 @@ for s in range(len(Multifasta)):
     for i in range(1,len(ClusterItemList)):
         rowitem = ClusterItemList[i]
         if rowitem != "":
-            phageinstanceSearchString =  str(((rowitem.split(">"))[1].split("|"))[0])
+            phageinstanceSearchString =  str(((rowitem.split(">"))[1].split(":"))[0])
 
             genome = ((((rowitem.split(">"))[1].split("|"))[0]).split("_"))[0]
 
