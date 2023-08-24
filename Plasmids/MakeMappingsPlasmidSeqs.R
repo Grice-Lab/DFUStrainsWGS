@@ -5,6 +5,9 @@ PlasmidSizes=read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPa
 AllPlasmids = colnames(PlasmidDF)[3:ncol(PlasmidDF)]
 
 PathDF = data.frame()
+PathDF_allGenomes = data.frame()
+
+
 for(plas in 1:length(AllPlasmids)){
   plasmidID = AllPlasmids[plas]
   fastaString=paste0("plasmid_", plasmidID, ".fasta")
@@ -29,8 +32,13 @@ for(plas in 1:length(AllPlasmids)){
   IsolateVersion=(DF %>% arrange(-df.size))[1,"IsolateID"]
   pathstring=paste0("/home/acampbe/DFU/data/WGS_2020/MOB_Plasmids/", IsolateVersion, "/", fastaString)
   PathDF = rbind(PathDF, c(IsolateVersion, plasmidID,pathstring ))
+  
+  DF$pathstring = paste0("/home/acampbe/DFU/data/WGS_2020/MOB_Plasmids/", DF$IsolateID, "/", fastaString)
+  DF = DF %>% select(IsolateID, pathstring)
+  DF$PlasmidID = plasmidID
+  PathDF_allGenomes = rbind(PathDF_allGenomes, DF)
+  
 }
 colnames(PathDF) = c("GenomeID", "PlasmidID", "FastaPath")
 write.csv(PathDF, file="/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Plasmids/PlasmidFastaPaths.csv")
-
-
+write.csv(PathDF_allGenomes, file="/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Plasmids/PlasmidFastaPaths_All.csv")
