@@ -25,6 +25,6 @@ for p in ListOfPhages:
             idstring=namestring + "_"+str(k)
             outputobj.write(">" + idstring)
             outputobj.write('\n')
-            outputobj.write(str(smultifastaobj[k].seq))
+            outputobj.write(str(multifastaobj[k].seq))
             outputobj.write('\n')
     outputobj.close()
