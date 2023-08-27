@@ -16,17 +16,31 @@ library("reshape2")
 library("stats")
 library("cluster")
 
-setwd('/Users/amycampbell/Documents/DataInputGithub/')
+#setwd('/Users/amycampbell/Documents/DataInputGithub/')
+
+SakGenomes = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence.csv") %>% filter(Annotation == "staphylokinase")
+
+SakGenomes = SakGenomes[15:ncol(SakGenomes)]
+SakGenomes[SakGenomes==""] <- 0
+SakGenomes[SakGenomes!=0] <- 1
+SakGenomes = apply(SakGenomes, 2, as.numeric)
+SakGenomes = colSums(SakGenomes)
+GenomesWithSak=names(SakGenomes[SakGenomes>0])
+GenomesWithSak = sapply(GenomesWithSak, function(x) str_replace(x, "DORN", "SA"))
 
 StaphIsolateDORNs=read.csv("data/DFU_Staph_aureus_isolates.csv")
 UpdatedPhenotypes=read.csv("~/Desktop/GriceLabGit/Staphyloxanthin/Data/InVitroData/Phenotypes_Data.csv")
 StaphIsolateDORNs$IsolateID = paste0("SA", StaphIsolateDORNs$Doern.lab.bank.)
+StaphIsolateDORNs$DORN = paste0("DORN", StaphIsolateDORNs$Doern.lab.bank.)
+CCinfo = read.csv("data/Phylogeny2022Data/CCMapPlotting.csv")
+CCinfo = CCinfo %>% left_join(StaphIsolateDORNs %>% select(DORN, patient_id), by="DORN")
 
-phageContents = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/CDHit/PhagePresenceAbsence.csv")
-phageContents$IsolateID = sapply(phageContents$X,function(x) str_replace(x,"DORN", "SA"))
+phageContents = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/PresenceAbsenceHClustPhages.csv")
+phageContents$IsolateID = sapply(phageContents$Genome,function(x) str_replace(x,"DORN", "SA"))
+phageContents$Genome=NULL
 phageContents$X = NULL
 
-plasmidContents = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Plasmids/Filtered_Plasmid_Presence_Absence.csv")
+plasmidContents = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Plasmids/Plasmid_Presence_Absence_UTD.csv")
 plasmidContents$IsolateID = plasmidContents$X
 
 plasmidContents$X=NULL
@@ -77,9 +91,13 @@ TreeFilesListPatientsRepresented = sapply(TreeFilesList, function(x) str_split(x
 PatientSummary = data.frame(patient=TreeFilesListPatientsRepresented)
 HealingInfo$patient = sapply(HealingInfo$patient, as.character)
 
-
+PatientSummary$patientCC = paste(PatientSummary$patient, PatientSummary$CC, sep="_")
+CCinfo$patientCC = paste(CCinfo$patient_id, CCinfo$CCLabel, sep="_")
+CCinfo %>% filter(patientCC %in% PatientSummary$patientCC )
 
 write.csv(PatientSummary %>% left_join(HealingInfo, by="patient"), file="/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/PlotSummaryIntraPatientTrees.csv")
+
+PatientSummary$CC = sapply(TreeFilesList, function(x) str_split(x, "_")[[1]][3])
 
 # HealingInfo %>% filter(HealedBy12 == "no")
 
@@ -109,7 +127,6 @@ for(f in 1:length(TreeFilesList)){
   TreeFile=paste0(CFTreeFolder, "/",TreeFilename)
   TreeInput= ggtree::read.tree(TreeFile)
   TreeString = str_replace(TreeFilename, "_clonalframeML.newick.labelled_tree.newick", "")
-  print(TreeString)
   WhichCC=str_split(TreeString, "_")[[1]][3]
   cclist=append(cclist, WhichCC)
   TreeString = str_replace(TreeString, ".newick", "")
@@ -162,7 +179,7 @@ for(f in 1:length(TreeFilesList)){
       StaphyloxanthinClusters = cutree(hclust(dist(StaphyloxanthinDF$staphyloxanthin), method="average"), h=.25)
       if(length(unique(StaphyloxanthinClusters))>1) {
         StaphyloxanthinDF$Cluster =StaphyloxanthinClusters
-        write.csv(StaphyloxanthinDF %>% arrange(Cluster), paste0(DistOutputPath,"Comparisons_", TreeString,"Staphyloxanthin_",cluster  , ".csv"  ))
+        write.csv(StaphyloxanthinDF %>% arrange(Cluster), paste0(DistOutputPath,"Comparisons_", TreeString,"_Staphyloxanthin_",cluster  , ".csv"  ))
       }
       }
       # Biofilm 
@@ -172,7 +189,7 @@ for(f in 1:length(TreeFilesList)){
       BiofilmClusters = cutree(hclust(dist(BiofilmDF$biofilm), method="average"), h=.25)
       if(length(unique(BiofilmClusters))>1) {
         BiofilmDF$Cluster =BiofilmClusters
-        write.csv(BiofilmDF %>% arrange(Cluster), paste0(DistOutputPath,"Comparisons_", TreeString,"Biofilm_",cluster , ".csv" ))
+        write.csv(BiofilmDF %>% arrange(Cluster), paste0(DistOutputPath,"Comparisons_", TreeString,"_Biofilm_",cluster , ".csv" ))
         
       }   }
       
@@ -181,9 +198,20 @@ for(f in 1:length(TreeFilesList)){
         StaphylokinaseClusters = cutree(hclust(dist(StaphylokinaseDF$staphylokinase), method="average"), h=.25)
         if(length(unique(StaphylokinaseClusters))>1) {
           StaphylokinaseDF$Cluster = StaphylokinaseClusters
-          write.csv(StaphylokinaseDF %>% arrange(Cluster), paste0(DistOutputPath,"Comparisons_", TreeString,"Staphylokinase_",cluster  , ".csv"  ))
+          write.csv(StaphylokinaseDF %>% arrange(Cluster), paste0(DistOutputPath,"Comparisons_", TreeString,"_Staphylokinase_",cluster  , ".csv"  ))
           
         }
+        
+        StaphylokinaseDF_JustSak = StaphylokinaseDF %>% filter(IsolateID %in% GenomesWithSak)
+        if(nrow(StaphylokinaseDF_JustSak) > 1){
+          StaphylokinaseClustersWithSak = cutree(hclust(dist(StaphylokinaseDF_JustSak$staphylokinase), method="average"), h=.25)
+          
+          if(length(unique(StaphylokinaseClustersWithSak))>1){
+            StaphylokinaseDF_JustSak$Cluster = StaphylokinaseClustersWithSak
+            write.csv(StaphylokinaseDF_JustSak %>% arrange(Cluster), paste0(DistOutputPath,"SakContainingComparisons_", TreeString,"_Staphylokinase_",cluster  , ".csv"  ))
+            
+          }
+          }
       }
     
       
@@ -192,7 +220,7 @@ for(f in 1:length(TreeFilesList)){
         SiderophoreClusters = cutree(hclust(dist(SiderophoreDF$siderophore), method="average"), h=.25)
         if(length(unique(SiderophoreClusters))>1) {
           SiderophoreDF$Cluster = SiderophoreClusters
-          write.csv(SiderophoreDF %>% arrange(Cluster), paste0(DistOutputPath,"Comparisons_", TreeString,"Siderophore_",cluster  , ".csv"  ))
+          write.csv(SiderophoreDF %>% arrange(Cluster), paste0(DistOutputPath,"Comparisons_", TreeString,"_Siderophore_",cluster  , ".csv"  ))
           
         }
         

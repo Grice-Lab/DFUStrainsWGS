@@ -1,25 +1,35 @@
 library(dplyr)
 library(stringr)
 library(ggplot2)
+# Amy campbell
+# Analyzing the intra-patient gene variant contents 
 
+# CC color scheme
+#################
+cc_colors = read.csv("~/Documents/DataInputGithub/data/Phylogeny2022Data/CC_Colorscheme.csv")
 
-Sak176clusterVsXanthin=read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/SakCluster_Vs_STX_176.csv") %>% filter(SakCluster %in% c(1,3))
-Sak176clusterVsXanthin$SakCluster = if_else(Sak176clusterVsXanthin$SakCluster==3, "High", "Low")
-ggplot(Sak176clusterVsXanthin, aes(x=factor(SakCluster), y=(staphyloxanthin))) + geom_boxplot(fill="darkgoldenrod")  + theme_classic() + xlab("Staphylokinase Cluster") + ylab("Staphyloxanthin Value (0-1 normalized)") + ylim(0,1)
+# Gene ortholog presence/absence from Roary
+##############################################
+GeneAnnotations = read.csv("~/Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence_new_WithPanGenomeIDs.csv") %>% select(Gene,Annotation)
 
+# Gene ortholog presence/absence by phage and plasmid
+###########################################################
+genepresence_phage_plasmid = read.csv("~/Documents/DataInputGithub/data/IntraPatient/GenePresence_ByPhage_Plasmid_Updated_Hclust.csv")
+genepresence_phage_plasmid$X.1 =NULL
 
-SNPDists = read.csv("Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence_new_WithPanGenomeIDs.csv")
+# Presence of the 13 different phage clusters by genome
+###########################################################
+phagepresence_isolates = read.csv("~/Documents/DataInputGithub/data/IntraPatient/Phages/PresenceAbsenceHClustPhages.csv")
 
-
-genepresence_phage_plasmid = read.csv("Documents/DataInputGithub/data/IntraPatient/GenePresence_ByPhage_Plasmid.csv")
-phagepresence_isolates = read.csv("Documents/DataInputGithub/data/IntraPatient/Phages/CDHit/PhagePresenceAbsence.csv")
-GeneAnnotations = read.csv("Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence_new_WithPanGenomeIDs.csv") %>% select(Gene,Annotation)
-SNPs = read.csv("Documents/DataInputGithub/data/IntraPatient/SNP_Variants_Consistent.csv")
+# SNPs / indels that were found to be consistent in any comparisons
+##################################################################
+SNPs = read.csv("~/Documents/DataInputGithub/data/IntraPatient/SNP_Variants_Consistent.csv")
 
 SNPsBackup = SNPs
-CNVs = read.csv("Documents/DataInputGithub/data/IntraPatient/CNV_Variants_Consistent.csv")
+CNVs = read.csv("~/Documents/DataInputGithub/data/IntraPatient/CNV_Variants_Consistent.csv")
 GeneAndHGT = "/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/IntraPatientGeneticComparisons/"
-colorScheme = read.csv("Documents/DataInputGithub/data/IntraPatient/SpectralColorsVariants.csv")# %>% select(TypePresenceCombo,HexVal )
+colorScheme = read.csv("~/Documents/DataInputGithub/data/IntraPatient/SpectralColorsVariants.csv")# %>% select(TypePresenceCombo,HexVal )
+
 SNPs = SNPs %>% select(Gene, Phenotype, CC, Patient, Cluster1, Cluster2, Type, PresentOrAbsentHigh)
 CNVs = CNVs %>% select(Gene, Phenotype, CC, Patient, Cluster1, Cluster2, Type, PresentOrAbsentHigh)
 colnames(CNVs) = c("VariantLocus", "Phenotype", "CC", "Patient","Cluster1", "Cluster2", "VariantType", "PresentOrAbsentHigh")
@@ -65,6 +75,26 @@ AllVariants_NonGene = AllVariantsDF %>% filter(VariantType!="Gene")
 # MostCommonByGene$FixedGeneNames = sapply(MostCommonByGene$FixedGeneNames, function(x) str_replace(x,"-", "_"))
 # MostCommonByGene$Gene = MostCommonByGene$FixedGeneNames 
 
+
+
+genepresence_phage_plasmid$FixedGeneNames = sapply(genepresence_phage_plasmid$X, function(x) str_replace(x,"\\'", "_"))
+genepresence_phage_plasmid$FixedGeneNames = sapply(genepresence_phage_plasmid$FixedGeneNames, function(x) str_replace(x,"\\(", "_"))
+genepresence_phage_plasmid$FixedGeneNames = sapply(genepresence_phage_plasmid$FixedGeneNames, function(x) str_replace(x,"\\)", "_"))
+genepresence_phage_plasmid$FixedGeneNames = sapply(genepresence_phage_plasmid$FixedGeneNames, function(x) str_replace(x,":", "_"))
+genepresence_phage_plasmid$FixedGeneNames = sapply(genepresence_phage_plasmid$FixedGeneNames, function(x) str_replace(x,"-", "_"))
+
+# Gene presence by phage
+genepresence_phage = genepresence_phage_plasmid %>% select(FixedGeneNames, colnames(genepresence_phage_plasmid)[grepl(colnames(genepresence_phage_plasmid), pattern="Phage")])
+genepresence_phage$NumPhages=rowSums(genepresence_phage[2:ncol(genepresence_phage)])
+Present_In_Phage = genepresence_phage %>% filter(NumPhages>0) %>% select(FixedGeneNames, NumPhages)
+
+# Gene presence by plasmid
+genepresence_plasmids= genepresence_phage_plasmid %>% select(FixedGeneNames, setdiff(colnames(genepresence_phage_plasmid), colnames(genepresence_phage)))
+genepresence_plasmids$X=NULL
+genepresence_plasmids$NumPlasmids = rowSums(genepresence_plasmids[2:(ncol(genepresence_plasmids)-2)])
+Present_In_Plasmids = genepresence_plasmids %>% filter(NumPlasmids>0) %>% select(FixedGeneNames, NumPlasmids)
+
+
 GeneAnnotations$FixedGeneNames = sapply(GeneAnnotations$Gene, function(x) str_replace(x,"\\'", "_"))
 GeneAnnotations$FixedGeneNames = sapply(GeneAnnotations$FixedGeneNames, function(x) str_replace(x,"\\(", "_"))
 GeneAnnotations$FixedGeneNames = sapply(GeneAnnotations$FixedGeneNames, function(x) str_replace(x,"\\)", "_"))
@@ -73,7 +103,6 @@ GeneAnnotations$FixedGeneNames = sapply(GeneAnnotations$FixedGeneNames, function
 
 
 test = AllVariants_SingleGene %>% mutate(Combo = paste(VariantType, PresentAbsentHigh, sep="_"))
-unique(paste(AllVariants_SingleGene$VariantType, AllVariants_SingleGene$PresentOrAbsentHigh, collapse="_"))
 AllVariants_SingleGene$FixedGeneNames = sapply(AllVariants_SingleGene$VariantLocus, function(x) str_replace(x,"\\'", "_"))
 AllVariants_SingleGene$FixedGeneNames = sapply(AllVariants_SingleGene$FixedGeneNames, function(x) str_replace(x,"\\(", "_"))
 AllVariants_SingleGene$FixedGeneNames = sapply(AllVariants_SingleGene$FixedGeneNames, function(x) str_replace(x,"\\)", "_"))
@@ -83,37 +112,44 @@ AllVariants_SingleGene$FixedGeneNames = sapply(AllVariants_SingleGene$FixedGeneN
 
 AllVariants_SingleGene= AllVariants_SingleGene %>% left_join(GeneAnnotations,by="FixedGeneNames")
 MostCommonByAnnotation = data.frame(table(AllVariants_SingleGene %>% select(Annotation, Comparison, Phenotype) %>% unique() %>% select(Annotation, Phenotype)))
+MostCommonByAnnotation %>% arrange(-Freq)
 
-# 6 comparisons in which staphylokinase associated with something annotated as a "Ig-like domain-containing protein"
+# 7 comparisons in which staphylokinase associated with something annotated as a "Ig-like domain-containing protein" or 'transcriptional regulator'
 
 AllVariants_SingleGene$TypePresenceCombo = paste(AllVariants_SingleGene$VariantType, AllVariants_SingleGene$PresentOrAbsentHigh, sep="_")
 
 ######################################
 # Analyses of low-variant comparisons:
-######################################
-
-
-
-AllVariants_SingleGene
-
+#####################################
 
 # For each comparison, count how many total genes are affected
 
 NumberGenesVaried = AllVariants_SingleGene %>% select(VariantLocus, Comparison) %>% unique() %>% group_by(Comparison) %>% summarize(NumGenesVaried = n())
 AllVariants_SingleGene = AllVariants_SingleGene %>% left_join(NumberGenesVaried, by="Comparison")
 
+View(AllVariants_HGTs)
 
-
+AllVariants_HGTs %>% 
 View(AllVariants_SingleGene %>% filter(NumGenesVaried <=10) %>% unique())
 
+LowVariantComparisons = AllVariants_SingleGene %>% filter(NumGenesVaried <=10) %>% left_join(Present_In_Phage, by="FixedGeneNames") %>% left_join(Present_In_Plasmids, by="FixedGeneNames") %>% unique()
+LowVariantComparisons[is.na(LowVariantComparisons)]<- 0 
 
-View(AllVariants_SingleGene %>% filter(NumVariants <= 10) %>% select(Phenotype, Patient, CC, VariantLocus, VariantType, PresentOrAbsentHigh, Annotation, NumVariants))
-(AllVariants_SingleGene %>% filter(NumVariants <= 10) %>% select(Comparison, Phenotype, Patient, CC, VariantLocus, VariantType, PresentOrAbsentHigh, Annotation, NumVariants))
+LowVariantComparisons %>% arrange(Comparison, Comparison_Gene) %>% select(Gene,NumPhages, NumPlasmids )
+
+View(LowVariantComparisons %>% select(Comparison_Gene, NumPhages, NumPlasmids) %>% unique())
 
 
 OrderTypePresence = data.frame(ordertypes=1:6, TypePresenceCombo=c("AA_sub_STOPgained_absent","INDEL_FS_present",
                                                    "INDEL_FS_absent", "INDEL_inFrame_present",
                                                    "INDEL_inFrame_absent", "AA_sub_absent"))
+
+
+View(WithPhagePlasmidInfo %>% select(Comparison_Gene, NumPlasmids, NumPhages))
+WithPhagePlasmidInfo = (AllVariants_SingleGene %>% filter(NumVariants <= 10) %>% left_join(Present_In_Phage, by="FixedGeneNames") %>% left_join(Present_In_Plasmids, by="FixedGeneNames") %>% unique())
+write.csv(WithPhagePlasmidInfo,"~/Documents/DataInputGithub/data/IntraPatient/Fewer10GenesVaried_PhagePlasmid.csv")
+
+
 
 ####################
 # Biofilm barplot
@@ -150,7 +186,7 @@ if(length(MoreThan1_patient_Genes)!=0){
               MeanNS_sequenceVariants = mean(NumSequenceVariants),NumComparisons=length(unique(Comparison)),
               NumPatients = length(unique(Patient)), CCs = paste(unique(CC), sep=";")) %>% 
     unique()
-  write.csv(BiofilmGeneSummary, file="Documents/DataInputGithub/data/IntraPatient/Biofilm_MoreThanOneComparison_Genes.csv")
+  write.csv(BiofilmGeneSummary, file="~/Documents/DataInputGithub/data/IntraPatient/Biofilm_MoreThanOneComparison_Genes.csv")
   
   
 }
@@ -190,8 +226,8 @@ colorsToUse = unique(colorsToUse$Hex)
 
 
 SiderophoreGeneSummary = MoreThan1GeneSid_Deduplicated %>% group_by(VariantLocus) %>%
-  summarize(VariantLocus = VariantLocus,Annotation = Annotation, MeanGenesVaried = mean(NumGenesVaried),NumComparisons=length(unique(Comparison)),
-            NumPatients = length(unique(Patient)), CCs = paste(unique(CC), collapse=";")) %>% arrange(NumComparisons, VariantLocus) %>% 
+  summarize(VariantLocus = VariantLocus,FixedGeneNames = FixedGeneNames,Annotation = Annotation, MeanGenesVaried = mean(NumGenesVaried),NumComparisons=length(unique(Comparison)),
+            NumPatients = length(unique(Patient)), CCs = paste(unique(CC), collapse=";")) %>% arrange(NumComparisons, VariantLocus) %>% left_join(Present_In_Phage, by="FixedGeneNames") %>% left_join(Present_In_Plasmids, by="FixedGeneNames") %>% 
   unique()
 
 
@@ -199,15 +235,64 @@ MoreThan1siderophoreGene = ggplot(MoreThan1GeneSid_Deduplicated, aes(x=VariantLo
 MoreThan1siderophoreGene$data$VariantLocus = factor(MoreThan1siderophoreGene$data$VariantLocus,levels=unique(SiderophoreGeneSummary$VariantLocus))
 
 SiderophoreGeneSummary = data.frame(apply(SiderophoreGeneSummary, 2, rev))
+SiderophoreGeneSummary$NumPhages = if_else(is.na(SiderophoreGeneSummary$NumPhages), 0, 1)
+SiderophoreGeneSummary$NumPlasmids = if_else(is.na(SiderophoreGeneSummary$NumPlasmids), 0, 1)
 
-write.csv(SiderophoreGeneSummary, file="Documents/DataInputGithub/data/IntraPatient/Siderophore_MoreThanOneComparison_Genes.csv")
-ggsave(MoreThan1siderophoreGene, file="Documents/Saureus_Genomics_Paper/Figure4_SiderophoreConvergence.pdf", width=4.2,height=2)
+write.csv(SiderophoreGeneSummary, file="~/Documents/DataInputGithub/data/IntraPatient/Siderophore_MoreThanOneComparison_Genes.csv")
+ggsave(MoreThan1siderophoreGene, file="~/Documents/Saureus_Genomics_Paper/Figure4_SiderophoreConvergence.pdf", width=4.2,height=2)
+
+SiderophoreGeneSummaryExpanded = MoreThan1GeneSid_Deduplicated %>% group_by(VariantLocus) %>%
+  summarize(VariantLocus = VariantLocus,Annotation = Annotation, MeanGenesVaried = mean(NumGenesVaried),NumComparisons=length(unique(Comparison)),
+            NumPatients = length(unique(Patient)), CCs = paste(unique(CC), collapse=";"),Patients = paste(unique(Patient), collapse=";")) %>% arrange(NumComparisons, VariantLocus) %>% 
+  unique()
+
+
+MoreThan1GeneSid_Deduplicated$patient_CC = paste(MoreThan1GeneSid_Deduplicated$Patient, MoreThan1GeneSid_Deduplicated$CC, sep="_")
+SiderophoreGeneSummaryPlot = MoreThan1GeneSid_Deduplicated %>% group_by(VariantLocus) %>% select(patient_CC,Annotation,PresentOrAbsentHigh,VariantLocus, Comparison, CC) %>% unique()
+
+SiderophoreGeneSummaryPlot = SiderophoreGeneSummaryPlot %>% arrange(VariantLocus, CC)
+
+
+SiderophoreSummaryDF = data.frame()
+for(gene in unique(SiderophoreGeneSummaryPlot$VariantLocus)){
+  subDF=  SiderophoreGeneSummaryPlot %>% filter(VariantLocus==gene)
+  subDF$Count = 1:nrow(subDF)
+  SiderophoreSummaryDF = rbind(SiderophoreSummaryDF,subDF )
+}
+SiderophoreSummaryDF$CCLabel = SiderophoreSummaryDF$CC
+
+siderophorecolors = unique((SiderophoreSummaryDF %>% left_join(cc_colors, by="CCLabel") %>% arrange(CC))$hexval)
+
+siderophore_cc_count = ggplot(SiderophoreSummaryDF, aes(x=VariantLocus,y=factor(Count), fill=CC,color=CC)) +
+  geom_star(starshape=13,size=3) + scale_fill_manual(values=siderophorecolors) + scale_color_manual(values=siderophorecolors) +
+  theme_classic() + theme(axis.text.x=element_blank(), axis.title.x=element_blank(), legend.position = "none") + coord_flip()
+siderophore_cc_count$data$VariantLocus = factor(siderophore_cc_count$data$VariantLocus, levels=rev(unique(SiderophoreGeneSummary$VariantLocus)))
+
+
+ArrangedWithCount = cowplot::plot_grid(MoreThan1siderophoreGene, siderophore_cc_count, align="h",axis="l", rel_widths = c(3,2))
+ggsave(ArrangedWithCount, file="~/Documents/Saureus_Genomics_Paper/Figure4_SiderophoreCCs.pdf",height=2, width=6)
+
+
+SidLocus = sapply(SiderophoreSummaryDF$VariantLocus, function(x) str_replace(x, ":", "_"))
+genepresence_phage %>% filter(FixedGeneNames %in% SidLocus) %>% select(FixedGeneNames,NumPhages)
+
+genepresence_plasmids %>% filter(FixedGeneNames %in% SidLocus) %>% select(FixedGeneNames,NumPlasmids)
+
+genepresence_plasmids %>% filter(FixedGeneNames=="group_237")
+# patient 106
+###############
+MoreThan1GeneSid_Deduplicated %>% filter(Patient==106)
+ComparatorGenomes106 = read.csv("~/Documents/DataInputGithub/data/IntraPatient/Distances/Comparisons_patient_106_CC8_Siderophore_1.csv")
+
+
+
 ########################
 # Staphylokinase barplot
 ########################
 Staphylokinase_by_gene = AllVariants_SingleGene %>% filter(Phenotype=="Staphylokinase")
 
 bypatient = table(Staphylokinase_by_gene %>% select(Patient, VariantLocus) %>% unique() %>% select(VariantLocus))
+
 bypatient = names(sort(bypatient[bypatient>2]))
 OccurrencesGeneStaphylokinase = table(Staphylokinase_by_gene %>% select(Comparison, VariantLocus) %>% unique() %>% select(VariantLocus)) 
 OccurrencesGeneStaphylokinase = OccurrencesGeneStaphylokinase[OccurrencesGeneStaphylokinase>2]
@@ -231,11 +316,10 @@ for(gene in unique(MoreThan1GeneSak_SequenceLevel$Comparison_Gene)){
 AnnotationBarColorsSak = MoreThan1GeneSak_Deduplicated %>% left_join(colorScheme, by="TypePresenceCombo") %>% arrange(TypePresenceCombo)
 colorsToUse = unique(AnnotationBarColorsSak$Hex)
 
-
-
 KinaseGeneSummary = MoreThan1GeneStaphylokinase %>% group_by(VariantLocus) %>%
-  summarize(VariantLocus = VariantLocus, Annotation = Annotation, MeanGenesVaried = mean(NumGenesVaried),NumComparisons=length(unique(Comparison)),
-            NumPatients = length(unique(Patient)), CCs = paste(unique(CC), collapse=";")) %>% arrange(NumComparisons, VariantLocus) %>% unique()
+  summarize(VariantLocus = VariantLocus, FixedGeneNames = FixedGeneNames, Annotation = Annotation, MeanGenesVaried = mean(NumGenesVaried),NumComparisons=length(unique(Comparison)),
+            NumPatients = length(unique(Patient)), CCs = paste(unique(CC), collapse=";")) %>% arrange(NumComparisons, VariantLocus) %>%left_join(Present_In_Phage, by="FixedGeneNames") %>% 
+  left_join(Present_In_Plasmids, by="FixedGeneNames") %>% unique()
 
 
 MoreThan1SakGenePlot = ggplot(MoreThan1GeneSak_Deduplicated, aes(x=VariantLocus, fill=TypePresenceCombo)) + geom_bar() + scale_fill_manual(values=colorsToUse) + coord_flip() + theme_classic()
@@ -243,8 +327,52 @@ MoreThan1SakGenePlot$data$VariantLocus = factor(MoreThan1SakGenePlot$data$Varian
 
 KinaseGeneSummary =data.frame(apply((KinaseGeneSummary), 2, rev))
 
-write.csv(KinaseGeneSummary, file="Documents/DataInputGithub/data/IntraPatient/Staphylokinase_MoreThanTwoPatient_Genes.csv")
-ggsave(MoreThan1SakGenePlot, file="Documents/Saureus_Genomics_Paper/Figure4_StaphylokinaseConvergence.pdf", width=5)
+write.csv(KinaseGeneSummary, file="~/Documents/DataInputGithub/data/IntraPatient/Staphylokinase_MoreThanTwoPatient_Genes.csv")
+ggsave(MoreThan1SakGenePlot, file="~/Documents/Saureus_Genomics_Paper/Figure4_StaphylokinaseConvergence.pdf", width=5)
+
+unique(MoreThan1SakGenePlot$data$Patient)
+
+
+KinaseGeneSummaryExpanded = MoreThan1GeneStaphylokinase %>% group_by(VariantLocus) %>%
+  summarize(VariantLocus = VariantLocus, Annotation = Annotation, MeanGenesVaried = mean(NumGenesVaried),NumComparisons=length(unique(Comparison)),
+            NumPatients = length(unique(Patient)), CCs = paste(unique(CC), collapse=";"), Patients = paste(unique(Patient), collapse=";")) %>% arrange(NumComparisons, VariantLocus) %>% unique()
+KinaseGeneSummaryExpanded =data.frame(apply((KinaseGeneSummaryExpanded), 2, rev))
+
+
+
+
+MoreThan1GeneSak_Deduplicated$patient_CC = paste(MoreThan1GeneSak_Deduplicated$Patient, MoreThan1GeneSak_Deduplicated$CC, sep="_")
+StaphylokinaseGeneSummaryPlot = MoreThan1GeneSak_Deduplicated %>% group_by(VariantLocus) %>% select(patient_CC,Annotation,PresentOrAbsentHigh,VariantLocus, Comparison, CC) %>% unique()
+
+StaphylokinaseGeneSummaryPlot = StaphylokinaseGeneSummaryPlot %>% arrange(VariantLocus, CC)
+
+
+StaphylokinaseSummaryDF = data.frame()
+for(gene in unique(StaphylokinaseGeneSummaryPlot$VariantLocus)){
+  subDF=  StaphylokinaseGeneSummaryPlot %>% filter(VariantLocus==gene)
+  subDF$Count = 1:nrow(subDF)
+  StaphylokinaseSummaryDF = rbind(StaphylokinaseSummaryDF,subDF )
+}
+StaphylokinaseSummaryDF$CCLabel = StaphylokinaseSummaryDF$CC
+
+kinasecolors = unique((StaphylokinaseSummaryDF %>% left_join(cc_colors, by="CCLabel") %>% arrange(CC))$hexval)
+
+staphylokinase_cc_count = ggplot(StaphylokinaseSummaryDF, aes(x=VariantLocus,y=factor(Count), fill=CC,color=CC)) +
+  geom_star(starshape=13,size=3) + scale_fill_manual(values=kinasecolors) + scale_color_manual(values=kinasecolors) +
+  theme_classic() + theme(axis.text.x=element_blank(), axis.title.x=element_blank(), legend.position = "none") + coord_flip()
+staphylokinase_cc_count$data$VariantLocus = factor(staphylokinase_cc_count$data$VariantLocus, levels=rev(unique(KinaseGeneSummary$VariantLocus)))
+
+
+ArrangedWithCountSak = cowplot::plot_grid(MoreThan1SakGenePlot, staphylokinase_cc_count, align="h",axis="l", rel_widths = c(3,2))
+ggsave(ArrangedWithCountSak, file="~/Documents/Saureus_Genomics_Paper/Figure4_StaphylokinaseCCs.pdf",height=5, width=6)
+
+
+
+SakVarLocus=sapply(StaphylokinaseSummaryDF$VariantLocus, function(x) str_replace(x,":","_"))
+genepresence_phage %>% filter(FixedGeneNames %in% SakVarLocus) %>% select(FixedGeneNames,NumPhages)
+genepresence_plasmids %>% filter(FixedGeneNames %in% SakVarLocus) %>% select(FixedGeneNames,NumPlasmids)
+
+
 ########################
 # Staphyloxanthin barplot
 ########################
@@ -269,21 +397,53 @@ AnnotationBarColorSTX = MoreThan1GeneSTX %>% left_join(colorScheme,by="TypePrese
 colorsSTX = unique(AnnotationBarColorSTX$Hex)
 
 
-
-
 STXGeneSummary = MoreThan1GeneSTX %>% group_by(VariantLocus) %>%
-  summarize(VariantLocus = VariantLocus, Annotation = Annotation, MeanGenesVaried = mean(NumGenesVaried),NumComparisons=length(unique(Comparison)),
-            NumPatients = length(unique(Patient)), CCs = paste(unique(CC), collapse=";")) %>% arrange(NumComparisons, VariantLocus) %>% unique()
+  summarize(FixedGeneNames=FixedGeneNames,VariantLocus = VariantLocus, Annotation = Annotation, MeanGenesVaried = mean(NumGenesVaried),NumComparisons=length(unique(Comparison)),
+            NumPatients = length(unique(Patient)), CCs = paste(unique(CC), collapse=";")) %>% arrange(NumComparisons, VariantLocus) %>% left_join(Present_In_Phage, by="FixedGeneNames") %>% 
+  left_join(Present_In_Plasmids, by="FixedGeneNames") %>% unique() 
 
 
 MoreThan1STXGenePlot = ggplot(MoreThan1GeneSTX, aes(x=VariantLocus, fill=TypePresenceCombo)) + geom_bar() + scale_fill_manual(values=colorsSTX) + coord_flip() + theme_classic() + ylim(0,4)
 MoreThan1STXGenePlot$data$VariantLocus = factor(MoreThan1STXGenePlot$data$VariantLocus,levels=(unique(STXGeneSummary$VariantLocus)))
 
+STXGeneSummary = data.frame(apply(STXGeneSummary, 2, rev))
+write.csv(STXGeneSummary, file="~/Documents/DataInputGithub/data/IntraPatient/Staphyloxanthin_MoreThanOneComparison_Genes.csv")
 
-write.csv(STXGeneSummary, file="Documents/DataInputGithub/data/IntraPatient/Staphyloxanthin_MoreThanOneComparison_Genes.csv")
-
-ggsave(MoreThan1STXGenePlot, file="Documents/Saureus_Genomics_Paper/Figure4_STXConvergence.pdf")
+ggsave(MoreThan1STXGenePlot, file="~/Documents/Saureus_Genomics_Paper/Figure4_STXConvergence.pdf")
 # Biofilm 201 clusters 1:3
+
+
+
+
+MoreThan1GeneSTX_Deduplicated$patient_CC = paste(MoreThan1GeneSTX_Deduplicated$Patient, MoreThan1GeneSTX_Deduplicated$CC, sep="_")
+STXGeneSummaryPlot = MoreThan1GeneSTX_Deduplicated %>% group_by(VariantLocus) %>% select(patient_CC,Annotation,PresentOrAbsentHigh,VariantLocus, Comparison, CC) %>% unique()
+
+STXGeneSummaryPlot = STXGeneSummaryPlot %>% arrange(VariantLocus, CC)
+
+
+STX_SummaryDF = data.frame()
+for(gene in unique(STXGeneSummaryPlot$VariantLocus)){
+  subDF=  STXGeneSummaryPlot %>% filter(VariantLocus==gene)
+  subDF$Count = 1:nrow(subDF)
+  STX_SummaryDF = rbind(STX_SummaryDF,subDF )
+}
+STX_SummaryDF$CCLabel = STX_SummaryDF$CC
+
+STXcolors = unique((STX_SummaryDF %>% left_join(cc_colors, by="CCLabel") %>% arrange(CC))$hexval)
+
+STX_cc_count = ggplot(STX_SummaryDF, aes(x=VariantLocus,y=factor(Count), fill=CC,color=CC)) +
+  geom_star(starshape=13,size=3) + scale_fill_manual(values=STXcolors) + scale_color_manual(values=STXcolors) +
+  theme_classic() + theme(axis.text.x=element_blank(), axis.title.x=element_blank(), legend.position = "none") + coord_flip()
+STX_cc_count$data$VariantLocus = factor(STX_cc_count$data$VariantLocus, levels=rev(unique(STXGeneSummary$VariantLocus)))
+
+
+ArrangedWithCounSTX = cowplot::plot_grid(MoreThan1STXGenePlot, STX_cc_count, align="h",axis="l", rel_widths = c(3,2))
+ggsave(ArrangedWithCounSTX, file="~/Documents/Saureus_Genomics_Paper/Figure4_StxCCs.pdf",height=2.5, width=5.2)
+
+STX_VariantLocus = sapply(STX_SummaryDF$VariantLocus, function(x) str_replace(x,":", "_"))
+genepresence_phage %>% filter(FixedGeneNames %in% STX_VariantLocus) %>% select(FixedGeneNames,NumPhages)
+genepresence_plasmids %>% filter(FixedGeneNames %in% STX_VariantLocus) %>% select(FixedGeneNames,NumPlasmids)
+
 
 # Some examples to discuss
 ############################
@@ -330,4 +490,3 @@ GeneAnnotations %>% filter(Gene %in%In_AC33$X )
 phagepresence_isolates %>% filter(X %in% genomes162)
 
 GeneAnnotations162 %>% filter(GeneAnnotations=="sak")
-

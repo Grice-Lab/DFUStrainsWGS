@@ -17,8 +17,9 @@ core_gene_lists="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/
 GenomeFilePathLPC ="/home/acampbe/DFU/data/WGS_2020/FinalSetStaphIsolates/"
 GenomeFilePathSuffix="_Final.fasta"
 nucDiffLPCoutput="/home/acampbe/DFU/data/WGS_2020/IntraPatientRoary/NucDiffOutput/"
-phages=read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/CDHit/PhagePresenceAbsence.csv")
-plasmids=read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Plasmids/Filtered_Plasmid_Presence_Absence.csv")
+phages=read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/PresenceAbsenceHClustPhages.csv")
+phages$X=NULL
+plasmids=read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Plasmids/Plasmid_Presence_Absence_UTD.csv")
 genes = read.csv("/Users/amycampbell/Documents/DataInputGithub/data/RoaryResultsPGAP2022/gene_presence_absence_new_WithPanGenomeIDs.csv")
 outputDFfolder="/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/IntraPatientGeneticComparisons/"
 plasmids$X.1 = NULL
@@ -40,9 +41,9 @@ for(inputfilename in filenamelist){
   patient=str_split(inputfilename, "_")[[1]][3]
   CC = str_split(inputfilename, "_")[[1]][4]
   Phenotype = str_split(inputfilename, "_")[[1]][5]
-  comparisonOutputDF = data.frame()
   for(comboIndex in 1:ncol(AllCombos)){
     linelistShell=c("#!bin/bash", "# Making nucdiff scripts for intrapatient comparisons", "mamba ~/mambaforge/bin/activate NucDiffEnv", "")
+    comparisonOutputDF = data.frame()
     
     clusters=AllCombos[,comboIndex]
     shellscriptfile = paste0(bashfilefolder, paste(c(patient, CC, clusters,Phenotype,"NucDiff.sh" ), collapse="_"))
@@ -63,8 +64,8 @@ for(inputfilename in filenamelist){
     
     # Any phages differentially present?
     ####################################
-    phages_low = phages %>% filter(X %in% LowclusterGenomes) %>% select(-X)
-    phages_high = phages %>% filter(X %in% HighclusterGenomes) %>% select(-X)
+    phages_low = phages %>% filter(Genome %in% LowclusterGenomes) %>% select(-Genome)
+    phages_high = phages %>% filter(Genome %in% HighclusterGenomes) %>% select(-Genome)
     
     PhageDFHighLow = data.frame(Name=colnames(phages_low),presentlow=colSums(phages_low), presenthigh=colSums(phages_high) )
     Differential = PhageDFHighLow %>% filter((presentlow==0 & presenthigh==nrow(phages_high)) | (presentlow==nrow(phages_low) & presenthigh==0) )  
