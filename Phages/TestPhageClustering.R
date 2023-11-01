@@ -39,7 +39,11 @@ hclust(mashmat)
 savephageinst = mashmat$phageinstance1
 mashmat$phageinstance1 = NULL
 hclustresult = hclust(as.dist(mashmat), method="complete")
+hclustresult_single = hclust(as.dist(mashmat), method="single")
+
 clusters = (cutree(hclustresult,h=0.06))
+clusters_single = (cutree(hclustresult_single,h=0.05))
+clusters_pt05 =(cutree(hclustresult,h=0.05))
 clusterassign = data.frame(clusters)
 orderplot=names(sort(clusters))
 
