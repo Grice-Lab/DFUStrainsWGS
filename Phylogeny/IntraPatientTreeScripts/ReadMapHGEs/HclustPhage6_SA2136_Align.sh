@@ -26,7 +26,7 @@ mv *.bt2 $bowtiepath
 
 
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2136trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2136trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2136trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext
@@ -41,7 +41,7 @@ rm $outputpath$noext$samext
 rm $outputpath$noext$bamext
 rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2178trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2178trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2178trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext
@@ -56,7 +56,7 @@ rm $outputpath$noext$samext
 rm $outputpath$noext$bamext
 rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2149trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2149trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2149trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext
@@ -71,7 +71,7 @@ rm $outputpath$noext$samext
 rm $outputpath$noext$bamext
 rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2213trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2213trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2213trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext
@@ -86,7 +86,7 @@ rm $outputpath$noext$samext
 rm $outputpath$noext$bamext
 rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2179trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2179trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2179trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext
@@ -101,7 +101,7 @@ rm $outputpath$noext$samext
 rm $outputpath$noext$bamext
 rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2150trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2150trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2150trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext
@@ -116,7 +116,7 @@ rm $outputpath$noext$samext
 rm $outputpath$noext$bamext
 rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2148trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2148trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2148trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext
@@ -131,7 +131,7 @@ rm $outputpath$noext$samext
 rm $outputpath$noext$bamext
 rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2137trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2137trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2137trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext
@@ -146,7 +146,7 @@ rm $outputpath$noext$samext
 rm $outputpath$noext$bamext
 rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2105trimmedgalore_val_1.fastq
-readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2105trimmedgalore_val_1.fastq
+readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2105trimmedgalore_val_2.fastq
 basenamefile=$(basename $readspath1)
 noext=${basenamefile/$trimmed1ext/$blank}
 bowtie2 -x $IndexName -1 $readspath1 -2 $readspath2 -S $outputpath$noext$samext

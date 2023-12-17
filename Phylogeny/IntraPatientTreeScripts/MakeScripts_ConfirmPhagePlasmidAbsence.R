@@ -112,7 +112,7 @@ for(item in names(phageDict)){
     for(genome in allgenomes){
       genomeNum=str_remove(genome, "SA")
       readspath1=paste0("/project/grice/storage/DFUShortReads2022/trimmedreads/DORN", genomeNum, "trimmedgalore_val_1.fastq")
-      readspath2=paste0("/project/grice/storage/DFUShortReads2022/trimmedreads/DORN", genomeNum, "trimmedgalore_val_1.fastq")
+      readspath2=paste0("/project/grice/storage/DFUShortReads2022/trimmedreads/DORN", genomeNum, "trimmedgalore_val_2.fastq")
       
       linelistScript=append(linelistScript, paste0("readspath1=",readspath1))
       linelistScript=append(linelistScript, paste0("readspath2=",readspath2))
@@ -178,7 +178,7 @@ for(item in names(plasDict)){
     for(genome in allgenomes){
       genomeNum=str_remove(genome, "SA")
       readspath1=paste0("/project/grice/storage/DFUShortReads2022/trimmedreads/DORN", genomeNum, "trimmedgalore_val_1.fastq")
-      readspath2=paste0("/project/grice/storage/DFUShortReads2022/trimmedreads/DORN", genomeNum, "trimmedgalore_val_1.fastq")
+      readspath2=paste0("/project/grice/storage/DFUShortReads2022/trimmedreads/DORN", genomeNum, "trimmedgalore_val_2.fastq")
       
       linelistScript=append(linelistScript, paste0("readspath1=",readspath1))
       linelistScript=append(linelistScript, paste0("readspath2=",readspath2))
@@ -200,4 +200,5 @@ for(item in names(plasDict)){
   }
 }
 
-writeLines(lengthlist,lengthoutputs )
+writeLines(lengthlist,lengthoutput )
+
