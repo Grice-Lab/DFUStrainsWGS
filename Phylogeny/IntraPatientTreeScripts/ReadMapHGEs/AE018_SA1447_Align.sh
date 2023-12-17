@@ -9,7 +9,7 @@ export BOWTIE2_INDEXES=$bowtiepath
 
 
 outputcounts=AE018_SA1447_Coverage.txt
-touch outputcounts
+touch $soutputcounts
 trimmed1ext="trimmedgalore_val_1.fastq"
 
 samext=".sam"
@@ -37,6 +37,9 @@ totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$
 echo $noext	$totalBasesCovered10x >> $outputcounts
 
 
+rm $outputpath$noext$samext
+rm $outputpath$noext$bamext
+rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN1455trimmedgalore_val_1.fastq
 readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN1455trimmedgalore_val_1.fastq
 basenamefile=$(basename $readspath1)
@@ -49,3 +52,6 @@ totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$
 echo $noext	$totalBasesCovered10x >> $outputcounts
 
 
+rm $outputpath$noext$samext
+rm $outputpath$noext$bamext
+rm $outputpath$noext$bamext.bai

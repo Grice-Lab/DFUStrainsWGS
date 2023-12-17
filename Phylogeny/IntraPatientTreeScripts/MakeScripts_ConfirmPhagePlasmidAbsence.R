@@ -14,6 +14,7 @@ PhylogeneticClusters = read.csv("/Users/amycampbell/Documents/DataInputGithub/da
 outputscriptprefix="/Users/amycampbell/Desktop/GriceLabGit/DFUStrainsWGS/Phylogeny/IntraPatientTreeScripts/ReadMapHGEs/"
 outputreferenceprefix = "/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/ReferencePhagesPlasmids/"
 length(unique(PhylogeneticClusters$Cluster))
+lengthoutput = "/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Lengths_HGEs.txt"
 
 Phage_Presence_Absence =  read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Phages/PresenceAbsenceHClustPhages.csv")
 Plasmid_Presence_Absence =  read.csv("/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Plasmids/Plasmid_Presence_Absence_UTD.csv")
@@ -23,8 +24,7 @@ Plasmid_Presence_Absence$X = sapply(Plasmid_Presence_Absence$X , function(x) str
 
 phageDict = c()
 plasDict = c()
-PresAbsDF_phage = data.frame()
-PresAbsDF_plasmids = data.frame()
+PresAbsDF= data.frame()
 
 for (clust in unique(PhylogeneticClusters$Cluster)){
   subset = PhylogeneticClusters %>% filter(Cluster==clust)
@@ -71,7 +71,7 @@ for (clust in unique(PhylogeneticClusters$Cluster)){
   }
 }
 
-
+lengthlist=c("sequence,length")
 for(item in names(phageDict)){
   fpath = (paste0(phagefastapath, item, "_all.fasta"))
   fasta= read.fasta(file = fpath)
@@ -82,7 +82,8 @@ for(item in names(phageDict)){
     # first genome in the list is the 'reference sequence' 
     referenceGenome = str_split(subitem, "_")[[1]][1]
     sequenceout = toupper(fasta[[referenceGenome]])
-
+    lengthlist = append(lengthlist, paste0(paste(item,referenceGenome, sep="_"), ",", nchar(sequenceout)))
+    
     # First, write out the reference sequence
     outputfname=paste0(paste(item,referenceGenome, sep="_"), ".fasta")
     write.fasta(sequences = sequenceout, names=paste(item,referenceGenome, sep="_"), file.out = paste0(outputreferenceprefix,outputfname))
@@ -95,7 +96,7 @@ for(item in names(phageDict)){
                        "export BOWTIE2_INDEXES=$bowtiepath\n",
                        "\n",
                        paste0("outputcounts=",paste(item,referenceGenome, sep="_"),"_Coverage.txt"),
-                       "touch outputcounts",
+                       "touch $outputcounts",
                        "trimmed1ext=\"trimmedgalore_val_1.fastq\"\n",
                        "samext=\".sam\"\n",
                        "bamext=\".bam\"\n",
@@ -121,7 +122,10 @@ for(item in names(phageDict)){
                                            "samtools index $outputpath$noext$bamext\n",
                                            "totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$4>x' | wc -l)",
                                            "echo $noext\t$totalBasesCovered10x >> $outputcounts",
-                                           "\n"))
+                                           "\n",
+                                           "rm $outputpath$noext$samext",
+                                           "rm $outputpath$noext$bamext",
+                                           paste0("rm $outputpath$noext$bamext", ".bai")))
       
       
     }
@@ -137,7 +141,6 @@ for(item in names(phageDict)){
 for(item in names(plasDict)){
   
   fpath = (paste0(plasmidfastapath, item, "_sequences.fasta"))
-  fpath="/Users/amycampbell/Documents/DataInputGithub/data/IntraPatient/Plasmids/RepMultifastas/AA005_sequences.fasta"
   fasta= read.fasta(file = fpath)
   
   names(fasta) = sapply( names(fasta),function(x) str_split(x,"_")[[1]][1])
@@ -146,7 +149,7 @@ for(item in names(plasDict)){
     # first genome in the list is the 'reference sequence' 
     referenceGenome = str_split(subitem, "_")[[1]][1]
     sequenceout = toupper(fasta[[referenceGenome]])
-    
+    lengthlist = append(lengthlist, paste0(paste(item,referenceGenome, sep="_"), ",", nchar(sequenceout)))
     # First, write out the reference sequence
     outputfname=paste0(paste(item,referenceGenome, sep="_"), ".fasta")
     write.fasta(sequences = sequenceout, names=paste(item,referenceGenome, sep="_"), file.out = paste0(outputreferenceprefix,outputfname))
@@ -159,7 +162,7 @@ for(item in names(plasDict)){
                        "export BOWTIE2_INDEXES=$bowtiepath\n",
                        "\n",
                        paste0("outputcounts=",paste(item,referenceGenome, sep="_"),"_Coverage.txt"),
-                       "touch outputcounts",
+                       "touch $soutputcounts",
                        "trimmed1ext=\"trimmedgalore_val_1.fastq\"\n",
                        "samext=\".sam\"\n",
                        "bamext=\".bam\"\n",
@@ -185,7 +188,9 @@ for(item in names(plasDict)){
                                            "samtools index $outputpath$noext$bamext\n",
                                            "totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$4>x' | wc -l)",
                                            "echo $noext\t$totalBasesCovered10x >> $outputcounts",
-                                           "\n"))
+                                           "\n","rm $outputpath$noext$samext",
+                                           "rm $outputpath$noext$bamext",
+                                           paste0("rm $outputpath$noext$bamext", ".bai")))
       
       
     }
@@ -195,3 +200,4 @@ for(item in names(plasDict)){
   }
 }
 
+writeLines(lengthlist,lengthoutputs )

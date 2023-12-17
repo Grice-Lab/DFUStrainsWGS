@@ -9,7 +9,7 @@ export BOWTIE2_INDEXES=$bowtiepath
 
 
 outputcounts=AH207_SA1946_Coverage.txt
-touch outputcounts
+touch $soutputcounts
 trimmed1ext="trimmedgalore_val_1.fastq"
 
 samext=".sam"
@@ -37,6 +37,9 @@ totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$
 echo $noext	$totalBasesCovered10x >> $outputcounts
 
 
+rm $outputpath$noext$samext
+rm $outputpath$noext$bamext
+rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2221trimmedgalore_val_1.fastq
 readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2221trimmedgalore_val_1.fastq
 basenamefile=$(basename $readspath1)
@@ -49,6 +52,9 @@ totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$
 echo $noext	$totalBasesCovered10x >> $outputcounts
 
 
+rm $outputpath$noext$samext
+rm $outputpath$noext$bamext
+rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2130trimmedgalore_val_1.fastq
 readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2130trimmedgalore_val_1.fastq
 basenamefile=$(basename $readspath1)
@@ -61,6 +67,9 @@ totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$
 echo $noext	$totalBasesCovered10x >> $outputcounts
 
 
+rm $outputpath$noext$samext
+rm $outputpath$noext$bamext
+rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2093trimmedgalore_val_1.fastq
 readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2093trimmedgalore_val_1.fastq
 basenamefile=$(basename $readspath1)
@@ -73,6 +82,9 @@ totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$
 echo $noext	$totalBasesCovered10x >> $outputcounts
 
 
+rm $outputpath$noext$samext
+rm $outputpath$noext$bamext
+rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2058trimmedgalore_val_1.fastq
 readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN2058trimmedgalore_val_1.fastq
 basenamefile=$(basename $readspath1)
@@ -85,6 +97,9 @@ totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$
 echo $noext	$totalBasesCovered10x >> $outputcounts
 
 
+rm $outputpath$noext$samext
+rm $outputpath$noext$bamext
+rm $outputpath$noext$bamext.bai
 readspath1=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN1961trimmedgalore_val_1.fastq
 readspath2=/project/grice/storage/DFUShortReads2022/trimmedreads/DORN1961trimmedgalore_val_1.fastq
 basenamefile=$(basename $readspath1)
@@ -97,3 +112,6 @@ totalBasesCovered10x=$(samtools mpileup $outputpath$noext$bamext | awk -v X=9 '$
 echo $noext	$totalBasesCovered10x >> $outputcounts
 
 
+rm $outputpath$noext$samext
+rm $outputpath$noext$bamext
+rm $outputpath$noext$bamext.bai
